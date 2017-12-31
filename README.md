@@ -1,7 +1,7 @@
 Alloy
 =====
-Copyright (c) 2017-2018 The Alloy Project.   
-Portions Copyright (c) 2011-2016 The Cryptonote developers.
+Copyright (c) 2017-2018 The Alloy Developers.   
+Portions Copyright (c) 2011-2016 The Cryptonote Developers.
 
 Introduction
 ============
