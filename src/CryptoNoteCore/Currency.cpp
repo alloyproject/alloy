@@ -110,7 +110,10 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
     return false;
   }
 
-  uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize) * parameters::CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER;
+  uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
+
+  penalizedBaseReward *= parameters::CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER;
+  fee *= parameters::CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER;
 
   emissionChange = penalizedBaseReward;
   reward = penalizedBaseReward + fee;
@@ -122,6 +125,7 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
   assert(height <= std::numeric_limits<uint64_t>::max() / m_maxBlockSizeGrowthSpeedNumerator);
   size_t maxSize = static_cast<size_t>(m_maxBlockSizeInitial +
     (height * m_maxBlockSizeGrowthSpeedNumerator) / m_maxBlockSizeGrowthSpeedDenominator);
+
   assert(maxSize >= m_maxBlockSizeInitial);
   return maxSize;
 }

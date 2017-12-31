@@ -5,7 +5,6 @@
 #pragma once
 
 #include <cstdint>
-#include <math.h>
 #include <initializer_list>
 
 namespace CryptoNote {
@@ -20,14 +19,14 @@ const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
 
-const uint64_t MONEY_SUPPLY                                  = 84000000;
+const uint64_t MONEY_SUPPLY                                  = UINT64_C(84000000);
 const unsigned EMISSION_SPEED_FACTOR                         = 20;
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 30000; // size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 12;
-const double   CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER         = pow(10, CRYPTONOTE_DISPLAY_DECIMAL_POINT); // for block reward calculation based on a static supply...
+const size_t   CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER         = 1000000000000; // pow(10, CRYPTONOTE_DISPLAY_DECIMAL_POINT)
 const uint64_t MINIMUM_FEE                                   = 100000;
 const uint64_t DEFAULT_DUST_THRESHOLD                        = MINIMUM_FEE;
 const uint64_t DIFFICULTY_TARGET                             = 180; // seconds
