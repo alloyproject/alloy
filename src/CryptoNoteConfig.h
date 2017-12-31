@@ -89,6 +89,8 @@ const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000; //
 const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 seconds
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "8f80f9a5a434a9f1510d13336228debfee9c918ce505efe225d8c94d045fa115";
 
+const static boost::uuids::uuid CRYPTONOTE_NETWORK           = { { 0x01, 0x07, 0x03, 0x9f, 0x4b, 0x08, 0x01, 0xFF, 0x24, 0x4a, 0x06, 0x7b, 0x5a, 0x03, 0x01, 0xFE } };
+
 const std::initializer_list<const char*> SEED_NODES = {
 };
 

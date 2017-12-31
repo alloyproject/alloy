@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "P2pNodeConfig.h"
-#include "P2pNetworks.h"
 
 #include <CryptoNoteConfig.h>
 
