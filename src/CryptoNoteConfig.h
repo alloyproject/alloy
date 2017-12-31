@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <math.h>
 #include <initializer_list>
 
 namespace CryptoNote {
@@ -26,7 +27,7 @@ const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 30000; // size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 12;
-const uint64_t CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER         = 10 ** CRYPTONOTE_DISPLAY_DECIMAL_POINT; // for block reward calculation based on a static supply...
+const size_t   CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER         = pow(10, CRYPTONOTE_DISPLAY_DECIMAL_POINT); // for block reward calculation based on a static supply...
 const uint64_t MINIMUM_FEE                                   = 100000;
 const uint64_t DEFAULT_DUST_THRESHOLD                        = MINIMUM_FEE;
 const uint64_t DIFFICULTY_TARGET                             = 180; // seconds
