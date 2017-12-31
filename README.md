@@ -23,6 +23,10 @@ As with many development projects, the repository on Github is considered to be 
 
 **Anyone is welcome to contribute to Alloy's codebase!** If you have a fix or code change, feel free to submit it as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
 
+Building
+========
+[Instructions for building the Alloy core](https://github.com/alloy-project/alloy/wiki/Building)
+
 License
 =======
 Alloy is licensed under the "MIT License" for more info, refer to the [License](LICENSE) file.
