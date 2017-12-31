@@ -102,7 +102,7 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
   assert(alreadyGeneratedCoins <= m_moneySupply);
   assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
 
-  uint64_t baseReward = ((m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor) * parameters::CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER;
+  uint64_t baseReward = ((m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor);
 
   medianSize = std::max(medianSize, m_blockGrantedFullRewardZone);
   if (currentBlockSize > UINT64_C(2) * medianSize) {
@@ -110,7 +110,7 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
     return false;
   }
 
-  uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
+  uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize) * parameters::CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER;
 
   emissionChange = penalizedBaseReward;
   reward = penalizedBaseReward + fee;
