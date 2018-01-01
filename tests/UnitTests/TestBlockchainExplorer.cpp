@@ -662,7 +662,7 @@ TEST_F(BlockchainExplorerTests, getPoolStateNotInited) {
 }
 
 TEST_F(BlockchainExplorerTests, getRewardBlocksWindow) {
-  ASSERT_EQ(blockchainExplorer.getRewardBlocksWindow(), parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW);
+  ASSERT_EQ(blockchainExplorer.getRewardBlocksWindow(), CRYPTONOTE_REWARD_BLOCKS_WINDOW);
 }
 
 TEST_F(BlockchainExplorerTests, getRewardBlocksWindowNotInited) {
@@ -671,8 +671,8 @@ TEST_F(BlockchainExplorerTests, getRewardBlocksWindowNotInited) {
 }
 
 TEST_F(BlockchainExplorerTests, getFullRewardMaxBlockSize) {
-  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(1), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
-  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(2), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
+  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(1), CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
+  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(2), CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
 }
 
 TEST_F(BlockchainExplorerTests, getFullRewardMaxBlockSizeNotInited) {

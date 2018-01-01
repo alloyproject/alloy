@@ -11,7 +11,7 @@ using namespace Crypto;
 using namespace Common;
 
 TransactionBuilder::TransactionBuilder(const CryptoNote::Currency& currency, uint64_t unlockTime)
-  : m_currency(currency), m_version(CryptoNote::CURRENT_TRANSACTION_VERSION), m_unlockTime(unlockTime), m_txKey(generateKeyPair()) {}
+  : m_currency(currency), m_version(CURRENT_TRANSACTION_VERSION), m_unlockTime(unlockTime), m_txKey(generateKeyPair()) {}
 
 TransactionBuilder& TransactionBuilder::newTxKeys() {
   m_txKey = generateKeyPair();
@@ -106,7 +106,7 @@ void TransactionBuilder::fillInputs(Transaction& tx, std::vector<CryptoNote::Key
 
 void TransactionBuilder::fillOutputs(Transaction& tx) const {
   size_t output_index = 0;
-  
+
   for(const auto& dst_entr : m_destinations) {
     Crypto::KeyDerivation derivation;
     Crypto::PublicKey out_eph_public_key;
@@ -122,7 +122,7 @@ void TransactionBuilder::fillOutputs(Transaction& tx) const {
     output_index++;
   }
 
-  for (const auto& mdst : m_msigDestinations) {   
+  for (const auto& mdst : m_msigDestinations) {
     TransactionOutput out;
     MultisignatureOutput target;
 
@@ -144,7 +144,7 @@ void TransactionBuilder::fillOutputs(Transaction& tx) const {
 
 
 void TransactionBuilder::signSources(const Crypto::Hash& prefixHash, const std::vector<CryptoNote::KeyPair>& contexts, Transaction& tx) const {
-  
+
   tx.signatures.clear();
 
   size_t i = 0;

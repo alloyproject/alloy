@@ -12,9 +12,9 @@
 #include "RPCTestNode.h"
 
 #ifdef _WIN32
-const std::string daemonExec = std::string(CryptoNote::CRYPTONOTE_NAME) + "d.exe";
+const std::string daemonExec = std::string(CRYPTONOTE_NAME) + "d.exe";
 #else
-const std::string daemonExec = std::string(CryptoNote::CRYPTONOTE_NAME) + "d";
+const std::string daemonExec = std::string(CRYPTONOTE_NAME) + "d";
 #endif
 
 namespace {
@@ -64,7 +64,7 @@ void copyBlockchainFiles(bool testnet, const std::string& from, const std::strin
       boost::filesystem::path filePath = std::string(testnet ? "testnet_" : "") + item.first;
       boost::filesystem::copy(fromPath / filePath, toPath / filePath);
     } catch (...) {
-      if (item.second) { 
+      if (item.second) {
         // if file is required, the rethrow error
         throw;
       }
@@ -79,9 +79,9 @@ namespace Tests {
 
 
 TestNetworkBuilder::TestNetworkBuilder(size_t nodeCount, Topology topology, uint16_t rpcBasePort, uint16_t p2pBasePort) :
-  nodeCount(nodeCount), 
-  topology(topology), 
-  rpcBasePort(rpcBasePort), 
+  nodeCount(nodeCount),
+  topology(topology),
+  rpcBasePort(rpcBasePort),
   p2pBasePort(p2pBasePort),
   baseDataDir("."),
   testnet(true)
@@ -125,7 +125,7 @@ TestNodeConfiguration TestNetworkBuilder::buildNodeConfiguration(size_t index) {
 
   cfg.daemonPath = daemonExec; // default
   cfg.testnet = testnet;
-  cfg.logFile = std::string("test_") + CryptoNote::CRYPTONOTE_NAME + "d" + std::to_string(index) + ".log";
+  cfg.logFile = std::string("test_") + CRYPTONOTE_NAME + "d" + std::to_string(index) + ".log";
 
   uint16_t rpcPort = static_cast<uint16_t>(rpcBasePort + index);
   uint16_t p2pPort = static_cast<uint16_t>(p2pBasePort + index);
@@ -159,7 +159,7 @@ TestNodeConfiguration TestNetworkBuilder::buildNodeConfiguration(size_t index) {
 
 }
 
-TestNetwork::TestNetwork(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency) : 
+TestNetwork::TestNetwork(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency) :
   m_dispatcher(dispatcher),
   m_currency(currency) {
 }

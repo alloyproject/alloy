@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma once 
+#pragma once
 
 #include "Chaingen.h"
 
@@ -13,7 +13,7 @@
 class TestGenerator {
 public:
   TestGenerator(
-    const CryptoNote::Currency& currency, 
+    const CryptoNote::Currency& currency,
     std::vector<test_event_entry>& eventsRef) :
       generator(currency),
       events(eventsRef) {
@@ -42,7 +42,7 @@ public:
     generateBlocks(currency().minedMoneyUnlockWindow());
   }
 
-  void generateBlocks(size_t count, uint8_t majorVersion = CryptoNote::BLOCK_MAJOR_VERSION_1) {
+  void generateBlocks(size_t count, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1) {
     while (count--) {
       CryptoNote::Block next;
       generator.constructBlockManually(next, lastBlock, minerAccount, test_generator::bf_major_ver, majorVersion);
@@ -67,7 +67,7 @@ public:
   }
 
   void fillTxSourcesAndDestinations(
-    std::vector<CryptoNote::TransactionSourceEntry>& sources, 
+    std::vector<CryptoNote::TransactionSourceEntry>& sources,
     std::vector<CryptoNote::TransactionDestinationEntry>& destinations,
     const CryptoNote::AccountBase& from, const CryptoNote::AccountBase& to, uint64_t amount, uint64_t fee, size_t nmix = 0) {
     fill_tx_sources_and_destinations(events, lastBlock, from, to, amount, fee, nmix, sources, destinations);

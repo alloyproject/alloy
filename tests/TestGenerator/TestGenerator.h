@@ -49,8 +49,8 @@ public:
     bf_diffic    = 1 << 6
   };
 
-  test_generator(const CryptoNote::Currency& currency, uint8_t majorVersion = CryptoNote::BLOCK_MAJOR_VERSION_1,
-                 uint8_t minorVersion = CryptoNote::BLOCK_MINOR_VERSION_0)
+  test_generator(const CryptoNote::Currency& currency, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1,
+                 uint8_t minorVersion = BLOCK_MINOR_VERSION_0)
     : m_currency(currency), defaultMajorVersion(majorVersion), defaultMinorVersion(minorVersion) {
   }
 
