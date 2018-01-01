@@ -26,7 +26,7 @@ namespace parameters {
 #define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     30000 // size of block (bytes) after which reward for block calculated using block size
 #define CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        600
 #define CRYPTONOTE_DISPLAY_DECIMAL_POINT              12
-#define CRYPTONOTE_DISPLAY_DECIMAL_MULTIPLIER         1000000000000 // pow(10, CRYPTONOTE_DISPLAY_DECIMAL_POINT)
+#define CRYPTONOTE_DISPLAY_DECIMAL_UNITS              1000000000000 // pow(10, CRYPTONOTE_DISPLAY_DECIMAL_POINT)
 #define MINIMUM_FEE                                   100000
 #define DEFAULT_DUST_THRESHOLD                        MINIMUM_FEE
 #define DIFFICULTY_TARGET                             180 // seconds
