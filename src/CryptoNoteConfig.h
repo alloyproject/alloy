@@ -61,7 +61,7 @@ namespace parameters {
 } // parameters
 
 #define CRYPTONOTE_NAME                               "alloy"
-#define GENESIS_COINBASE_TX_HEX                       ""
+#define GENESIS_COINBASE_TX_HEX                       "013c01ff00018080d49ca79812029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121015c1bec331dab2fc1b8744b8785e9fa59d5c880c429eca3aca70b3b77250890ec"
 
 #define CURRENT_TRANSACTION_VERSION                   1
 #define BLOCK_MAJOR_VERSION_1                         1
