@@ -111,10 +111,9 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
   }
 
   uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
-  penalizedBaseReward *= CRYPTONOTE_DISPLAY_DECIMAL_UNITS;
 
   emissionChange = penalizedBaseReward;
-  reward = penalizedBaseReward + fee;
+  reward = (penalizedBaseReward * CRYPTONOTE_DISPLAY_DECIMAL_UNITS) + fee;
 
   return true;
 }
