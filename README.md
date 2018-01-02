@@ -37,6 +37,7 @@ Alloy project is funded out of pocket by the development team, hosting seed node
 Bitcoin: 1f5zJ2x7Zvha24QMtK8EtmAbnFPmVsxdV
 Ethereum: 0xDB4115DFF8B5d903C92299e4B8856424A9CD8f28
 Bitcoin Cash: 1f5zJ2x7Zvha24QMtK8EtmAbnFPmVsxdV
+Alloy: 1Vkr69FEHNrK8kSHo8PdVAj7MoT9rSQyfA6zL4emWi11JN1CDaXqdWhVdcK3Xjknw6bUknF7Pc1gsMBtgh275kb4TibDpig
 ```
 
 License
