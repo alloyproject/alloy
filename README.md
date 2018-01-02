@@ -27,7 +27,7 @@ As with many development projects, the repository on Github is considered to be 
 
 Building
 ========
-[Instructions for building the Alloy core](https://github.com/alloy-project/alloy/wiki/Building)
+[Instructions on how to build the Alloy core here...](https://github.com/alloy-project/alloy/wiki/Building)
 
 Donating
 ========
