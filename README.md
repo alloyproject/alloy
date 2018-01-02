@@ -29,6 +29,16 @@ Building
 ========
 [Instructions for building the Alloy core](https://github.com/alloy-project/alloy/wiki/Building)
 
+Donating
+========
+Alloy project is funded out of pocket by the development team, hosting seed nodes, website domain, and other necessities... Please consider donating, your contribution will help fund the project's future.
+
+```
+Bitcoin: 1f5zJ2x7Zvha24QMtK8EtmAbnFPmVsxdV
+Ethereum: 0xDB4115DFF8B5d903C92299e4B8856424A9CD8f28
+Bitcoin Cash: 1f5zJ2x7Zvha24QMtK8EtmAbnFPmVsxdV
+```
+
 License
 =======
 Alloy is licensed under the "MIT License" for more info, refer to the [License](LICENSE) file.
