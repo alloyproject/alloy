@@ -113,7 +113,7 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
   uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
 
   emissionChange = penalizedBaseReward;
-  reward = (penalizedBaseReward * CRYPTONOTE_DISPLAY_DECIMAL_UNITS) + fee;
+  reward = (penalizedBaseReward * CRYPTONOTE_MONEY_DECIMAL_UNITS) + fee;
 
   return true;
 }
@@ -448,7 +448,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   blockGrantedFullRewardZone(CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
   minerTxBlobReservedSize(CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE);
 
-  numberOfDecimalPlaces(CRYPTONOTE_DISPLAY_DECIMAL_POINT);
+  numberOfDecimalPlaces(CRYPTONOTE_MONEY_DECIMAL_POINT);
 
   mininumFee(MINIMUM_FEE);
   defaultDustThreshold(DEFAULT_DUST_THRESHOLD);
