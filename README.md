@@ -1,7 +1,5 @@
-<img src="https://avatars2.githubusercontent.com/u/34921670?s=250&u=9f0d6a433185b817b4dee13a29c2ac8a558822e5&v=4" align="right">
+<img src="https://avatars2.githubusercontent.com/u/34921670?s=250&u=9f0d6a433185b817b4dee13a29c2ac8a558822e5&v=4" align="left">
 
-Alloy
-=====
 Copyright (c) 2017-2018, The Alloy Developers.   
 Portions Copyright (c) 2011-2016, The Cryptonote Developers.
 
