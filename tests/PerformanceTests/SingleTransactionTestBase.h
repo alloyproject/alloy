@@ -17,11 +17,14 @@ public:
   {
     using namespace CryptoNote;
 
+    uint64_t expected_reward;
+
     Currency currency = CurrencyBuilder(m_nullLog).currency();
     m_bob.generate();
 
-    if (!currency.constructMinerTx(0, 0, 0, 2, 0, m_bob.getAccountKeys().address, m_tx))
+    if (!currency.constructMinerTx(0, 0, 0, 2, 0, m_bob.getAccountKeys().address, m_tx, expected_reward)) {
       return false;
+    }
 
     m_tx_pub_key = getTransactionPublicKeyFromExtra(m_tx.extra);
     return true;

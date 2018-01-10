@@ -29,7 +29,7 @@ bool parse_peer_from_string(NetworkAddress &pe, const std::string &node_addr) {
 }
 
 
-InProcTestNode::InProcTestNode(const TestNodeConfiguration& cfg, const CryptoNote::Currency& currency) : 
+InProcTestNode::InProcTestNode(const TestNodeConfiguration& cfg, const CryptoNote::Currency& currency) :
   m_cfg(cfg), m_currency(currency) {
 
   std::promise<std::string> initPromise;
@@ -92,7 +92,7 @@ void InProcTestNode::workerThread(std::promise<std::string>& initPromise) {
     CryptoNote::CoreConfig coreConfig;
 
     coreConfig.configFolder = m_cfg.dataDir;
-    
+
     if (!core->init(coreConfig, emptyMiner, true)) {
       throw std::runtime_error("Core failed to initialize");
     }
@@ -147,7 +147,9 @@ bool InProcTestNode::getBlockTemplate(const std::string &minerAddress, CryptoNot
   AccountPublicAddress addr;
   m_currency.parseAccountAddressString(minerAddress, addr);
   uint32_t height = 0;
-  return core->get_block_template(blockTemplate, addr, difficulty, height, BinaryArray());
+  uint64_t expected_reward;
+
+  return core->get_block_template(blockTemplate, addr, difficulty, height, expected_reward, BinaryArray());
 }
 
 bool InProcTestNode::submitBlock(const std::string& block) {

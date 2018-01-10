@@ -126,10 +126,10 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
   assert(maxSize >= m_maxBlockSizeInitial);
   return maxSize;
 }
-
 bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
-  uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx,
+  uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx, uint64_t& expected_reward,
   const BinaryArray& extraNonce/* = BinaryArray()*/, size_t maxOuts/* = 1*/) const {
+
   tx.inputs.clear();
   tx.outputs.clear();
   tx.extra.clear();
@@ -157,6 +157,7 @@ bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alr
     [&outAmounts](uint64_t a_chunk) { outAmounts.push_back(a_chunk); },
     [&outAmounts](uint64_t a_dust) { outAmounts.push_back(a_dust); });
 
+  expected_reward = blockReward;
   if (!(1 <= maxOuts)) { logger(ERROR, BRIGHT_RED) << "max_out must be non-zero"; return false; }
   while (maxOuts < outAmounts.size()) {
     outAmounts[outAmounts.size() - 2] += outAmounts.back();
@@ -485,7 +486,9 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 Transaction CurrencyBuilder::generateGenesisTransaction() {
   CryptoNote::Transaction tx;
   CryptoNote::AccountPublicAddress ac = boost::value_initialized<CryptoNote::AccountPublicAddress>();
-  m_currency.constructMinerTx(0, 0, 0, 0, 0, ac, tx); // zero fee in genesis
+  uint64_t expected_reward;
+
+  m_currency.constructMinerTx(0, 0, 0, 0, 0, ac, tx, expected_reward); // zero fee in genesis
 
   return tx;
 }

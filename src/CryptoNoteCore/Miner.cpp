@@ -76,13 +76,14 @@ namespace CryptoNote
     Block bl = boost::value_initialized<Block>();
     difficulty_type di = 0;
     uint32_t height;
+    uint64_t expected_reward;
     CryptoNote::BinaryArray extra_nonce;
 
     if(m_extra_messages.size() && m_config.current_extra_message_index < m_extra_messages.size()) {
       extra_nonce = m_extra_messages[m_config.current_extra_message_index];
     }
 
-    if(!m_handler.get_block_template(bl, m_mine_address, di, height, extra_nonce)) {
+    if(!m_handler.get_block_template(bl, m_mine_address, di, height, expected_reward, extra_nonce)) {
       logger(ERROR) << "Failed to get_block_template(), stopping mining";
       return false;
     }

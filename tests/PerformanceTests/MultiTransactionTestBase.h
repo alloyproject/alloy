@@ -30,14 +30,16 @@ public:
     using namespace CryptoNote;
 
     Currency currency = CurrencyBuilder(m_logger).currency();
+    uint64_t expected_reward;
 
     std::vector<TransactionSourceEntry::OutputEntry> output_entries;
     for (uint32_t i = 0; i < ring_size; ++i)
     {
       m_miners[i].generate();
 
-      if (!currency.constructMinerTx(0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i]))
+      if (!currency.constructMinerTx(0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i], expected_reward)) {
         return false;
+      }
 
       KeyOutput tx_out = boost::get<KeyOutput>(m_miner_txs[i].outputs[0].target);
       output_entries.push_back(std::make_pair(i, tx_out.key));
