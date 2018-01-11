@@ -1,5 +1,5 @@
-<img src="https://avatars2.githubusercontent.com/u/34921670?s=250&u=9f0d6a433185b817b4dee13a29c2ac8a558822e5&v=4" align="left">
-
+Alloy
+=====
 Copyright (c) 2017-2018, The Alloy Developers.   
 Portions Copyright (c) 2011-2016, The Cryptonote Developers.
 
@@ -14,7 +14,7 @@ Alloy is a private, secure, untraceable, decentralised digital currency. You are
 
 **Untraceability:** By taking advantage of ring signatures, a special property of a certain type of cryptography, Alloy is able to ensure that transactions are not only untraceable, but have an optional measure of ambiguity that ensures that transactions cannot easily be tied back to an individual user or computer.
 
-About this project
+About The Project
 ==================
 
 This is the core implementation of Alloy. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Alloy that uses the protocol and network in a compatible manner.
@@ -23,12 +23,12 @@ As with many development projects, the repository on Github is considered to be 
 
 **Anyone is welcome to contribute to Alloy's codebase!** If you have a fix or code change, feel free to submit it as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
 
-Building
-========
-[Instructions on how to build the Alloy core here...](https://github.com/alloy-project/alloy/wiki/Building)
+Build Instructions
+==================
+[Instructions on how to build the Alloy daemon are available here...](https://github.com/alloy-project/alloy/wiki/Building)
 
-Donating
-========
+Donations
+=========
 Alloy project is funded out of pocket by the development team, hosting seed nodes, website domain, and other necessities... Please consider donating, your contribution will help fund the project's future.
 
 ```
@@ -37,6 +37,16 @@ Ethereum: 0xDB4115DFF8B5d903C92299e4B8856424A9CD8f28
 Bitcoin Cash: 1f5zJ2x7Zvha24QMtK8EtmAbnFPmVsxdV
 Alloy: 1Vkr69FEHNrK8kSHo8PdVAj7MoT9rSQyfA6zL4emWi11JN1CDaXqdWhVdcK3Xjknw6bUknF7Pc1gsMBtgh275kb4TibDpig
 ```
+
+Other Information
+=================
+ * Cryptonote Whitepaper (https://cryptonote.org/whitepaper.pdf)
+ * Annotated Cryptonote Whitepaper (https://downloads.getmonero.org/whitepaper_annotated.pdf)
+ * Bitcoin Talk Post (https://bitcointalk.org/index.php?topic=2676887.0)
+ * Community Discord (https://discord.gg/bFAHwGS)
+ * Website (https://alloy.cash)
+ * Twitter (https://twitter.com/alloyxaoproject)
+ * Reddit (https://www.reddit.com/r/alloycurrency)
 
 License
 =======
