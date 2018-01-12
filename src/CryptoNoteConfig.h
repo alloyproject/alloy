@@ -27,7 +27,7 @@ namespace parameters {
 #define CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        600
 #define CRYPTONOTE_MONEY_DECIMAL_POINT                12
 #define CRYPTONOTE_MONEY_DECIMAL_UNITS                (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT)
-#define MINIMUM_FEE                                   100000
+#define MINIMUM_FEE                                   (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT / 2)
 #define DEFAULT_DUST_THRESHOLD                        MINIMUM_FEE
 #define DIFFICULTY_TARGET                             180 // seconds
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             24 * 60 * 60 / DIFFICULTY_TARGET
