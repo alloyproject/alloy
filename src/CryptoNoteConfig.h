@@ -92,8 +92,8 @@ namespace parameters {
 #define CRYPTONOTE_NETWORK                            { { 0x01, 0x07, 0x03, 0x9f, 0x4b, 0x08, 0x01, 0xFF, 0x24, 0x4a, 0x06, 0x7b, 0x5a, 0x03, 0x01, 0xFE } }
 
 const std::initializer_list<const char*> SEED_NODES {
-  "144.217.165.72:1810",
-  "144.217.165.189:1810",
+  "144.217.84.29:1810",
+  "144.217.84.31:1810",
 };
 
 struct CheckpointData {
