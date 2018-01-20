@@ -16,6 +16,8 @@
 #include "Common/Math.h"
 #include "CoreRpcServerCommandsDefinitions.h"
 
+#include "CryptoNoteCore/CryptoNoteFormatUtils.h"
+
 namespace CryptoNote {
 
 class Core;

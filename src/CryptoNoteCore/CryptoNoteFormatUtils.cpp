@@ -64,6 +64,39 @@ bool generate_key_image_helper(const AccountKeys& ack, const PublicKey& tx_publi
   return true;
 }
 
+bool get_block_hashing_blob(const BlockTemplate& block_template, BinaryArray& ba) {
+  if (!toBinaryArray(static_cast<const BlockHeader&>(block_template), ba)) {
+    return false;
+  }
+
+  Hash treeRootHash = get_tx_tree_hash(block_template);
+  ba.insert(ba.end(), treeRootHash.data, treeRootHash.data + 32);
+  auto transactionCount = asBinaryArray(Tools::get_varint_data(block_template.transactionHashes.size() + 1));
+  ba.insert(ba.end(), transactionCount.begin(), transactionCount.end());
+  return true;
+}
+
+void get_tx_tree_hash(const std::vector<Hash>& tx_hashes, Hash& h) {
+  tree_hash(tx_hashes.data(), tx_hashes.size(), h);
+}
+
+Hash get_tx_tree_hash(const std::vector<Hash>& tx_hashes) {
+  Hash h = NULL_HASH;
+  get_tx_tree_hash(tx_hashes, h);
+  return h;
+}
+
+Hash get_tx_tree_hash(const BlockTemplate& block_template) {
+  std::vector<Hash> txs_ids;
+  Hash h = NULL_HASH;
+  getObjectHash(block_template.baseTransaction, h);
+  txs_ids.push_back(h);
+  for (auto& th : block_template.transactionHashes) {
+    txs_ids.push_back(th);
+  }
+  return get_tx_tree_hash(txs_ids);
+}
+
 uint64_t power_integral(uint64_t a, uint64_t b) {
   if (b == 0)
     return 1;
