@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -30,14 +35,13 @@ public:
     using namespace CryptoNote;
 
     Currency currency = CurrencyBuilder(m_logger).currency();
-    uint64_t expected_reward;
 
     std::vector<TransactionSourceEntry::OutputEntry> output_entries;
     for (uint32_t i = 0; i < ring_size; ++i)
     {
       m_miners[i].generate();
 
-      if (!currency.constructMinerTx(0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i], expected_reward)) {
+      if (!currency.constructMinerTx(BLOCK_MAJOR_VERSION_1, 0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i])) {
         return false;
       }
 

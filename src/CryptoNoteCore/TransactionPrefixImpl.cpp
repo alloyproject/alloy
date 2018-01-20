@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "ITransaction.h"
 
@@ -38,14 +43,12 @@ public:
   virtual uint64_t getInputTotalAmount() const override;
   virtual TransactionTypes::InputType getInputType(size_t index) const override;
   virtual void getInput(size_t index, KeyInput& input) const override;
-  virtual void getInput(size_t index, MultisignatureInput& input) const override;
 
   // outputs
   virtual size_t getOutputCount() const override;
   virtual uint64_t getOutputTotalAmount() const override;
   virtual TransactionTypes::OutputType getOutputType(size_t index) const override;
   virtual void getOutput(size_t index, KeyOutput& output, uint64_t& amount) const override;
-  virtual void getOutput(size_t index, MultisignatureOutput& output, uint64_t& amount) const override;
 
   // signatures
   virtual size_t getRequiredSignaturesCount(size_t inputIndex) const override;
@@ -141,10 +144,6 @@ void TransactionPrefixImpl::getInput(size_t index, KeyInput& input) const {
   input = boost::get<KeyInput>(getInputChecked(m_txPrefix, index, TransactionTypes::InputType::Key));
 }
 
-void TransactionPrefixImpl::getInput(size_t index, MultisignatureInput& input) const {
-  input = boost::get<MultisignatureInput>(getInputChecked(m_txPrefix, index, TransactionTypes::InputType::Multisignature));
-}
-
 size_t TransactionPrefixImpl::getOutputCount() const {
   return m_txPrefix.outputs.size();
 }
@@ -164,12 +163,6 @@ void TransactionPrefixImpl::getOutput(size_t index, KeyOutput& output, uint64_t&
   amount = out.amount;
 }
 
-void TransactionPrefixImpl::getOutput(size_t index, MultisignatureOutput& output, uint64_t& amount) const {
-  const auto& out = getOutputChecked(m_txPrefix, index, TransactionTypes::OutputType::Multisignature);
-  output = boost::get<MultisignatureOutput>(out.target);
-  amount = out.amount;
-}
-
 size_t TransactionPrefixImpl::getRequiredSignaturesCount(size_t inputIndex) const {
   return ::CryptoNote::getRequiredSignaturesCount(getInputChecked(m_txPrefix, inputIndex));
 }
@@ -179,15 +172,16 @@ bool TransactionPrefixImpl::findOutputsToAccount(const AccountPublicAddress& add
 }
 
 bool TransactionPrefixImpl::validateInputs() const {
-  return check_inputs_types_supported(m_txPrefix) &&
-          check_inputs_overflow(m_txPrefix) &&
-          checkInputsKeyimagesDiff(m_txPrefix) &&
-          checkMultisignatureInputsDiff(m_txPrefix);
+  return
+    checkInputTypesSupported(m_txPrefix) &&
+    checkInputsOverflow(m_txPrefix) &&
+    checkInputsKeyimagesDiff(m_txPrefix);
 }
 
 bool TransactionPrefixImpl::validateOutputs() const {
-  return check_outs_valid(m_txPrefix) &&
-          check_outs_overflow(m_txPrefix);
+  return
+    checkOutsValid(m_txPrefix) &&
+    checkOutsOverflow(m_txPrefix);
 }
 
 bool TransactionPrefixImpl::validateSignatures() const {

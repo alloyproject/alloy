@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "crypto/crypto.h" //for rand()
 #include "CryptoNoteCore/Account.h"
@@ -70,7 +75,8 @@ WalletTransactionSender::WalletTransactionSender(const Currency& currency, Walle
   m_isStoping(false),
   m_keys(keys),
   m_transferDetails(transfersContainer),
-  m_upperTransactionSizeLimit(m_currency.blockGrantedFullRewardZone() * 2 - m_currency.minerTxBlobReservedSize()) {}
+  m_upperTransactionSizeLimit(m_currency.maxTransactionSizeLimit()) {
+}
 
 void WalletTransactionSender::stop() {
   m_isStoping = true;

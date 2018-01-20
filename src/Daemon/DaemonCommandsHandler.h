@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -10,14 +15,14 @@
 #include <Logging/LoggerManager.h>
 
 namespace CryptoNote {
-class core;
+class Core;
 class NodeServer;
 }
 
 class DaemonCommandsHandler
 {
 public:
-  DaemonCommandsHandler(CryptoNote::core& core, CryptoNote::NodeServer& srv, Logging::LoggerManager& log);
+  DaemonCommandsHandler(CryptoNote::Core& core, CryptoNote::NodeServer& srv, Logging::LoggerManager& log);
 
   bool start_handling() {
     m_consoleHandler.start();
@@ -31,7 +36,7 @@ public:
 private:
 
   Common::ConsoleHandler m_consoleHandler;
-  CryptoNote::core& m_core;
+  CryptoNote::Core& m_core;
   CryptoNote::NodeServer& m_srv;
   Logging::LoggerRef logger;
   Logging::LoggerManager& m_logManager;

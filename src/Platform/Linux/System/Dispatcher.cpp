@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "Dispatcher.h"
 #include <cassert>
@@ -76,6 +81,7 @@ Dispatcher::Dispatcher() {
           mainContext.group = &contextGroup;
           mainContext.groupPrev = nullptr;
           mainContext.groupNext = nullptr;
+          mainContext.inExecutionQueue = false;
           contextGroup.firstContext = nullptr;
           contextGroup.lastContext = nullptr;
           contextGroup.firstWaiter = nullptr;
@@ -156,6 +162,10 @@ void Dispatcher::dispatch() {
     if (firstResumingContext != nullptr) {
       context = firstResumingContext;
       firstResumingContext = context->next;
+
+      assert(context->inExecutionQueue);
+      context->inExecutionQueue = false;
+
       break;
     }
 
@@ -238,7 +248,13 @@ bool Dispatcher::interrupted() {
 
 void Dispatcher::pushContext(NativeContext* context) {
   assert(context != nullptr);
+
+  if (context->inExecutionQueue)
+    return;
+
   context->next = nullptr;
+  context->inExecutionQueue = true;
+
   if(firstResumingContext != nullptr) {
     assert(lastResumingContext != nullptr);
     lastResumingContext->next = context;
@@ -316,6 +332,8 @@ void Dispatcher::yield() {
           contextPair->readContext->context->interruptProcedure = nullptr;
           pushContext(contextPair->readContext->context);
           contextPair->readContext->events = events[i].events;
+        } else if ((events[i].events & (EPOLLERR | EPOLLHUP)) != 0) {
+          throw std::runtime_error("Dispatcher::dispatch, events & (EPOLLERR | EPOLLHUP) != 0");
         } else {
           continue;
         }
@@ -377,7 +395,7 @@ int Dispatcher::getTimer() {
   if (timers.empty()) {
     timer = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
     epoll_event timerEvent;
-    timerEvent.events = 0;
+    timerEvent.events = EPOLLONESHOT;
     timerEvent.data.ptr = nullptr;
 
     if (epoll_ctl(getEpoll(), EPOLL_CTL_ADD, timer, &timerEvent) == -1) {
@@ -401,6 +419,7 @@ void Dispatcher::contextProcedure(void* ucontext) {
   context.ucontext = ucontext;
   context.interrupted = false;
   context.next = nullptr;
+  context.inExecutionQueue = false;
   firstReusableContext = &context;
   ucontext_t* oldContext = static_cast<ucontext_t*>(context.ucontext);
   if (swapcontext(oldContext, static_cast<ucontext_t*>(currentContext->ucontext)) == -1) {
@@ -411,7 +430,7 @@ void Dispatcher::contextProcedure(void* ucontext) {
     ++runningContextCount;
     try {
       context.procedure();
-    } catch(std::exception&) {
+    } catch(...) {
     }
 
     if (context.group != nullptr) {

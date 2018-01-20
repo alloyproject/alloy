@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "SynchronizationState.h"
 
@@ -38,8 +43,9 @@ SynchronizationState::ShortHistory SynchronizationState::getShortHistory(uint32_
     ++i;
   }
 
-  if (!genesis_included)
+  if (!genesis_included) {
     history.push_back(m_blockchain[0]);
+  }
 
   return history;
 }
@@ -82,6 +88,9 @@ void SynchronizationState::detach(uint32_t height) {
 void SynchronizationState::addBlocks(const Crypto::Hash* blockHashes, uint32_t height, uint32_t count) {
   assert(blockHashes);
   auto size = m_blockchain.size();
+  // Dummy fix for simplewallet or walletd when sync
+  if (height == 0)
+    height = 1;
   assert( size == height);
   m_blockchain.insert(m_blockchain.end(), blockHashes, blockHashes + count);
 }

@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "P2pNode.h"
 
@@ -22,6 +27,7 @@
 #include "P2pConnectionProxy.h"
 #include "P2pContext.h"
 #include "P2pContextOwner.h"
+#include "P2pNetworks.h"
 
 using namespace Common;
 using namespace Logging;
@@ -152,7 +158,7 @@ void P2pNode::stop() {
 
   m_stopRequested = true;
   // clear prepared connections
-  m_connectionQueue.clear();
+  m_connectionQueue.clear(); 
   // stop processing
   m_queueEvent.set();
   workingContextGroup.interrupt();
@@ -186,7 +192,7 @@ void P2pNode::acceptLoop() {
   while (!m_stopRequested) {
     try {
       auto connection = m_listener.accept();
-      auto ctx = new P2pContext(m_dispatcher, std::move(connection), true,
+      auto ctx = new P2pContext(m_dispatcher, std::move(connection), true, 
         getRemoteAddress(connection), m_cfg.getTimedSyncInterval(), getGenesisPayload());
       logger(INFO) << "Incoming connection from " << ctx->getRemoteAddress();
       workingContextGroup.spawn([this, ctx] {
@@ -293,7 +299,7 @@ bool P2pNode::makeNewConnectionFromPeerlist(const PeerlistManager::Peerlist& pee
 
   return false;
 }
-
+  
 void P2pNode::preprocessIncomingConnection(ContextPtr ctx) {
   try {
     logger(DEBUGGING) << *ctx << "preprocessIncomingConnection";

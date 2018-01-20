@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "CryptoNoteBasicImpl.h"
 #include "CryptoNoteFormatUtils.h"
@@ -77,14 +82,15 @@ namespace CryptoNote {
       check_key(adr.spendPublicKey) &&
       check_key(adr.viewPublicKey);
   }
-  //-----------------------------------------------------------------------
-  bool operator ==(const CryptoNote::Transaction& a, const CryptoNote::Transaction& b) {
-    return getObjectHash(a) == getObjectHash(b);
-  }
-  //-----------------------------------------------------------------------
-  bool operator ==(const CryptoNote::Block& a, const CryptoNote::Block& b) {
-    return CryptoNote::get_block_hash(a) == CryptoNote::get_block_hash(b);
-  }
+  ////-----------------------------------------------------------------------
+  //bool operator ==(const CryptoNote::Transaction& a, const CryptoNote::Transaction& b) {
+  //  return getObjectHash(a) == getObjectHash(b);
+  //}
+  ////-----------------------------------------------------------------------
+  //bool operator ==(const CryptoNote::BlockTemplate& a, const CryptoNote::BlockTemplate& b) {
+
+  //  return CryptoNote::get_block_hash(a) == CryptoNote::get_block_hash(b);
+  //}
 }
 
 //--------------------------------------------------------------------------------

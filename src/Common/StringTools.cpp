@@ -1,9 +1,15 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "StringTools.h"
 #include <fstream>
+#include <iomanip>
 
 namespace Common {
 
@@ -329,12 +335,14 @@ std::string timeIntervalToString(uint64_t intervalInSeconds) {
   tail = tail % (60);
   auto seconds = tail;
 
-  return 
-    "d" + std::to_string(days) + 
-    ".h" + std::to_string(hours) + 
-    ".m" + std::to_string(minutes) +
-    ".s" + std::to_string(seconds);
-}
+  std::stringstream ss;
+  ss << "d" << days <<
+    std::setfill('0') <<
+    ".h" << std::setw(2) << hours <<
+    ".m" << std::setw(2) << minutes <<
+    ".s" << std::setw(2) << seconds;
 
+  return ss.str();
+}
 
 }

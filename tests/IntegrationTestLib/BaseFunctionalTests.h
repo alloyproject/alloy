@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -66,7 +71,7 @@ namespace Tests {
 
       void init(po::options_description& desc) {
         desc.add_options()
-          ("daemon-dir,d", po::value<std::string>()->default_value("."), "path to daemon")
+          ("daemon-dir,d", po::value<std::string>()->default_value("."), "path to bytecoind.exe")
           ("data-dir,n", po::value<std::string>()->default_value("."), "path to daemon's data directory")
           ("add-daemons,a", po::value<std::vector<std::string>>()->multitoken(), "add daemon to topology");
       }
@@ -151,13 +156,11 @@ namespace Tests {
       bool waitForPoolSize(size_t nodeIndex, CryptoNote::INode& node, size_t expectedPoolSize,
         std::vector<std::unique_ptr<CryptoNote::ITransactionReader>>& txPool);
 
-      bool prepareAndSubmitBlock(TestNode& node, CryptoNote::Block&& blockTemplate);
+      bool prepareAndSubmitBlock(TestNode& node, CryptoNote::BlockTemplate&& blockTemplate);
 
-    private:
 #ifdef __linux__
       std::vector<__pid_t> pids;
 #endif
-
 
       Logging::ConsoleLogger logger;
       std::unique_ptr<CryptoNote::INode> mainNode;

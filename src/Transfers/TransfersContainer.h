@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -18,6 +23,7 @@
 #include "CryptoNoteCore/CryptoNoteBasic.h"
 #include "CryptoNoteCore/CryptoNoteSerialization.h"
 #include "CryptoNoteCore/Currency.h"
+#include "Logging/LoggerRef.h"
 #include "Serialization/ISerializer.h"
 #include "Serialization/SerializationOverloads.h"
 
@@ -33,10 +39,8 @@ public:
   SpentOutputDescriptor();
   SpentOutputDescriptor(const TransactionOutputInformationIn& transactionInfo);
   SpentOutputDescriptor(const Crypto::KeyImage* keyImage);
-  SpentOutputDescriptor(uint64_t amount, uint32_t globalOutputIndex);
 
   void assign(const Crypto::KeyImage* keyImage);
-  void assign(uint64_t amount, uint32_t globalOutputIndex);
 
   bool isValid() const;
 
@@ -86,10 +90,9 @@ struct TransactionOutputInformationEx : public TransactionOutputInformationIn {
     s(transactionHash, "");
     s(visible, "");
 
-    if (type == TransactionTypes::OutputType::Key)
+    if (type == TransactionTypes::OutputType::Key) {
       s(outputKey, "");
-    else if (type == TransactionTypes::OutputType::Multisignature)
-      s(requiredSignatures, "");
+    }
   }
 
 };
@@ -135,10 +138,8 @@ struct KeyOutputInfo {
 };
 
 class TransfersContainer : public ITransfersContainer {
-
 public:
-
-  TransfersContainer(const CryptoNote::Currency& currency, size_t transactionSpendableAge);
+  TransfersContainer(const CryptoNote::Currency& currency, Logging::ILogger& logger, size_t transactionSpendableAge);
 
   bool addTransaction(const TransactionBlockInfo& block, const ITransactionReader& tx, const std::vector<TransactionOutputInformationIn>& transfers);
   bool deleteUnconfirmedTransaction(const Crypto::Hash& transactionHash);
@@ -172,8 +173,8 @@ private:
   typedef boost::multi_index_container<
     TransactionInformation,
     boost::multi_index::indexed_by<
-    boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(TransactionInformation, Crypto::Hash, transactionHash)>,
-    boost::multi_index::ordered_non_unique < BOOST_MULTI_INDEX_MEMBER(TransactionInformation, uint32_t, blockHeight) >
+      boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(TransactionInformation, Crypto::Hash, transactionHash)>,
+      boost::multi_index::ordered_non_unique<BOOST_MULTI_INDEX_MEMBER(TransactionInformation, uint32_t, blockHeight)>
     >
   > TransactionMultiIndex;
 
@@ -225,7 +226,7 @@ private:
       boost::multi_index::hashed_unique<
         boost::multi_index::tag<SpentOutputDescriptorIndex>,
         boost::multi_index::const_mem_fun<
-    TransactionOutputInformationEx,
+          TransactionOutputInformationEx,
           SpentOutputDescriptor,
           &TransactionOutputInformationEx::getSpentOutputDescriptor>,
         SpentOutputDescriptorHasher
@@ -259,18 +260,19 @@ private:
   void updateTransfersVisibility(const Crypto::KeyImage& keyImage);
 
   void copyToSpent(const TransactionBlockInfo& block, const ITransactionReader& tx, size_t inputIndex, const TransactionOutputInformationEx& output);
+  void repair();
 
 private:
   TransactionMultiIndex m_transactions;
   UnconfirmedTransfersMultiIndex m_unconfirmedTransfers;
   AvailableTransfersMultiIndex m_availableTransfers;
   SpentTransfersMultiIndex m_spentTransfers;
-  //std::unordered_map<KeyImage, KeyOutputInfo, boost::hash<KeyImage>> m_keyImages;
 
   uint32_t m_currentHeight; // current height is needed to check if a transfer is unlocked
   size_t m_transactionSpendableAge;
   const CryptoNote::Currency& m_currency;
   mutable std::mutex m_mutex;
+  Logging::LoggerRef m_logger;
 };
 
 }

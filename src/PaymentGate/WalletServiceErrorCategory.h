@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -14,7 +19,8 @@ enum class WalletServiceErrorCode {
   WRONG_KEY_FORMAT = 1,
   WRONG_PAYMENT_ID_FORMAT,
   WRONG_HASH_FORMAT,
-  OBJECT_NOT_FOUND
+  OBJECT_NOT_FOUND,
+  DUPLICATE_KEY
 };
 
 // custom category:
@@ -38,6 +44,7 @@ public:
       case WalletServiceErrorCode::WRONG_PAYMENT_ID_FORMAT: return "Wrong payment id format";
       case WalletServiceErrorCode::WRONG_HASH_FORMAT: return "Wrong block id format";
       case WalletServiceErrorCode::OBJECT_NOT_FOUND: return "Requested object not found";
+      case WalletServiceErrorCode::DUPLICATE_KEY: return "Duplicate key";
       default: return "Unknown error";
     }
   }

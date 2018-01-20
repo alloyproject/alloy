@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "Util.h"
 #include <cstdio>
@@ -10,6 +15,9 @@
 #include "CryptoNoteConfig.h"
 
 #ifdef WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #include <shlobj.h>
 #include <strsafe.h>
@@ -293,7 +301,7 @@ std::string get_nix_version_display_string()
     std::string config_folder;
 #ifdef WIN32
     // Windows
-    config_folder = (get_special_folder_path(CSIDL_APPDATA, true) + "/" + std::string(CRYPTONOTE_NAME));
+    config_folder = (get_special_folder_path(CSIDL_APPDATA, true) + "/" + CRYPTONOTE_NAME);
 #else
     std::string pathRet;
     char* pszHome = getenv("HOME");
@@ -304,14 +312,31 @@ std::string get_nix_version_display_string()
 #ifdef MAC_OSX
     // Mac
     pathRet /= "Library/Application Support";
-    config_folder =  (pathRet + "/" + std::string(CRYPTONOTE_NAME));
+    config_folder =  (pathRet + "/" + CRYPTONOTE_NAME);
 #else
     // Unix
-    config_folder = (pathRet + "/." + std::string(CRYPTONOTE_NAME));
+    config_folder = (pathRet + "/." + CRYPTONOTE_NAME);
 #endif
 #endif
 
     return config_folder;
+  }
+
+  std::string getDefaultCacheFile(const std::string& dataDir) {
+    static const std::string name = "cache_file";
+
+    namespace bf = boost::filesystem;
+    bf::path dir = dataDir;
+
+    if (!bf::exists(dir) ) {
+      throw std::runtime_error("Directory \"" + dir.string() + "\" doesn't exist");
+    }
+
+    if (!bf::exists(dir/name)) {
+      throw std::runtime_error("File \"" + boost::filesystem::path(dir/name).string() + "\" doesn't exist");
+    }
+
+    return boost::filesystem::path(dir/name).string();
   }
 
   bool create_directories_if_necessary(const std::string& path)

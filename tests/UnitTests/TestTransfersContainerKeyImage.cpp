@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "gtest/gtest.h"
 
@@ -31,7 +36,7 @@ namespace {
 
     TransfersContainerKeyImage() :
       currency(CurrencyBuilder(logger).currency()), 
-      container(currency, TEST_TRANSACTION_SPENDABLE_AGE), 
+      container(currency, logger, TEST_TRANSACTION_SPENDABLE_AGE), 
       account(generateAccountKeys()),
       txTemplate(createTransaction()) {
       txTemplate->getTransactionSecretKey(txSecretKey);
@@ -83,7 +88,7 @@ namespace {
       return finalTx;
     }
 
-    std::unique_ptr<ITransactionReader> addSpendingTransaction(const Hash& sourceTx, uint64_t height, uint32_t outputIndex, uint64_t amount = TEST_OUTPUT_AMOUNT, bool fixedKey = false) {
+    std::unique_ptr<ITransactionReader> addSpendingTransaction(const Hash& sourceTx, uint32_t height, uint32_t outputIndex, uint64_t amount = TEST_OUTPUT_AMOUNT, bool fixedKey = false) {
       auto outputs = container.getTransactionOutputs(sourceTx, ITransfersContainer::IncludeTypeAll |
         ITransfersContainer::IncludeStateUnlocked | ITransfersContainer::IncludeStateSoftLocked);
 

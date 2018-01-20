@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -14,7 +19,7 @@ public:
   virtual bool startMining(size_t threadsCount, const std::string& address) = 0;
   virtual bool stopMining() = 0;
   virtual bool stopDaemon() = 0;
-  virtual bool getBlockTemplate(const std::string& minerAddress, CryptoNote::Block& blockTemplate, uint64_t& difficulty) = 0;
+  virtual bool getBlockTemplate(const std::string& minerAddress, CryptoNote::BlockTemplate& blockTemplate, uint64_t& difficulty) = 0;
   virtual bool submitBlock(const std::string& block) = 0;
   virtual bool getTailBlockId(Crypto::Hash& tailBlockId) = 0;
   virtual bool makeINode(std::unique_ptr<CryptoNote::INode>& node) = 0;

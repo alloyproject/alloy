@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -8,10 +13,12 @@
 
 #include "CryptoNoteProtocol/ICryptoNoteProtocolObserver.h"
 #include "CryptoNoteProtocol/ICryptoNoteProtocolQuery.h"
+#include "CryptoNoteProtocol/CryptoNoteProtocolHandlerCommon.h"
 
-class ICryptoNoteProtocolQueryStub: public CryptoNote::ICryptoNoteProtocolQuery {
+class ICryptoNoteProtocolQueryStub : public CryptoNote::ICryptoNoteProtocolHandler {
 public:
-  ICryptoNoteProtocolQueryStub() : peers(0), observedHeight(0), synchronized(false) {}
+  ICryptoNoteProtocolQueryStub() : peers(0), observedHeight(0), synchronized(false) {
+  }
 
   virtual bool addObserver(CryptoNote::ICryptoNoteProtocolObserver* observer) override;
   virtual bool removeObserver(CryptoNote::ICryptoNoteProtocolObserver* observer) override;
@@ -23,6 +30,9 @@ public:
   void setObservedHeight(uint32_t height);
 
   void setSynchronizedStatus(bool status);
+  virtual void relayBlock(CryptoNote::NOTIFY_NEW_BLOCK_request& arg) override{};
+  virtual void relayTransactions(const std::vector<CryptoNote::BinaryArray>& transactions) override{};
+
 
 private:
   size_t peers;

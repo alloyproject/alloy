@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include <iostream>
 #include <memory>
@@ -12,6 +17,9 @@
 #include "version.h"
 
 #ifdef WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #include <winsvc.h>
 #else
@@ -280,7 +288,7 @@ int unregisterService() {
 }
 
 int main(int argc, char** argv) {
-  PaymentGateService pg; 
+  PaymentGateService pg;
   ppg = &pg;
 
   try {
@@ -288,7 +296,7 @@ int main(int argc, char** argv) {
       return 0; //help message requested or so
     }
 
-    Logging::LoggerRef(pg.getLogger(), "main")(Logging::INFO) << "PaymentService " << " v" << PROJECT_VERSION_LONG;
+    Logging::LoggerRef(pg.getLogger(), "main")(Logging::INFO) << "walletd v" << PROJECT_VERSION_LONG;
 
     const auto& config = pg.getConfig();
 

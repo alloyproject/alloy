@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -62,6 +67,7 @@ namespace CryptoNote
     bool run_console_handler();
 
     bool new_wallet(const std::string &wallet_file, const std::string& password);
+bool new_wallet(Crypto::SecretKey &secret_key, Crypto::SecretKey &view_key, const std::string &wallet_file, const std::string& password);
     bool open_wallet(const std::string &wallet_file, const std::string& password);
     bool close_wallet();
 
@@ -70,6 +76,7 @@ namespace CryptoNote
     bool start_mining(const std::vector<std::string> &args);
     bool stop_mining(const std::vector<std::string> &args);
     bool show_balance(const std::vector<std::string> &args = std::vector<std::string>());
+    bool export_keys(const std::vector<std::string> &args = std::vector<std::string>());
     bool show_incoming_transfers(const std::vector<std::string> &args);
     bool show_payments(const std::vector<std::string> &args);
     bool show_blockchain_height(const std::vector<std::string> &args);
@@ -141,13 +148,16 @@ namespace CryptoNote
   private:
     std::string m_wallet_file_arg;
     std::string m_generate_new;
+std::string m_import_new;
     std::string m_import_path;
 
     std::string m_daemon_address;
     std::string m_daemon_host;
     uint16_t m_daemon_port;
+uint64_t m_default_fee;
 
     std::string m_wallet_file;
+    bool sync_from_zero;
 
     std::unique_ptr<std::promise<std::error_code>> m_initResultPromise;
 

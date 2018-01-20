@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include <gtest/gtest.h>
 
@@ -800,6 +805,21 @@ public:
   SimpleTest test;
 };
 
+class SimpleTestCaseOtherConfig : public ::testing::Test {
+
+public:
+
+  SimpleTestCaseOtherConfig() : 
+    currency(CryptoNote::CurrencyBuilder(logger).testnet(true).mempoolTxLiveTime(60).currency()),
+    test(currency, dispatcher, baseCfg) {
+  }
+
+  System::Dispatcher dispatcher;
+  Logging::ConsoleLogger logger;
+  CryptoNote::Currency currency;
+  SimpleTest test;
+};
+
 TEST_F(SimpleTestCase, WALLET2WALLET) {
   ASSERT_TRUE(test.perform1());
 }
@@ -816,8 +836,7 @@ TEST_F(SimpleTestCase, TESTPOOLANDINPROCNODE) {
   ASSERT_TRUE(test.perform5());
 }
 
-TEST_F(SimpleTestCase, TESTPOOLDELETION) {
-  currency = CryptoNote::CurrencyBuilder(logger).testnet(true).mempoolTxLiveTime(60).currency();
+TEST_F(SimpleTestCaseOtherConfig, TESTPOOLDELETION) {
   ASSERT_TRUE(test.perform6());
 }
 

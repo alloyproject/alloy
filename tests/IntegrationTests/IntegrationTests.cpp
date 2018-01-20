@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "gtest/gtest.h"
 #include <Logging/LoggerRef.h>
@@ -148,7 +153,7 @@ public:
 
 
 TEST_F(IntegrationTest, Wallet2Wallet) {
-  const uint64_t FEE = 1000000;
+  //const uint64_t FEE = 1000000;
 
   launchTestnet(2);
 

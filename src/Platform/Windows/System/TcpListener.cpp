@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "TcpListener.h"
 #include <cassert>
@@ -169,6 +174,15 @@ TcpConnection TcpListener::accept() {
             }
           }
         } else {
+          if (context2.interrupted) {
+            if (closesocket(connection) != 0) {
+              throw std::runtime_error("TcpConnector::connect, closesocket failed, " + errorMessage(WSAGetLastError()));
+            }
+            else {
+              throw InterruptedException();
+            }
+          }
+
           assert(transferred == 0);
           assert(flags == 0);
           if (setsockopt(connection, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, reinterpret_cast<char*>(&listener), sizeof listener) != 0) {

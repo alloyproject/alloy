@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -41,10 +46,7 @@ struct TransactionOutputInformation {
   Crypto::Hash transactionHash;
   Crypto::PublicKey transactionPublicKey;
 
-  union {
-    Crypto::PublicKey outputKey;         // Type: Key 
-    uint32_t requiredSignatures; // Type: Multisignature
-  };
+  Crypto::PublicKey outputKey;
 };
 
 struct TransactionSpentOutputInformation: public TransactionOutputInformation {
@@ -65,7 +67,6 @@ public:
     IncludeStateSpent = 0x08,
     // output type
     IncludeTypeKey = 0x100,
-    IncludeTypeMultisignature = 0x200,
     // combinations
     IncludeStateAll = 0xff,
     IncludeTypeAll = 0xff00,

@@ -1,11 +1,31 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "PaymentServiceJsonRpcMessages.h"
 #include "Serialization/SerializationOverloads.h"
 
 namespace PaymentService {
+
+void Save::Request::serialize(CryptoNote::ISerializer& /*serializer*/) {
+}
+
+void Save::Response::serialize(CryptoNote::ISerializer& /*serializer*/) {
+}
+
+void Export::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(fileName, "fileName")) {
+    throw RequestSerializationError();
+  }
+}
+
+void Export::Response::serialize(CryptoNote::ISerializer& serializer) {
+}
 
 void Reset::Request::serialize(CryptoNote::ISerializer& serializer) {
   serializer(viewSecretKey, "viewSecretKey");
@@ -50,6 +70,17 @@ void CreateAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
 
 void CreateAddress::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(address, "address");
+}
+
+void CreateAddressList::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(spendSecretKeys, "spendSecretKeys")) {
+    //TODO: replace it with error codes
+    throw RequestSerializationError();
+  }
+}
+
+void CreateAddressList::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(addresses, "addresses");
 }
 
 void DeleteAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
@@ -272,6 +303,36 @@ void SendDelayedTransaction::Request::serialize(CryptoNote::ISerializer& seriali
 }
 
 void SendDelayedTransaction::Response::serialize(CryptoNote::ISerializer& serializer) {
+}
+
+void SendFusionTransaction::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(threshold, "threshold")) {
+    throw RequestSerializationError();
+  }
+
+  if (!serializer(anonymity, "anonymity")) {
+    throw RequestSerializationError();
+  }
+
+  serializer(addresses, "addresses");
+  serializer(destinationAddress, "destinationAddress");
+}
+
+void SendFusionTransaction::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(transactionHash, "transactionHash");
+}
+
+void EstimateFusion::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(threshold, "threshold")) {
+    throw RequestSerializationError();
+  }
+
+  serializer(addresses, "addresses");
+}
+
+void EstimateFusion::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(fusionReadyCount, "fusionReadyCount");
+  serializer(totalOutputCount, "totalOutputCount");
 }
 
 }

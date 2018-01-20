@@ -1,26 +1,20 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 namespace CryptoNote
 {
-  /************************************************************************/
-  /*                                                                      */
-  /************************************************************************/
-  struct tx_verification_context
-  {
-    bool m_should_be_relayed;
-    bool m_verifivation_failed; //bad tx, should drop connection
-    bool m_verifivation_impossible; //the transaction is related with an alternative blockchain
-    bool m_added_to_pool; 
-    bool m_tx_fee_too_small;
-  };
-
+  // TODO remove
   struct block_verification_context
   {
     bool m_added_to_main_chain;
-    bool m_verifivation_failed; //bad block, should drop connection
+    bool m_verification_failed; //bad block, should drop connection
     bool m_marked_as_orphaned;
     bool m_already_exists;
     bool m_switched_to_alt_chain;

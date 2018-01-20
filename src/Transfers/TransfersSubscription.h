@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -8,11 +13,13 @@
 #include "TransfersContainer.h"
 #include "IObservableImpl.h"
 
+#include "Logging/LoggerRef.h"
+
 namespace CryptoNote {
 
 class TransfersSubscription : public IObservableImpl < ITransfersObserver, ITransfersSubscription > {
 public:
-  TransfersSubscription(const CryptoNote::Currency& currency, const AccountSubscription& sub);
+  TransfersSubscription(const CryptoNote::Currency& currency, Logging::ILogger& logger, const AccountSubscription& sub);
 
   SynchronizationStart getSyncStart();
   void onBlockchainDetach(uint32_t height);
@@ -30,8 +37,10 @@ public:
   virtual ITransfersContainer& getContainer() override;
 
 private:
+  Logging::LoggerRef logger;
   TransfersContainer transfers;
   AccountSubscription subscription;
+  std::string m_address;
 };
 
 }

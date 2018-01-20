@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "gtest/gtest.h"
 
@@ -77,14 +82,12 @@ TEST_F(MessageQueueTest, singleNewBlockMessage) {
 
   contextGroup.spawn([&]() {
     const BlockchainMessage& m = queue.front();
-    ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::NEW_BLOCK_MESSAGE);
-    Crypto::Hash h;
-    ASSERT_TRUE(m.getNewBlockHash(h));
-    ASSERT_EQ(h, randomHash);
+    ASSERT_EQ(m.getType(), BlockchainMessage::Type::NewBlock);
+    ASSERT_EQ(m.getNewBlock().blockHash, randomHash);
     ASSERT_NO_THROW(queue.pop());
   });
 
-  ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(NewBlockMessage(randomHash))));
+  ASSERT_NO_THROW(sendBlockchainMessage(makeNewBlockMessage(1, randomHash)));
 
   contextGroup.wait();
 }
@@ -100,14 +103,12 @@ TEST_F(MessageQueueTest, singleNewAlternativeBlockMessage) {
 
   contextGroup.spawn([&]() {
     const BlockchainMessage& m = queue.front();
-    ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::NEW_ALTERNATIVE_BLOCK_MESSAGE);
-    Crypto::Hash h;
-    ASSERT_TRUE(m.getNewAlternativeBlockHash(h));
-    ASSERT_EQ(h, randomHash);
+    ASSERT_EQ(m.getType(), BlockchainMessage::Type::NewAlternativeBlock);
+    ASSERT_EQ(m.getNewAlternativeBlock().blockHash, randomHash);
     ASSERT_NO_THROW(queue.pop());
   });
 
-  ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(NewAlternativeBlockMessage(randomHash))));
+  ASSERT_NO_THROW(sendBlockchainMessage(makeNewAlternativeBlockMessage(1, randomHash)));
 
   contextGroup.wait();
 }
@@ -128,16 +129,14 @@ TEST_F(MessageQueueTest, singleChainSwitchMessage) {
 
   contextGroup.spawn([&]() {
     const BlockchainMessage& m = queue.front();
-    ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::CHAIN_SWITCH_MESSAGE);
-    std::vector<Crypto::Hash> res;
-    ASSERT_TRUE(m.getChainSwitch(res));
-    ASSERT_EQ(res, randomHashes);
+    ASSERT_EQ(m.getType(), BlockchainMessage::Type::ChainSwitch);
+    ASSERT_EQ(m.getChainSwitch().blocksFromCommonRoot, randomHashes);
     ASSERT_NO_THROW(queue.pop());
   });
 
 
   std::vector<Crypto::Hash> copy = randomHashes;
-  ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(ChainSwitchMessage(std::move(copy)))));
+  ASSERT_NO_THROW(sendBlockchainMessage(makeChainSwitchMessage(1, std::move(copy))));
 
   contextGroup.wait();
 }
@@ -159,16 +158,14 @@ TEST_F(MessageQueueTest, manyMessagesOneListener) {
   contextGroup.spawn([&]() {
     for (size_t i = 0; i < NUMBER_OF_BLOCKS; ++i) {
       const BlockchainMessage& m = queue.front();
-      ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::NEW_BLOCK_MESSAGE);
-      Crypto::Hash h;
-      ASSERT_TRUE(m.getNewBlockHash(h));
-      ASSERT_EQ(h, randomHashes[i]);
+      ASSERT_EQ(m.getType(), BlockchainMessage::Type::NewBlock);
+      ASSERT_EQ(m.getNewBlock().blockHash, randomHashes[i]);
       ASSERT_NO_THROW(queue.pop());
     }
   });
 
   for (auto h : randomHashes) {
-    ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(NewBlockMessage(h))));
+    ASSERT_NO_THROW(sendBlockchainMessage(makeNewBlockMessage(1, h)));
   }
 
   contextGroup.wait();
@@ -198,10 +195,8 @@ TEST_F(MessageQueueTest, manyMessagesManyListeners) {
     for (size_t i = 0; i < NUMBER_OF_LISTENERS; ++i) {
       for (size_t j = 0; j < NUMBER_OF_BLOCKS; ++j) {
         const BlockchainMessage& m = queues[i]->front();
-        ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::NEW_BLOCK_MESSAGE);
-        Crypto::Hash h;
-        ASSERT_TRUE(m.getNewBlockHash(h));
-        ASSERT_EQ(h, randomHashes[j]);
+        ASSERT_EQ(m.getType(), BlockchainMessage::Type::NewBlock);
+        ASSERT_EQ(m.getNewBlock().blockHash, randomHashes[j]);
         ASSERT_NO_THROW(queues[i]->pop());
       }
     }
@@ -209,7 +204,7 @@ TEST_F(MessageQueueTest, manyMessagesManyListeners) {
 
 
   for (auto h : randomHashes) {
-    ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(NewBlockMessage(h))));
+    ASSERT_NO_THROW(sendBlockchainMessage(makeNewBlockMessage(1, h)));
   }
 
   contextGroup.wait();
@@ -241,26 +236,23 @@ TEST_F(MessageQueueTest, interruptWaiting) {
     for (size_t i = 0; i < NUMBER_OF_LISTENERS; ++i) {
       for (size_t j = 0; j < NUMBER_OF_BLOCKS; ++j) {
         const BlockchainMessage& m = queues[i]->front();
-        ASSERT_EQ(m.getType(), BlockchainMessage::MessageType::NEW_BLOCK_MESSAGE);
-        Crypto::Hash h;
-        ASSERT_TRUE(m.getNewBlockHash(h));
-        ASSERT_EQ(h, randomHashes[j]);
+        ASSERT_EQ(m.getType(), BlockchainMessage::Type::NewBlock);
+        ASSERT_EQ(m.getNewBlock().blockHash, randomHashes[j]);
         ASSERT_NO_THROW(queues[i]->pop());
       }
     }
 
     for (size_t i = 0; i < NUMBER_OF_LISTENERS; ++i) {
-      for (size_t j = 0; j < NUMBER_OF_BLOCKS; ++j) {
-        ASSERT_ANY_THROW(queues[i]->front());
-        ASSERT_ANY_THROW(queues[i]->pop());
-      }
+      ASSERT_ANY_THROW(queues[i]->front());
+      ASSERT_ANY_THROW(queues[i]->pop());
     }
-
   });
 
   for (auto h : randomHashes) {
-    ASSERT_NO_THROW(sendBlockchainMessage(BlockchainMessage(NewBlockMessage(h))));
+    ASSERT_NO_THROW(sendBlockchainMessage(makeNewBlockMessage(1, h)));
   }
+
+  dispatcher.yield();
 
   interruptBlockchainMessageWaiting();
 

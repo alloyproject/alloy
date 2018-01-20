@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "ConfigurationManager.h"
 
@@ -9,6 +14,7 @@
 
 #include "Common/CommandLine.h"
 #include "Common/Util.h"
+#include "version.h"
 
 namespace PaymentService {
 
@@ -32,7 +38,8 @@ bool ConfigurationManager::init(int argc, char** argv) {
   cmdGeneralOptions.add_options()
       ("help,h", "produce this help message and exit")
       ("local", po::bool_switch(), "start with local node (remote is default)")
-      ("testnet", po::bool_switch(), "testnet mode");
+      ("testnet", po::bool_switch(), "testnet mode")
+      ("version", "Output version information");
 
   command_line::add_arg(cmdGeneralOptions, command_line::arg_data_dir, Tools::getDefaultDataDirectory());
   command_line::add_arg(confGeneralOptions, command_line::arg_data_dir, Tools::getDefaultDataDirectory());
@@ -42,8 +49,7 @@ bool ConfigurationManager::init(int argc, char** argv) {
 
   po::options_description netNodeOptions("Local Node Options");
   CryptoNote::NetNodeConfig::initOptions(netNodeOptions);
-  CryptoNote::CoreConfig::initOptions(netNodeOptions);
-
+  
   po::options_description remoteNodeOptions("Remote Node Options");
   RpcNodeConfiguration::initOptions(remoteNodeOptions);
 
@@ -62,6 +68,11 @@ bool ConfigurationManager::init(int argc, char** argv) {
     return false;
   }
 
+  if (cmdOptions.count("version") > 0) {
+    std::cout << "walletd v" << PROJECT_VERSION_LONG;
+    return false;
+  }
+
   if (cmdOptions.count("config")) {
     std::ifstream confStream(cmdOptions["config"].as<std::string>(), std::ifstream::in);
     if (!confStream.good()) {
@@ -74,7 +85,6 @@ bool ConfigurationManager::init(int argc, char** argv) {
 
     gateConfiguration.init(confOptions);
     netNodeConfig.init(confOptions);
-    coreConfig.init(confOptions);
     remoteNodeConfig.init(confOptions);
 
     netNodeConfig.setTestnet(confOptions["testnet"].as<bool>());
@@ -84,8 +94,8 @@ bool ConfigurationManager::init(int argc, char** argv) {
   //command line options should override options from config file
   gateConfiguration.init(cmdOptions);
   netNodeConfig.init(cmdOptions);
-  coreConfig.init(cmdOptions);
   remoteNodeConfig.init(cmdOptions);
+  dataDir = command_line::get_arg(cmdOptions, command_line::arg_data_dir);
 
   if (cmdOptions["testnet"].as<bool>()) {
     netNodeConfig.setTestnet(true);

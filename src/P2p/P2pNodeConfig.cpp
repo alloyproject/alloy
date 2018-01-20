@@ -1,8 +1,14 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "P2pNodeConfig.h"
+#include "P2pNetworks.h"
 
 #include <CryptoNoteConfig.h>
 
@@ -21,7 +27,7 @@ P2pNodeConfig::P2pNodeConfig() :
   handshakeTimeout(std::chrono::milliseconds(P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT)),
   connectInterval(P2P_DEFAULT_CONNECT_INTERVAL),
   connectTimeout(std::chrono::milliseconds(P2P_DEFAULT_CONNECTION_TIMEOUT)),
-  networkId(boost::uuids::uuid(CRYPTONOTE_NETWORK)),
+  networkId(CRYPTONOTE_NETWORK),
   expectedOutgoingConnectionsCount(P2P_DEFAULT_CONNECTIONS_COUNT),
   whiteListConnectionsPercent(P2P_DEFAULT_WHITELIST_CONNECTIONS_PERCENT),
   peerListConnectRange(P2P_DEFAULT_CONNECT_RANGE),

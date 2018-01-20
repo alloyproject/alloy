@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include <string.h>
 #include "Context.h"
@@ -9,7 +14,7 @@ void
 makecontext(uctx *ucp, void (*func)(void), intptr_t arg)
 {
   long *sp;
-
+  
   memset(&ucp->uc_mcontext, 0, sizeof ucp->uc_mcontext);
   ucp->uc_mcontext.mc_rdi = (long)arg;
   sp = (long*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/sizeof(long);

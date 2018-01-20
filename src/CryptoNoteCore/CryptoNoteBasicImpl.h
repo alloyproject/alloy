@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -31,13 +36,13 @@ namespace CryptoNote {
   bool parseAccountAddressString(uint64_t& prefix, AccountPublicAddress& adr, const std::string& str);
   bool is_coinbase(const Transaction& tx);
 
-  bool operator ==(const CryptoNote::Transaction& a, const CryptoNote::Transaction& b);
-  bool operator ==(const CryptoNote::Block& a, const CryptoNote::Block& b);
+  //bool operator ==(const CryptoNote::Transaction& a, const CryptoNote::Transaction& b);
+  //bool operator ==(const CryptoNote::Block& a, const CryptoNote::Block& b);
 }
 
 template <class T>
 std::ostream &print256(std::ostream &o, const T &v) {
-  return o << "<" << Common::podToHex(v) << ">";
+  return o << Common::podToHex(v);
 }
 
 bool parse_hash256(const std::string& str_hash, Crypto::Hash& hash);

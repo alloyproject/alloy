@@ -1,10 +1,16 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 #include <vector>
 #include <string>
 
@@ -58,6 +64,37 @@ template<typename T> T readVarint(IInputStream& in) {
   T value;
   readVarint(in, value);
   return value;
+}
+
+template<typename T>
+class ContainerFormatter {
+public:
+  explicit ContainerFormatter(const T& container) :
+    m_container(container) {
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const ContainerFormatter<T>& formatter) {
+    os << '{';
+
+    if (!formatter.m_container.empty()) {
+      os << formatter.m_container.front();
+      for (auto it = std::next(formatter.m_container.begin()); it != formatter.m_container.end(); ++it) {
+        os << ", " << *it;
+      }
+    }
+
+    os << '}';
+
+    return os;
+  }
+
+private:
+  const T& m_container;
+};
+
+template<typename T>
+ContainerFormatter<T> makeContainerFormatter(const T& container) {
+  return ContainerFormatter<T>(container);
 }
 
 };

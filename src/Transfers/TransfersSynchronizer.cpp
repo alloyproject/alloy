@@ -1,12 +1,18 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "TransfersSynchronizer.h"
 #include "TransfersConsumer.h"
 
 #include "Common/StdInputStream.h"
 #include "Common/StdOutputStream.h"
+#include "CryptoNoteCore/CryptoNoteBasicImpl.h"
 #include "Serialization/BinaryInputStreamSerializer.h"
 #include "Serialization/BinaryOutputStreamSerializer.h"
 
@@ -17,8 +23,8 @@ namespace CryptoNote {
 
 const uint32_t TRANSFERS_STORAGE_ARCHIVE_VERSION = 0;
 
-TransfersSyncronizer::TransfersSyncronizer(const CryptoNote::Currency& currency, IBlockchainSynchronizer& sync, INode& node) :
-  m_currency(currency), m_sync(sync), m_node(node) {
+TransfersSyncronizer::TransfersSyncronizer(const CryptoNote::Currency& currency, Logging::ILogger& logger, IBlockchainSynchronizer& sync, INode& node) :
+  m_currency(currency), m_logger(logger, "TransfersSyncronizer"), m_sync(sync), m_node(node) {
 }
 
 TransfersSyncronizer::~TransfersSyncronizer() {
@@ -39,7 +45,7 @@ ITransfersSubscription& TransfersSyncronizer::addSubscription(const AccountSubsc
 
   if (it == m_consumers.end()) {
     std::unique_ptr<TransfersConsumer> consumer(
-      new TransfersConsumer(m_currency, m_node, acc.keys.viewSecretKey));
+      new TransfersConsumer(m_currency, m_node, m_logger.getLogger(), acc.keys.viewSecretKey));
 
     m_sync.addConsumer(consumer.get());
     consumer->addObserver(this);
@@ -266,15 +272,21 @@ void TransfersSyncronizer::load(std::istream& is) {
             auto prevState = getObjectState(sub->getContainer());
             setObjectState(sub->getContainer(), state);
             updatedStates.back().subscriptionStates.push_back(std::make_pair(acc, prevState));
+          } else {
+            m_logger(Logging::DEBUGGING) << "Subscription not found: " << m_currency.accountAddressAsString(acc);
           }
 
           s.endObject();
         }
+
         s.endArray();
+      } else {
+        m_logger(Logging::DEBUGGING) << "Consumer not found: " << viewKey;
       }
+
+      s.endObject();
     }
 
-    s.endObject();
     s.endArray();
 
   } catch (...) {

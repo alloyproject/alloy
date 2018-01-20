@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -18,17 +23,17 @@ public:
       generator(currency),
       events(eventsRef) {
     minerAccount.generate();
-    generator.constructBlock(genesisBlock, minerAccount, 1338224400);
-    events.push_back(genesisBlock);
-    lastBlock = genesisBlock;
+    //generator.constructBlock(genesisBlock, minerAccount, 1338224400);
+    lastBlock = currency.genesisBlock();
+    events.push_back(lastBlock);
   }
 
   const CryptoNote::Currency& currency() const { return generator.currency(); }
 
   void makeNextBlock(const std::list<CryptoNote::Transaction>& txs = std::list<CryptoNote::Transaction>()) {
-    CryptoNote::Block block;
+   CryptoNote::BlockTemplate block;
     generator.constructBlock(block, lastBlock, minerAccount, txs);
-    events.push_back(block);
+    events.push_back(populateBlock(block, txs));
     lastBlock = block;
   }
 
@@ -44,7 +49,7 @@ public:
 
   void generateBlocks(size_t count, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1) {
     while (count--) {
-      CryptoNote::Block next;
+     CryptoNote::BlockTemplate next;
       generator.constructBlockManually(next, lastBlock, minerAccount, test_generator::bf_major_ver, majorVersion);
       lastBlock = next;
       events.push_back(next);
@@ -103,8 +108,8 @@ public:
 
   Logging::LoggerGroup logger;
   test_generator generator;
-  CryptoNote::Block genesisBlock;
-  CryptoNote::Block lastBlock;
+ CryptoNote::BlockTemplate genesisBlock;
+ CryptoNote::BlockTemplate lastBlock;
   CryptoNote::AccountBase minerAccount;
   std::vector<test_event_entry>& events;
 };

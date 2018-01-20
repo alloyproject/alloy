@@ -1,12 +1,18 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "WalletLegacy.h"
 
 #include <string.h>
 #include <time.h>
 
+#include "Logging/ConsoleLogger.h"
 #include "WalletLegacy/WalletHelper.h"
 #include "WalletLegacy/WalletLegacySerialization.h"
 #include "WalletLegacy/WalletLegacySerializer.h"
@@ -94,11 +100,12 @@ WalletLegacy::WalletLegacy(const CryptoNote::Currency& currency, INode& node) :
   m_state(NOT_INITIALIZED),
   m_currency(currency),
   m_node(node),
+  m_consoleLogger(Logging::ERROR),
   m_isStopping(false),
   m_lastNotifiedActualBalance(0),
   m_lastNotifiedPendingBalance(0),
-  m_blockchainSync(node, currency.genesisBlockHash()),
-  m_transfersSync(currency, m_blockchainSync, node),
+  m_blockchainSync(node, m_consoleLogger, currency.genesisBlockHash()),
+  m_transfersSync(currency, m_consoleLogger, m_blockchainSync, node),
   m_transferDetails(nullptr),
   m_transactionsCache(m_currency.mempoolTxLiveTime()),
   m_sender(nullptr),
@@ -188,6 +195,9 @@ void WalletLegacy::initSync() {
   sub.transactionSpendableAge = 1;
   sub.syncStart.height = 0;
   sub.syncStart.timestamp = m_account.get_createtime() - ACCOUN_CREATE_TIME_ACCURACY;
+  if (m_syncAll == 1)
+    sub.syncStart.timestamp = 0;
+  std::cout << "Sync from timestamp: " << sub.syncStart.timestamp << std::endl;
   
   auto& subObject = m_transfersSync.addSubscription(sub);
   m_transferDetails = &subObject.getContainer();
@@ -580,6 +590,9 @@ void WalletLegacy::notifyIfBalanceChanged() {
 
 }
 
+void WalletLegacy::syncAll(bool syncWalletFromZero) {
+  m_syncAll = syncWalletFromZero;
+}
 void WalletLegacy::getAccountKeys(AccountKeys& keys) {
   if (m_state == NOT_INITIALIZED) {
     throw std::system_error(make_error_code(CryptoNote::error::NOT_INITIALIZED));

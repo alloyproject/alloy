@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "RpcNodeConfiguration.h"
 
@@ -15,8 +20,8 @@ RpcNodeConfiguration::RpcNodeConfiguration() {
 
 void RpcNodeConfiguration::initOptions(boost::program_options::options_description& desc) {
   desc.add_options()
-    ("daemon-address", po::value<std::string>()->default_value("localhost"), "daemon address")
-    ("daemon-port", po::value<uint16_t>()->default_value(8081), "daemon port");
+    ("daemon-address", po::value<std::string>()->default_value("localhost"), "bytecoind address")
+    ("daemon-port", po::value<uint16_t>()->default_value(8102), "daemon port");
 }
 
 void RpcNodeConfiguration::init(const boost::program_options::variables_map& options) {

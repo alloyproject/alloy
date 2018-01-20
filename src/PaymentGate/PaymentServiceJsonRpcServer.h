@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -58,8 +63,11 @@ private:
 
   std::unordered_map<std::string, HandlerFunction> handlers;
 
+  std::error_code handleSave(const Save::Request& request, Save::Response& response);
+  std::error_code handleExport(const Export::Request& request, Export::Response& response);
   std::error_code handleReset(const Reset::Request& request, Reset::Response& response);
   std::error_code handleCreateAddress(const CreateAddress::Request& request, CreateAddress::Response& response);
+  std::error_code handleCreateAddressList(const CreateAddressList::Request& request, CreateAddressList::Response& response);
   std::error_code handleDeleteAddress(const DeleteAddress::Request& request, DeleteAddress::Response& response);
   std::error_code handleGetSpendKeys(const GetSpendKeys::Request& request, GetSpendKeys::Response& response);
   std::error_code handleGetBalance(const GetBalance::Request& request, GetBalance::Response& response);
@@ -77,6 +85,8 @@ private:
   std::error_code handleGetStatus(const GetStatus::Request& request, GetStatus::Response& response);
   std::error_code handleGetAddresses(const GetAddresses::Request& request, GetAddresses::Response& response);
 
+  std::error_code handleSendFusionTransaction(const SendFusionTransaction::Request& request, SendFusionTransaction::Response& response);
+  std::error_code handleEstimateFusion(const EstimateFusion::Request& request, EstimateFusion::Response& response);
 };
 
 }//namespace PaymentService

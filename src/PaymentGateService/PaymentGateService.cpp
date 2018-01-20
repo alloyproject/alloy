@@ -1,22 +1,33 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "PaymentGateService.h"
 
 #include <future>
 
 #include "Common/SignalHandler.h"
+#include "Common/Util.h"
 #include "InProcessNode/InProcessNode.h"
 #include "Logging/LoggerRef.h"
 #include "PaymentGate/PaymentServiceJsonRpcServer.h"
 
-#include "CryptoNoteCore/CoreConfig.h"
+#include "Common/ScopeExit.h"
 #include "CryptoNoteCore/Core.h"
+#include "CryptoNoteCore/DatabaseBlockchainCache.h"
+#include "CryptoNoteCore/DatabaseBlockchainCacheFactory.h"
+#include "CryptoNoteCore/DataBaseConfig.h"
+#include "CryptoNoteCore/MainChainStorage.h"
+#include "CryptoNoteCore/RocksDBWrapper.h"
 #include "CryptoNoteProtocol/CryptoNoteProtocolHandler.h"
 #include "P2p/NetNode.h"
-#include "PaymentGate/WalletFactory.h"
 #include <System/Context.h>
+#include "Wallet/WalletGreen.h"
 
 #ifdef ERROR
 #undef ERROR
@@ -40,12 +51,26 @@ void stopSignalHandler(PaymentGateService* pg) {
   pg->stop();
 }
 
+PaymentGateService::PaymentGateService() :
+  dispatcher(nullptr),
+  stopEvent(nullptr),
+  config(),
+  service(nullptr),
+  logger(),
+  currencyBuilder(logger),
+  fileLogger(Logging::TRACE),
+  consoleLogger(Logging::INFO) {
+  consoleLogger.setPattern("%D %T %L ");
+  fileLogger.setPattern("%D %T %L ");
+}
+
 bool PaymentGateService::init(int argc, char** argv) {
   if (!config.init(argc, argv)) {
     return false;
   }
 
   logger.setMaxLevel(static_cast<Logging::Level>(config.gateConfiguration.logLevel));
+  logger.setPattern("%D %T %L ");
   logger.addLogger(consoleLogger);
 
   Logging::LoggerRef log(logger, "main");
@@ -75,7 +100,8 @@ bool PaymentGateService::init(int argc, char** argv) {
 WalletConfiguration PaymentGateService::getWalletConfig() const {
   return WalletConfiguration{
     config.gateConfiguration.containerFile,
-    config.gateConfiguration.containerPassword
+    config.gateConfiguration.containerPassword,
+    config.gateConfiguration.syncFromZero
   };
 }
 
@@ -108,7 +134,7 @@ void PaymentGateService::run() {
 void PaymentGateService::stop() {
   Logging::LoggerRef log(logger, "stop");
 
-  log(Logging::INFO) << "Stop signal caught";
+  log(Logging::INFO, Logging::BRIGHT_WHITE) << "Stop signal caught";
 
   if (dispatcher != nullptr) {
     dispatcher->remoteSpawn([&]() {
@@ -120,54 +146,80 @@ void PaymentGateService::stop() {
 }
 
 void PaymentGateService::runInProcess(Logging::LoggerRef& log) {
-  if (!config.coreConfig.configFolderDefaulted) {
-    if (!Tools::directoryExists(config.coreConfig.configFolder)) {
-      throw std::runtime_error("Directory does not exist: " + config.coreConfig.configFolder);
+  log(Logging::INFO) << "Starting Payment Gate with local node";
+
+  CryptoNote::DataBaseConfig dbConfig;
+
+  //TODO: make command line options
+  dbConfig.setConfigFolderDefaulted(true);
+  dbConfig.setDataDir(config.dataDir);
+  dbConfig.setMaxOpenFiles(100);
+  dbConfig.setReadCacheSize(128*1024*1024);
+  dbConfig.setWriteBufferSize(128*1024*1024);
+  dbConfig.setTestnet(false);
+  dbConfig.setBackgroundThreadsCount(2);
+
+  if (dbConfig.isConfigFolderDefaulted()) {
+    if (!Tools::create_directories_if_necessary(dbConfig.getDataDir())) {
+      throw std::runtime_error("Can't create directory: " + dbConfig.getDataDir());
     }
   } else {
-    if (!Tools::create_directories_if_necessary(config.coreConfig.configFolder)) {
-      throw std::runtime_error("Can't create directory: " + config.coreConfig.configFolder);
+    if (!Tools::directoryExists(dbConfig.getDataDir())) {
+      throw std::runtime_error("Directory does not exist: " + dbConfig.getDataDir());
     }
   }
 
-  log(Logging::INFO) << "Starting Payment Gate with local node";
+  CryptoNote::RocksDBWrapper database(logger);
+  database.init(dbConfig);
+  Tools::ScopeExit dbShutdownOnExit([&database] () { database.shutdown(); });
+
+  if (!CryptoNote::DatabaseBlockchainCache::checkDBSchemeVersion(database, logger))
+  {
+    dbShutdownOnExit.cancel();
+    database.shutdown();
+
+    database.destoy(dbConfig);
+
+    database.init(dbConfig);
+    dbShutdownOnExit.resume();
+  }
 
   CryptoNote::Currency currency = currencyBuilder.currency();
-  CryptoNote::core core(currency, NULL, logger);
 
-  CryptoNote::CryptoNoteProtocolHandler protocol(currency, *dispatcher, core, NULL, logger);
+  log(Logging::INFO) << "initializing core";
+
+  CryptoNote::Core core(
+    currency,
+    logger,
+    CryptoNote::Checkpoints(logger),
+    *dispatcher,
+    std::unique_ptr<CryptoNote::IBlockchainCacheFactory>(new CryptoNote::DatabaseBlockchainCacheFactory(database, log.getLogger())),
+    CryptoNote::createSwappedMainChainStorage(dbConfig.getDataDir(), currency));
+
+  core.load();
+
+  CryptoNote::CryptoNoteProtocolHandler protocol(currency, *dispatcher, core, nullptr, logger);
   CryptoNote::NodeServer p2pNode(*dispatcher, protocol, logger);
 
   protocol.set_p2p_endpoint(&p2pNode);
-  core.set_cryptonote_protocol(&protocol);
 
   log(Logging::INFO) << "initializing p2pNode";
   if (!p2pNode.init(config.netNodeConfig)) {
     throw std::runtime_error("Failed to init p2pNode");
   }
 
-  log(Logging::INFO) << "initializing core";
-  CryptoNote::MinerConfig emptyMiner;
-  core.init(config.coreConfig, emptyMiner, true);
+  std::unique_ptr<CryptoNote::INode> node(new CryptoNote::InProcessNode(core, protocol, *dispatcher));
 
-  std::promise<std::error_code> initPromise;
-  auto initFuture = initPromise.get_future();
-
-  std::unique_ptr<CryptoNote::INode> node(new CryptoNote::InProcessNode(core, protocol));
-
-  node->init([&initPromise, &log](std::error_code ec) {
-    if (ec) {
-      log(Logging::WARNING, Logging::YELLOW) << "Failed to init node: " << ec.message();
-    } else {
-      log(Logging::INFO) << "node is inited successfully";
-    }
-
-    initPromise.set_value(ec);
+  std::error_code nodeInitStatus;
+  node->init([&log, &nodeInitStatus](std::error_code ec) {
+    nodeInitStatus = ec;
   });
 
-  auto ec = initFuture.get();
-  if (ec) {
-    throw std::system_error(ec);
+  if (nodeInitStatus) {
+    log(Logging::WARNING, Logging::YELLOW) << "Failed to init node: " << nodeInitStatus.message();
+    throw std::system_error(nodeInitStatus);
+  } else {
+    log(Logging::INFO) << "node is inited successfully";
   }
 
   log(Logging::INFO) << "Spawning p2p server";
@@ -186,7 +238,6 @@ void PaymentGateService::runInProcess(Logging::LoggerRef& log) {
   p2pNode.sendStopSignal();
   context.get();
   node->shutdown();
-  core.deinit();
   p2pNode.deinit(); 
 }
 
@@ -197,7 +248,8 @@ void PaymentGateService::runRpcProxy(Logging::LoggerRef& log) {
   std::unique_ptr<CryptoNote::INode> node(
     PaymentService::NodeFactory::createNode(
       config.remoteNodeConfig.daemonHost, 
-      config.remoteNodeConfig.daemonPort));
+      config.remoteNodeConfig.daemonPort,
+      log.getLogger()));
 
   runWalletService(currency, *node);
 }
@@ -205,12 +257,13 @@ void PaymentGateService::runRpcProxy(Logging::LoggerRef& log) {
 void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, CryptoNote::INode& node) {
   PaymentService::WalletConfiguration walletConfiguration{
     config.gateConfiguration.containerFile,
-    config.gateConfiguration.containerPassword
+    config.gateConfiguration.containerPassword,
+    config.gateConfiguration.syncFromZero
   };
 
-  std::unique_ptr<CryptoNote::IWallet> wallet (WalletFactory::createWallet(currency, node, *dispatcher));
+  std::unique_ptr<CryptoNote::WalletGreen> wallet(new CryptoNote::WalletGreen(*dispatcher, currency, node, logger));
 
-  service = new PaymentService::WalletService(currency, *dispatcher, node, *wallet, walletConfiguration, logger);
+  service = new PaymentService::WalletService(currency, *dispatcher, node, *wallet, *wallet, walletConfiguration, logger);
   std::unique_ptr<PaymentService::WalletService> serviceGuard(service);
   try {
     service->init();
@@ -229,6 +282,8 @@ void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, 
   } else {
     PaymentService::PaymentServiceJsonRpcServer rpcServer(*dispatcher, *stopEvent, *service, logger);
     rpcServer.start(config.gateConfiguration.bindAddress, config.gateConfiguration.bindPort);
+
+    Logging::LoggerRef(logger, "PaymentGateService")(Logging::INFO, Logging::BRIGHT_WHITE) << "JSON-RPC server stopped, stopping wallet service...";
 
     try {
       service->saveWallet();

@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -18,6 +23,7 @@
 #include "CryptoNoteCore/TransactionExtra.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/Currency.h"
+#include "Logging/ConsoleLogger.h"
 #include "WalletLegacy/WalletUserTransactionsCache.h"
 #include "WalletLegacy/WalletUnconfirmedTransactions.h"
 
@@ -70,6 +76,7 @@ public:
   virtual TransactionId sendTransaction(const std::vector<WalletLegacyTransfer>& transfers, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) override;
   virtual std::error_code cancelTransaction(size_t transactionId) override;
 
+  void syncAll(bool syncWalletFromZero) override;
   virtual void getAccountKeys(AccountKeys& keys) override;
 
 private:
@@ -109,6 +116,7 @@ private:
   std::string m_password;
   const CryptoNote::Currency& m_currency;
   INode& m_node;
+  Logging::ConsoleLogger m_consoleLogger;
   bool m_isStopping;
 
   std::atomic<uint64_t> m_lastNotifiedActualBalance;
@@ -125,6 +133,7 @@ private:
   Tools::ObserverManager<CryptoNote::IWalletLegacyObserver> m_observerManager;
 
   std::unique_ptr<SyncStarter> m_onInitSyncStarter;
+bool m_syncAll = 0;
 };
 
 } //namespace CryptoNote

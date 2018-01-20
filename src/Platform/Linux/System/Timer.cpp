@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "Timer.h"
 #include <cassert>
@@ -93,7 +98,7 @@ void Timer::sleep(std::chrono::nanoseconds duration) {
               timerContext->interrupted = true;
               dispatcher->pushContext(timerContext->context);
             } else {
-              throw std::runtime_error("Timer::interrupt, read failed, "  + lastErrorMessage());
+              throw std::runtime_error("Timer::sleep, interrupt procedure, read failed, "  + lastErrorMessage());
             }
           } else {
             assert(value>0);
@@ -101,11 +106,11 @@ void Timer::sleep(std::chrono::nanoseconds duration) {
           }
 
           epoll_event timerEvent;
-          timerEvent.events = 0;
+          timerEvent.events = EPOLLONESHOT;
           timerEvent.data.ptr = nullptr;
 
           if (epoll_ctl(dispatcher->getEpoll(), EPOLL_CTL_MOD, timer, &timerEvent) == -1) {
-            throw std::runtime_error("Timer::interrupt, epoll_ctl failed, " + lastErrorMessage());
+            throw std::runtime_error("Timer::sleep, interrupt procedure, epoll_ctl failed, " + lastErrorMessage());
           }
         }
     };

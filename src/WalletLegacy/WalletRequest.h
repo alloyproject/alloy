@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -37,7 +42,7 @@ public:
 
   virtual void perform(INode& node, std::function<void (WalletRequest::Callback, std::error_code)> cb) override
   {
-    node.getRandomOutsByAmounts(std::move(m_amounts), m_outsCount, std::ref(m_context->outs), std::bind(cb, m_cb, std::placeholders::_1));
+    node.getRandomOutsByAmounts(std::move(m_amounts), static_cast<uint16_t>(m_outsCount), std::ref(m_context->outs), std::bind(cb, m_cb, std::placeholders::_1));
   };
 
 private:

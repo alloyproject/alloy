@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "gtest/gtest.h"
 
@@ -16,6 +21,7 @@
 
 #include <future>
 #include <algorithm>
+#include <numeric>
 
 #include <Logging/ConsoleLogger.h>
 
@@ -37,11 +43,12 @@ class TransfersApi : public ::testing::Test, public IBlockchainSynchronizerObser
 public:
 
   TransfersApi() :
+    m_logger(Logging::ERROR),
     m_currency(CryptoNote::CurrencyBuilder(m_logger).currency()),
     generator(m_currency),
     m_node(generator),
-    m_sync(m_node, m_currency.genesisBlockHash()),
-    m_transfersSync(m_currency, m_sync, m_node) {
+    m_sync(m_node, m_logger, m_currency.genesisBlockHash()),
+    m_transfersSync(m_currency, m_logger, m_sync, m_node) {
   }
 
   void addAccounts(size_t count) {
@@ -274,7 +281,11 @@ TEST_F(TransfersApi, moveMoney) {
   generator.generateEmptyBlocks(2 * m_currency.minedMoneyUnlockWindow());
 
   // sendAmount is an even number
-  uint64_t sendAmount = (get_outs_money_amount(generator.getBlockchain()[1].baseTransaction) / 4) * 2;
+  auto& transaction = generator.getBlockchain()[1].baseTransaction;
+  uint64_t sendAmount = std::accumulate(
+      transaction.outputs.begin(), transaction.outputs.end(), UINT64_C(0),
+      [](uint64_t sum, const decltype(transaction.outputs)::value_type& output) { return sum + output.amount; });
+  sendAmount = (sendAmount / 4) * 2;
   auto fee = m_currency.minimumFee();
 
   startSync();
@@ -364,8 +375,8 @@ TEST_F(TransfersApi, state) {
   m_transfersSync.save(memstm);
   m_sync.start();
 
-  BlockchainSynchronizer bsync2(m_node, m_currency.genesisBlockHash());
-  TransfersSyncronizer sync2(m_currency, bsync2, m_node);
+  BlockchainSynchronizer bsync2(m_node, m_logger, m_currency.genesisBlockHash());
+  TransfersSyncronizer sync2(m_currency, m_logger, bsync2, m_node);
 
   for (size_t i = 0; i < m_accounts.size(); ++i) {
     sync2.addSubscription(createSubscription(i));

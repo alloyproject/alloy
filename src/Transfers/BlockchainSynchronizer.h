@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -15,6 +20,8 @@
 #include <atomic>
 #include <future>
 
+#include "Logging/LoggerRef.h"
+
 namespace CryptoNote {
 
 class BlockchainSynchronizer :
@@ -22,7 +29,7 @@ class BlockchainSynchronizer :
   public INodeObserver {
 public:
 
-  BlockchainSynchronizer(INode& node, const Crypto::Hash& genesisBlockHash);
+  BlockchainSynchronizer(INode& node, Logging::ILogger& logger, const Crypto::Hash& genesisBlockHash);
   ~BlockchainSynchronizer();
 
   // IBlockchainSynchronizer
@@ -77,7 +84,8 @@ private:
     idle = 0,           //DO
     poolSync = 1,       //NOT
     blockchainSync = 2, //REORDER
-    stopped = 3         //!!!
+    deleteOldTxs = 3,   //!!!
+    stopped = 4         //!!!
   };
 
   enum class UpdateConsumersResult {
@@ -87,6 +95,7 @@ private:
   };
 
   //void startSync();
+  void removeOutdatedTransactions();
   void startPoolSync();
   void startBlockchainSync();
 
@@ -113,6 +122,7 @@ private:
 
   typedef std::map<IBlockchainConsumer*, std::shared_ptr<SynchronizationState>> ConsumersMap;
 
+  mutable Logging::LoggerRef m_logger;
   ConsumersMap m_consumers;
   INode& m_node;
   const Crypto::Hash m_genesisBlockHash;
@@ -128,6 +138,8 @@ private:
   mutable std::mutex m_consumersMutex;
   mutable std::mutex m_stateMutex;
   std::condition_variable m_hasWork;
+
+  bool wasStarted = false;
 };
 
 }

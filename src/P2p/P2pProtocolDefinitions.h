@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -8,7 +13,7 @@
 
 #include "crypto/crypto.h"
 #include "CryptoNoteConfig.h"
-#include "CryptoNoteCore/CryptoNoteStatInfo.h"
+#include "CryptoNoteCore/CoreStatistics.h"
 
 // new serialization
 #include "Serialization/ISerializer.h"
@@ -220,7 +225,7 @@ namespace CryptoNote
       std::string os_version;
       uint64_t connections_count;
       uint64_t incoming_connections_count;
-      core_stat_info payload_info;
+      CoreStatistics payload_info;
 
       void serialize(ISerializer& s) {
         KV_MEMBER(version)

@@ -31,15 +31,19 @@
 *.out
 *.app
 
-# Mac OS
-*.DS_Store
+# Boost
+boost/
+boost_1_60_0/
 
 # Build
+*.idea
+*.ycm_extra_conf.py
+*.ycm_extra_conf.pyc
+
 build/
 tags/
 Release/
 Debug/
 
-*.idea
-*.ycm_extra_conf.py
-*.ycm_extra_conf.pyc
+# Mac OS
+*.DS_Store

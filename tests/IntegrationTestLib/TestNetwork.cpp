@@ -1,20 +1,24 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "TestNetwork.h"
 
 #include <fstream>
 #include <boost/filesystem.hpp>
 
-#include "CryptoNoteConfig.h"
 #include "InProcTestNode.h"
 #include "RPCTestNode.h"
 
 #ifdef _WIN32
-const std::string daemonExec = std::string(CRYPTONOTE_NAME) + "d.exe";
+const std::string bytecoinDaemon = "bytecoind.exe";
 #else
-const std::string daemonExec = std::string(CRYPTONOTE_NAME) + "d";
+const std::string bytecoinDaemon = "bytecoind";
 #endif
 
 namespace {
@@ -64,7 +68,7 @@ void copyBlockchainFiles(bool testnet, const std::string& from, const std::strin
       boost::filesystem::path filePath = std::string(testnet ? "testnet_" : "") + item.first;
       boost::filesystem::copy(fromPath / filePath, toPath / filePath);
     } catch (...) {
-      if (item.second) {
+      if (item.second) { 
         // if file is required, the rethrow error
         throw;
       }
@@ -79,9 +83,9 @@ namespace Tests {
 
 
 TestNetworkBuilder::TestNetworkBuilder(size_t nodeCount, Topology topology, uint16_t rpcBasePort, uint16_t p2pBasePort) :
-  nodeCount(nodeCount),
-  topology(topology),
-  rpcBasePort(rpcBasePort),
+  nodeCount(nodeCount), 
+  topology(topology), 
+  rpcBasePort(rpcBasePort), 
   p2pBasePort(p2pBasePort),
   baseDataDir("."),
   testnet(true)
@@ -123,9 +127,9 @@ TestNodeConfiguration TestNetworkBuilder::buildNodeConfiguration(size_t index) {
     cfg.blockchainLocation = blockchainLocation;
   }
 
-  cfg.daemonPath = daemonExec; // default
+  cfg.daemonPath = bytecoinDaemon; // default
   cfg.testnet = testnet;
-  cfg.logFile = std::string("test_") + CRYPTONOTE_NAME + "d" + std::to_string(index) + ".log";
+  cfg.logFile = "test_bytecoind" + std::to_string(index) + ".log";
 
   uint16_t rpcPort = static_cast<uint16_t>(rpcBasePort + index);
   uint16_t p2pPort = static_cast<uint16_t>(p2pBasePort + index);
@@ -159,7 +163,7 @@ TestNodeConfiguration TestNetworkBuilder::buildNodeConfiguration(size_t index) {
 
 }
 
-TestNetwork::TestNetwork(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency) :
+TestNetwork::TestNetwork(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency) : 
   m_dispatcher(dispatcher),
   m_currency(currency) {
 }
@@ -183,7 +187,7 @@ void TestNetwork::addNode(const TestNodeConfiguration& cfg) {
 
   switch (cfg.nodeType) {
   case NodeType::InProcess:
-    node.reset(new InProcTestNode(cfg, m_currency));
+    node.reset(new InProcTestNode(cfg, m_currency, m_dispatcher));
     break;
   case NodeType::RPC:
     node = startDaemon(cfg);

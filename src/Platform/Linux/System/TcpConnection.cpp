@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "TcpConnection.h"
 
@@ -91,11 +96,11 @@ size_t TcpConnection::read(uint8_t* data, size_t size) {
             assert(dispatcher != nullptr);
             assert(contextPair.readContext != nullptr);
             epoll_event connectionEvent;
-            connectionEvent.events = 0;
+            connectionEvent.events = EPOLLONESHOT;
             connectionEvent.data.ptr = nullptr;
 
             if (epoll_ctl(dispatcher->getEpoll(), EPOLL_CTL_MOD, connection, &connectionEvent) == -1) {
-              throw std::runtime_error("TcpConnection::stop, epoll_ctl failed, " + lastErrorMessage());
+              throw std::runtime_error("TcpConnection::read, interrupt procedure, epoll_ctl failed, " + lastErrorMessage());
             }
 
             contextPair.readContext->interrupted = true;
@@ -187,11 +192,11 @@ std::size_t TcpConnection::write(const uint8_t* data, size_t size) {
             assert(dispatcher != nullptr);
             assert(contextPair.writeContext != nullptr);
             epoll_event connectionEvent;
-            connectionEvent.events = 0;
+            connectionEvent.events = EPOLLONESHOT;
             connectionEvent.data.ptr = nullptr;
 
             if (epoll_ctl(dispatcher->getEpoll(), EPOLL_CTL_MOD, connection, &connectionEvent) == -1) {
-              throw std::runtime_error("TcpConnection::stop, epoll_ctl failed, " + lastErrorMessage());
+              throw std::runtime_error("TcpConnection::write, interrupt procedure, epoll_ctl failed, " + lastErrorMessage());
             }
 
             contextPair.writeContext->interrupted = true;

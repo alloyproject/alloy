@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "Dispatcher.h"
 #include <cassert>
@@ -72,6 +77,7 @@ Dispatcher::Dispatcher() : lastCreatedTimer(0) {
           mainContext.group = &contextGroup;
           mainContext.groupPrev = nullptr;
           mainContext.groupNext = nullptr;
+          mainContext.inExecutionQueue = false;
           contextGroup.firstContext = nullptr;
           contextGroup.lastContext = nullptr;
           contextGroup.firstWaiter = nullptr;
@@ -132,6 +138,10 @@ void Dispatcher::dispatch() {
     if (firstResumingContext != nullptr) {
       context = firstResumingContext;
       firstResumingContext = context->next;
+
+      assert(context->inExecutionQueue);
+      context->inExecutionQueue = false;
+      
       break;
     }
     
@@ -224,7 +234,12 @@ bool Dispatcher::interrupted() {
 
 void Dispatcher::pushContext(NativeContext* context) {
   assert(context!=nullptr);
+
+  if (context->inExecutionQueue)
+    return;
+
   context->next = nullptr;
+  context->inExecutionQueue = true;
   if (firstResumingContext != nullptr) {
     assert(lastResumingContext != nullptr);
     lastResumingContext->next = context;
@@ -375,6 +390,7 @@ void Dispatcher::contextProcedure(void* ucontext) {
   context.uctx = ucontext;
   context.interrupted = false;
   context.next = nullptr;
+  context.inExecutionQueue = false;
   firstReusableContext = &context;
   uctx* oldContext = static_cast<uctx*>(context.uctx);
   if (swapcontext(oldContext, static_cast<uctx*>(currentContext->uctx)) == -1) {
@@ -385,7 +401,7 @@ void Dispatcher::contextProcedure(void* ucontext) {
     ++runningContextCount;
     try {
       context.procedure();
-    } catch(std::exception&) {
+    } catch(...) {
     }
 
     if (context.group != nullptr) {

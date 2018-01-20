@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "RPCTestNode.h"
 
@@ -23,8 +28,8 @@ using namespace System;
 
 namespace Tests {
 
-RPCTestNode::RPCTestNode(uint16_t port, System::Dispatcher& d) : 
-  m_rpcPort(port), m_dispatcher(d), m_httpClient(d, "127.0.0.1", port) {
+RPCTestNode::RPCTestNode(uint16_t port, System::Dispatcher& d) :
+  m_logger(m_log, "RPCTestNode"), m_rpcPort(port), m_dispatcher(d), m_httpClient(d, "127.0.0.1", port) {
 }
 
 bool RPCTestNode::startMining(size_t threadsCount, const std::string& address) { 
@@ -48,7 +53,7 @@ bool RPCTestNode::startMining(size_t threadsCount, const std::string& address) {
   return true;
 }
 
-bool RPCTestNode::getBlockTemplate(const std::string& minerAddress, CryptoNote::Block& blockTemplate, uint64_t& difficulty) {
+bool RPCTestNode::getBlockTemplate(const std::string& minerAddress, CryptoNote::BlockTemplate& blockTemplate, uint64_t& difficulty) {
   LOG_DEBUG("getBlockTemplate()");
 
   try {
@@ -132,7 +137,7 @@ bool RPCTestNode::getTailBlockId(Crypto::Hash& tailBlockId) {
 }
 
 bool RPCTestNode::makeINode(std::unique_ptr<CryptoNote::INode>& node) {
-  std::unique_ptr<CryptoNote::INode> newNode(new CryptoNote::NodeRpcProxy("127.0.0.1", m_rpcPort));
+  std::unique_ptr<CryptoNote::INode> newNode(new CryptoNote::NodeRpcProxy("127.0.0.1", m_rpcPort, m_logger.getLogger()));
   NodeCallback cb;
   newNode->init(cb.callback());
   auto ec = cb.get();

@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "WalletLegacySerializer.h"
 
@@ -15,24 +20,10 @@
 #include "CryptoNoteCore/CryptoNoteSerialization.h"
 #include "WalletLegacy/WalletUserTransactionsCache.h"
 #include "Wallet/WalletErrors.h"
+#include "Wallet/WalletUtils.h"
 #include "WalletLegacy/KeysStorage.h"
 
 using namespace Common;
-
-namespace {
-
-bool verifyKeys(const Crypto::SecretKey& sec, const Crypto::PublicKey& expected_pub) {
-  Crypto::PublicKey pub;
-  bool r = Crypto::secret_key_to_public_key(sec, pub);
-  return r && expected_pub == pub;
-}
-
-void throwIfKeysMissmatch(const Crypto::SecretKey& sec, const Crypto::PublicKey& expected_pub) {
-  if (!verifyKeys(sec, expected_pub))
-    throw std::system_error(make_error_code(CryptoNote::error::WRONG_PASSWORD));
-}
-
-}
 
 namespace CryptoNote {
 
@@ -125,10 +116,10 @@ void WalletLegacySerializer::deserialize(std::istream& stream, const std::string
   CryptoNote::BinaryInputStreamSerializer serializer(decryptedStream);
 
   loadKeys(serializer);
-  throwIfKeysMissmatch(account.getAccountKeys().viewSecretKey, account.getAccountKeys().address.viewPublicKey);
+  throwIfKeysMismatch(account.getAccountKeys().viewSecretKey, account.getAccountKeys().address.viewPublicKey);
 
   if (account.getAccountKeys().spendSecretKey != NULL_SECRET_KEY) {
-    throwIfKeysMissmatch(account.getAccountKeys().spendSecretKey, account.getAccountKeys().address.spendPublicKey);
+    throwIfKeysMismatch(account.getAccountKeys().spendSecretKey, account.getAccountKeys().address.spendPublicKey);
   } else {
     if (!Crypto::check_key(account.getAccountKeys().address.spendPublicKey)) {
       throw std::system_error(make_error_code(CryptoNote::error::WRONG_PASSWORD));
@@ -159,7 +150,11 @@ void WalletLegacySerializer::decrypt(const std::string& cipher, std::string& pla
 void WalletLegacySerializer::loadKeys(CryptoNote::ISerializer& serializer) {
   CryptoNote::KeysStorage keys;
 
-  keys.serialize(serializer, "keys");
+  try {
+    keys.serialize(serializer, "keys");
+  } catch (const std::runtime_error&) {
+    throw std::system_error(make_error_code(CryptoNote::error::WRONG_PASSWORD));
+  }
 
   CryptoNote::AccountKeys acc;
   acc.address.spendPublicKey = keys.spendPublicKey;

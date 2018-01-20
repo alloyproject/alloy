@@ -1,25 +1,29 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
-#pragma once 
+#pragma once
 #include "Chaingen.h"
 
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
-class gen_chain_switch_1 : public test_chain_unit_base
-{
-public: 
+class gen_chain_switch_1 : public test_chain_unit_base {
+public:
   gen_chain_switch_1();
 
   bool generate(std::vector<test_event_entry>& events) const;
 
-  bool check_split_not_switched(CryptoNote::core& c, size_t ev_index, const std::vector<test_event_entry>& events);
-  bool check_split_switched(CryptoNote::core& c, size_t ev_index, const std::vector<test_event_entry>& events);
+  bool check_split_not_switched(CryptoNote::Core& c, size_t ev_index, const std::vector<test_event_entry>& events);
+  bool check_split_switched(CryptoNote::Core& c, size_t ev_index, const std::vector<test_event_entry>& events);
 
 private:
-  std::list<CryptoNote::Block> m_chain_1;
+  std::vector<CryptoNote::BlockTemplate> m_chain_1;
 
   CryptoNote::AccountBase m_recipient_account_1;
   CryptoNote::AccountBase m_recipient_account_2;

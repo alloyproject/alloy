@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #include "RemoteEventLock.h"
 #include <cassert>
@@ -35,11 +40,25 @@ RemoteEventLock::RemoteEventLock(Dispatcher& dispatcher, Event& event) : dispatc
 }
 
 RemoteEventLock::~RemoteEventLock() {
+  std::mutex mutex;
+  std::condition_variable condition;
+  bool locked = true;
+
   Event* eventPointer = &event;
-  dispatcher.remoteSpawn([=]() {
+  dispatcher.remoteSpawn([&]() {
     assert(!eventPointer->get());
     eventPointer->set();
+
+    mutex.lock();
+    locked = false;
+    condition.notify_one();
+    mutex.unlock();
   });
+
+  std::unique_lock<std::mutex> lock(mutex);
+  while (locked) {
+    condition.wait(lock);
+  }
 }
 
 }

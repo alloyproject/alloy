@@ -1,6 +1,11 @@
-// Copyright (c) 2017-2018, The Alloy Developers.
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
+ * Copyright (c) 2017-2018, The Alloy Developers.
+ *
+ * This file is part of Alloy.
+ *
+ * This file is subject to the terms and conditions defined in the
+ * file 'LICENSE', which is part of this source code package.
+ */
 
 #pragma once
 
@@ -9,9 +14,8 @@
 
 namespace CryptoNote {
   struct IMinerHandler {
-    virtual bool handle_block_found(Block& b) = 0;
-    virtual bool get_block_template(Block& b, const AccountPublicAddress& adr, difficulty_type& diffic, uint32_t& height,
-        uint64_t& expected_reward, const BinaryArray& ex_nonce) = 0;
+    virtual bool handle_block_found(BlockTemplate& b) = 0;
+    virtual bool get_block_template(BlockTemplate& b, const AccountPublicAddress& adr, Difficulty& diffic, uint32_t& height, const BinaryArray& ex_nonce) = 0;
 
   protected:
     ~IMinerHandler(){};
