@@ -127,6 +127,8 @@ namespace parameters {
 #define P2P_STAT_TRUSTED_PUB_KEY                        "8f80f9a5a434a9f1510d13336228debfee9c918ce505efe225d8c94d045fa115"
 
 const std::initializer_list<const char*> SEED_NODES {
+  "144.217.165.72:1810",
+  "144.217.165.189:1810",
 };
 
 struct CheckpointData {
