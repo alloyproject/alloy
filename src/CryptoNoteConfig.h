@@ -93,7 +93,7 @@ namespace parameters {
 } // parameters
 
 #define CRYPTONOTE_NAME                                 "alloy"
-#define CRYPTONOTE_GENESIS_COINBASE_TX_HEX              ""
+#define CRYPTONOTE_GENESIS_COINBASE_TX_HEX              "011e01ff00018080a0fef0fa97a43f029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101d201f0ee231168072d806ecd2c733bb79286c398aa24d9b0d06d7bfb89d2869d"
 
 #define TRANSACTION_VERSION_1                           1
 #define TRANSACTION_VERSION_2                           2
