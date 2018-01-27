@@ -88,7 +88,7 @@ bool Currency::generateGenesisBlock() {
   BinaryArray minerTxBlob;
 
   bool r =
-    fromHex(m_genesisCoinbaseTxHex, minerTxBlob) &&
+    fromHex(m_genesisTx, minerTxBlob) &&
     fromBinaryArray(genesisBlockTemplate.baseTransaction, minerTxBlob);
 
   if (!r) {
@@ -723,7 +723,7 @@ m_upgradeWindow(currency.m_upgradeWindow),
 m_blocksFileName(currency.m_blocksFileName),
 m_blockIndexesFileName(currency.m_blockIndexesFileName),
 m_txPoolFileName(currency.m_txPoolFileName),
-m_genesisCoinbaseTxHex(currency.m_genesisCoinbaseTxHex),
+m_genesisTx(currency.m_genesisTx),
 m_minMixin(currency.m_minMixin),
 m_mandatoryMixinBlockVersion(currency.m_mandatoryMixinBlockVersion),
 m_killHeight(currency.m_killHeight),
@@ -762,8 +762,8 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   minerTxBlobReservedSize(CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE);
   maxTransactionSizeLimit(MAX_TRANSACTION_SIZE_LIMIT);
 
-  numberOfDecimalPlaces(CRYPTONOTE_DISPLAY_DECIMAL_POINT);
-  numberOfDecimalUnits(CRYPTONOTE_DISPLAY_DECIMAL_UNITS);
+  numberOfDecimalPlaces(CRYPTONOTE_MONEY_DECIMAL_POINT);
+  numberOfDecimalUnits(CRYPTONOTE_MONEY_DECIMAL_UNITS);
 
   mininumFee(MINIMUM_FEE);
   defaultDustThreshold(DEFAULT_DUST_THRESHOLD);
@@ -799,7 +799,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   blockIndexesFileName(CRYPTONOTE_BLOCKINDEXES_FILENAME);
   txPoolFileName(CRYPTONOTE_POOLDATA_FILENAME);
 
-  genesisCoinbaseTxHex(CRYPTONOTE_GENESIS_COINBASE_TX_HEX);
+  genesisTx(CRYPTONOTE_GENESIS_TX);
 
   isBlockexplorer(false);
   testnet(false);

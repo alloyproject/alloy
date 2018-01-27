@@ -95,7 +95,7 @@ public:
   const std::string& blockIndexesFileName() const { return m_blockIndexesFileName; }
   const std::string& txPoolFileName() const { return m_txPoolFileName; }
 
-  const std::string& genesisCoinbaseTxHex() const { return m_genesisCoinbaseTxHex; }
+  const std::string& genesisTx() const { return m_genesisTx; }
 
   bool isBlockexplorer() const { return m_isBlockexplorer; }
   bool isTestnet() const { return m_testnet; }
@@ -206,7 +206,7 @@ private:
   std::string m_blockIndexesFileName;
   std::string m_txPoolFileName;
 
-  std::string m_genesisCoinbaseTxHex;
+  std::string m_genesisTx;
 
   static const std::vector<uint64_t> PRETTY_AMOUNTS;
 
@@ -295,7 +295,7 @@ public:
   CurrencyBuilder& blockIndexesFileName(const std::string& val) { m_currency.m_blockIndexesFileName = val; return *this; }
   CurrencyBuilder& txPoolFileName(const std::string& val) { m_currency.m_txPoolFileName = val; return *this; }
 
-  CurrencyBuilder& genesisCoinbaseTxHex(const std::string& val) { m_currency.m_genesisCoinbaseTxHex = val; return *this; }
+  CurrencyBuilder& genesisTx(const std::string& val) { m_currency.m_genesisTx = val; return *this; }
 
   CurrencyBuilder& isBlockexplorer(const bool val) { m_currency.m_isBlockexplorer = val; return *this; }
   CurrencyBuilder& testnet(bool val) { m_currency.m_testnet = val; return *this; }
