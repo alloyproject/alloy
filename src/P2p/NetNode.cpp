@@ -51,11 +51,13 @@ using namespace CryptoNote;
 namespace {
 
 size_t get_random_index_with_fixed_probability(size_t max_index) {
-  //divide by zero workaround
-  if (!max_index)
+  // divide by zero workaround
+  if (!max_index) {
     return 0;
+  }
+
   size_t x = Crypto::rand<size_t>() % (max_index + 1);
-  return (x*x*x) / (max_index*max_index); //parabola \/
+  return (x * x * x) / (max_index * max_index); // parabola \/
 }
 
 
@@ -63,7 +65,14 @@ void addPortMapping(Logging::LoggerRef& logger, uint32_t port) {
   // Add UPnP port mapping
   logger(INFO) << "Attempting to add IGD port mapping.";
   int result;
-  UPNPDev* deviceList = upnpDiscover(1000, NULL, NULL, 0, 0, &result);
+
+#if MINIUPNPC_API_VERSION > 13
+    unsigned char ttl = 2;
+    UPNPDev* deviceList = upnpDiscover(1000, NULL, NULL, 0, 0, ttl, &result);
+#else
+    UPNPDev* deviceList = upnpDiscover(1000, NULL, NULL, 0, 0, &result);
+#endif
+
   UPNPUrls urls;
   IGDdatas igdData;
   char lanAddress[64];

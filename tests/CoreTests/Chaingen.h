@@ -694,7 +694,7 @@ template <uint64_t N> struct Pow10 { static const uint64_t value = 10 * Pow10<N 
 
 template <> struct Pow10<0> { static const uint64_t value = 1; };
 
-const uint64_t COIN = Pow10<CRYPTONOTE_DISPLAY_DECIMAL_POINT>::value;
+const uint64_t COIN = Pow10<CRYPTONOTE_MONEY_DECIMAL_POINT>::value;
 
 #define QUOTEME(x) #x
 #define DEFINE_TESTS_ERROR_CONTEXT(text) const char* perr_context = text;
