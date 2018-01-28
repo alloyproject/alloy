@@ -21,8 +21,13 @@ elseif(NOT MSVC)
     add_dependencies(rocksdblib rocksdb)
 endif()
 
+set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
+
 if(MSVC)
   set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
 elseif(NOT MSVC)
   set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
 endif()
+
+set(UPNP_STATIC true PARENT_SCOPE)
+set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
