@@ -5,6 +5,7 @@
  * copyright (c) 2005-2015 Thomas Bernard
  * This software is subjet to the conditions detailed in the
  * provided LICENSE file. */
+
 #ifndef UPNPDEV_H_INCLUDED
 #define UPNPDEV_H_INCLUDED
 
@@ -23,14 +24,8 @@ struct UPNPDev {
 	char buffer[3];
 };
 
-/* freeUPNPDevlist()
- * free list returned by upnpDiscover() */
-MINIUPNP_LIBSPEC void freeUPNPDevlist(struct UPNPDev * devlist);
-
-
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* UPNPDEV_H_INCLUDED */

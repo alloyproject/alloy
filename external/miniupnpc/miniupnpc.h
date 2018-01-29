@@ -144,10 +144,12 @@ FreeUPNPUrls(struct UPNPUrls *);
 /* return 0 or 1 */
 MINIUPNP_LIBSPEC int UPNPIGD_IsConnected(struct UPNPUrls *, struct IGDdatas *);
 
+/* freeUPNPDevlist()
+ * free list returned by upnpDiscover() */
+MINIUPNP_LIBSPEC void freeUPNPDevlist(struct UPNPDev * devlist);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

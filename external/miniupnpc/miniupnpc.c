@@ -539,6 +539,19 @@ UPNPIGD_IsConnected(struct UPNPUrls * urls, struct IGDdatas * data)
 		return 0;
 }
 
+/* freeUPNPDevlist() should be used to
+ * free the chained list returned by upnpDiscover() */
+MINIUPNP_LIBSPEC void
+freeUPNPDevlist(struct UPNPDev * devlist)
+{
+	struct UPNPDev * next;
+	while(devlist)
+	{
+		next = devlist->pNext;
+		free(devlist);
+		devlist = next;
+	}
+}
 
 /* UPNP_GetValidIGD() :
  * return values :
@@ -719,4 +732,3 @@ UPNP_GetIGDFromUrl(const char * rootdescurl,
 		return 0;
 	}
 }
-
