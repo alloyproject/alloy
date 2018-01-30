@@ -64,11 +64,11 @@ const command_line::arg_descriptor<std::string> arg_generate_new_wallet = { "gen
 const command_line::arg_descriptor<std::string> arg_daemon_address = { "daemon-address", "Use daemon instance at <host>:<port>", "" };
 const command_line::arg_descriptor<std::string> arg_daemon_host = { "daemon-host", "Use daemon instance at host <arg> instead of localhost", "" };
 const command_line::arg_descriptor<std::string> arg_password = { "password", "Wallet password", "", true };
-const command_line::arg_descriptor<uint16_t> arg_daemon_port = { "daemon-port", "Use daemon instance at port <arg> instead of 8102", 0 };
-const command_line::arg_descriptor<uint32_t> arg_log_level = { "set_log", "", INFO, true };
-const command_line::arg_descriptor<uint64_t> arg_DEFAULT_FEE  = {"DEFAULT_FEE", "Default fee", DEFAULT_FEE};
-const command_line::arg_descriptor<bool>      arg_SYNC_FROM_ZERO  = {"SYNC_FROM_ZERO", "Sync from block 0. Use for premine wallet or brainwallet", false};
-const command_line::arg_descriptor<bool> arg_testnet = { "testnet", "Used to deploy test nets. The daemon must be launched with --testnet flag", false };
+const command_line::arg_descriptor<uint16_t>    arg_daemon_port = { "daemon-port", "Use daemon instance at port <arg> instead of 8102", 0 };
+const command_line::arg_descriptor<uint32_t>    arg_log_level = { "set_log", "", INFO, true };
+const command_line::arg_descriptor<uint64_t>    arg_default_fee  = {"default-fee", "Default fee", DEFAULT_FEE};
+const command_line::arg_descriptor<bool>        arg_sync_from_zero  = {"sync-from-zero", "Sync from block 0. Use for premine wallet or brainwallet", false};
+const command_line::arg_descriptor<bool>        arg_testnet = { "testnet", "Used to deploy test nets. The daemon must be launched with --testnet flag", false };
 const command_line::arg_descriptor< std::vector<std::string> > arg_command = { "command", "" };
 
 bool parseUrlAddress(const std::string& url, std::string& address, uint16_t& port) {
@@ -556,7 +556,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
   }
 
   std::string walletFileName;
-  sync_from_zero = command_line::get_arg(vm, arg_SYNC_FROM_ZERO);
+  sync_from_zero = command_line::get_arg(vm, arg_sync_from_zero);
     if (!m_generate_new.empty() || !m_import_new.empty()) {
     std::string ignoredString;
     if (!m_generate_new.empty()) {
@@ -608,7 +608,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     return false;
   }
 
-  sync_from_zero = command_line::get_arg(vm, arg_SYNC_FROM_ZERO);
+  sync_from_zero = command_line::get_arg(vm, arg_sync_from_zero);
   if (!m_generate_new.empty()) {
     std::string walletAddressFile = prepareWalletAddressFilename(m_generate_new);
     boost::system::error_code ignore;
@@ -710,7 +710,7 @@ void simple_wallet::handle_command_line(const boost::program_options::variables_
   m_daemon_address = command_line::get_arg(vm, arg_daemon_address);
   m_daemon_host = command_line::get_arg(vm, arg_daemon_host);
   m_daemon_port = command_line::get_arg(vm, arg_daemon_port);
-  m_default_fee = command_line::get_arg(vm, arg_DEFAULT_FEE);
+  m_default_fee = command_line::get_arg(vm, arg_default_fee);
 
   if (m_currency.minimumFee() > m_default_fee) {
     m_default_fee = m_currency.minimumFee();
@@ -1206,8 +1206,8 @@ int main(int argc, char* argv[]) {
   command_line::add_arg(desc_params, arg_log_level);
   command_line::add_arg(desc_params, arg_testnet);
   Tools::wallet_rpc_server::init_options(desc_params);
-  command_line::add_arg(desc_params, arg_SYNC_FROM_ZERO);
-  command_line::add_arg(desc_params, arg_DEFAULT_FEE);
+  command_line::add_arg(desc_params, arg_sync_from_zero);
+  command_line::add_arg(desc_params, arg_default_fee);
 
   po::positional_options_description positional_options;
   positional_options.add(arg_command.name, -1);

@@ -46,10 +46,10 @@ namespace parameters {
 #define CRYPTONOTE_MONEY_DECIMAL_POINT                  12
 #define CRYPTONOTE_MONEY_DECIMAL_UNITS                  (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT)
 #define MINIMUM_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT / 2)
+#define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
 #define MAX_TRANSACTION_SIZE_LIMIT                      CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 110 / 100 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
-#define DEFAULT_FEE                                     MINIMUM_FEE
 
 #define DIFFICULTY_TARGET                               180
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY               24 * 60 * 60 / DIFFICULTY_TARGET
