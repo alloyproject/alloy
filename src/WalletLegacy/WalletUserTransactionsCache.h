@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "CryptoNoteConfig.h"
+
 #include "crypto/hash.h"
 #include "IWalletLegacy.h"
 #include "ITransfersContainer.h"
@@ -26,7 +28,7 @@ namespace CryptoNote {
 class WalletUserTransactionsCache
 {
 public:
-  explicit WalletUserTransactionsCache(uint64_t mempoolTxLiveTime = 60 * 60 * 24);
+  explicit WalletUserTransactionsCache(uint64_t mempoolTxLiveTime = CRYPTONOTE_MEMPOOL_TX_LIVETIME);
 
   bool serialize(CryptoNote::ISerializer& serializer);
 
