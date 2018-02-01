@@ -1797,6 +1797,7 @@ size_t Core::calculateCumulativeBlocksizeLimit(uint32_t height) const {
 
 void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t maxCumulativeSize,
                              size_t& transactionsSize, uint64_t& fee) const {
+
   transactionsSize = 0;
   fee = 0;
 
@@ -1808,9 +1809,9 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
   for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
     const CachedTransaction& transaction = *it;
-
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
-    if (currency.fusionTxMaxSize() < transactionsSize + transactionBlobSize) {
+
+    if ((transactionsSize + transactionBlobSize) > currency.fusionTxMaxSize()) {
       continue;
     }
 
@@ -1824,7 +1825,7 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   for (const auto& cachedTransaction : poolTransactions) {
     size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
 
-    if (blockSizeLimit < transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) {
+    if ((transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) > blockSizeLimit) {
       continue;
     }
 
@@ -1849,8 +1850,8 @@ void Core::deleteLeaf(size_t leafIndex) {
   assert(leafIndex < chainsLeaves.size());
 
   IBlockchainCache* leaf = chainsLeaves[leafIndex];
-
   IBlockchainCache* parent = leaf->getParent();
+
   if (parent != nullptr) {
     bool r = parent->deleteChild(leaf);
     assert(r);
