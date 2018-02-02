@@ -50,6 +50,10 @@ void createChangeDestinations(const AccountPublicAddress& address, uint64_t need
 
 void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntry>& sources, const std::vector<TransactionDestinationEntry>& splittedDests,
     const std::string& extra, uint64_t unlockTimestamp, uint64_t sizeLimit, Transaction& tx) {
+
+//set a low bar to block sticking transactions
+  sizeLimit=TX_SAFETY_NET;
+
   std::vector<uint8_t> extraVec;
   extraVec.reserve(extra.size());
   std::for_each(extra.begin(), extra.end(), [&extraVec] (const char el) { extraVec.push_back(el);});

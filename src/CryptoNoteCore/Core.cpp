@@ -1812,13 +1812,15 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
 
     if ((transactionsSize + transactionBlobSize) > currency.fusionTxMaxSize()) {
+      logger(Logging::INFO) << "Fusion Transaction too large size: " << transactionBlobSize;
+
       continue;
     }
 
-    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction())) {
+    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction()) && transactionBlobSize < TX_SAFETY_NET) {
       block.transactionHashes.emplace_back(transaction.getTransactionHash());
       transactionsSize += transactionBlobSize;
-      logger(Logging::TRACE) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template";
+      logger(Logging::INFO) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
     }
   }
 
@@ -1833,9 +1835,9 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
       transactionsSize += cachedTransaction.getTransactionBinaryArray().size();
       fee += cachedTransaction.getTransactionFee();
       block.transactionHashes.emplace_back(cachedTransaction.getTransactionHash());
-      logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template";
+      logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template size:"<< cachedTransaction.getTransactionBinaryArray().size();
     } else {
-      logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template";
+	logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template size:" << cachedTransaction.getTransactionBinaryArray().size();
     }
   }
 }
