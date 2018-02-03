@@ -97,7 +97,7 @@ int soapPostSubmit(int fd,
 	headerssize = snprintf(headerbuf, sizeof(headerbuf),
                        "POST %s HTTP/%s\r\n"
 	                   "Host: %s%s\r\n"
-					   "User-Agent: " OS_STRING ", " UPNP_VERSION_STRING ", MiniUPnPc/" MINIUPNPC_VERSION_STRING "\r\n"
+					   "User-Agent: " OS_STRING ",  UPNP_VERSION_STRING , MiniUPnPc/" MINIUPNPC_VERSION_STRING "\r\n"
 	                   "Content-Length: %d\r\n"
 					   "Content-Type: text/xml\r\n"
 					   "SOAPAction: \"%s\"\r\n"

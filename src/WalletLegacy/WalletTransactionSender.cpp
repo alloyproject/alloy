@@ -52,7 +52,9 @@ void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntr
     const std::string& extra, uint64_t unlockTimestamp, uint64_t sizeLimit, Transaction& tx) {
 
   // set a low bar to block sticking transactions
-  sizeLimit = std::max(sizeLimit, TX_SAFETY_NET);
+  sizeLimit = std::min<unsigned long>(sizeLimit, TX_SAFETY_NET);
+//  printf("sizeLimit:%lu\n",sizeLimit);
+
 
   std::vector<uint8_t> extraVec;
   extraVec.reserve(extra.size());
@@ -60,7 +62,7 @@ void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntr
 
   Logging::LoggerGroup nullLog;
   bool r = constructTransaction(keys, sources, splittedDests, extraVec, tx, unlockTimestamp, nullLog);
-
+//printf("OB size:%lu\n",getObjectBinarySize(tx));
   throwIf(!r, error::INTERNAL_WALLET_ERROR);
   throwIf(getObjectBinarySize(tx) >= sizeLimit, error::TRANSACTION_SIZE_TOO_BIG);
 }
