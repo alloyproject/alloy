@@ -73,8 +73,8 @@ public:
   case MIXIN_COUNT_TOO_SMALL:           return "MixIn count is below the required minimum";
     case MIXIN_COUNT_TOO_BIG:           return "MixIn count is too big";
     case BAD_ADDRESS:                   return "Bad address";
-    case TRANSACTION_SIZE_TOO_BIG:      return "Transaction size is too big";
-    case WRONG_AMOUNT:                  return "Wrong amount";
+    case TRANSACTION_SIZE_TOO_BIG:      return "Transaction size is too big, increase the fee";
+    case WRONG_AMOUNT:                  return "Not enough funds or problem with amount";
     case SUM_OVERFLOW:                  return "Sum overflow";
     case ZERO_DESTINATION:              return "The destination is empty";
     case TX_CANCEL_IMPOSSIBLE:          return "Impossible to cancel transaction";
