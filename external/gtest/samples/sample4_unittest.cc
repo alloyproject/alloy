@@ -29,12 +29,10 @@
 //
 // Author: wan@google.com (Zhanyong Wan)
 
-#include "sample4.h"
 #include "gtest/gtest.h"
+#include "sample4.h"
 
-namespace {
 // Tests the Increment() method.
-
 TEST(Counter, Increment) {
   Counter c;
 
@@ -45,5 +43,3 @@ TEST(Counter, Increment) {
   EXPECT_EQ(1, c.Increment());
   EXPECT_EQ(2, c.Increment());
 }
-
-}  // namespace

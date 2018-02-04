@@ -8,9 +8,9 @@ add_subdirectory(gtest)
 if(MSVC)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
     add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
-    set_property(TARGET libminiupnpc-static gtest gtest_main rocksdblib PROPERTY FOLDER "external")
+    set_property(TARGET upnpc-static gtest gtest_main rocksdblib PROPERTY FOLDER "external")
 elseif(NOT MSVC)
-    set_property(TARGET libminiupnpc-static gtest gtest_main PROPERTY FOLDER "external")
+    set_property(TARGET upnpc-static gtest gtest_main PROPERTY FOLDER "external")
     add_custom_target(
        rocksdb
        COMMAND make static_lib
@@ -21,13 +21,14 @@ elseif(NOT MSVC)
     add_dependencies(rocksdblib rocksdb)
 endif()
 
-set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
+set_property(TARGET upnpc-static PROPERTY FOLDER "external")
 
 if(MSVC)
-  set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
+  set_property(TARGET upnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
 elseif(NOT MSVC)
-  set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
+  set_property(TARGET upnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
 endif()
 
 set(UPNP_STATIC true PARENT_SCOPE)
-set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
+set(UPNP_LIBRARIES "upnpc-static" PARENT_SCOPE)
+ 

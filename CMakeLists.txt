@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.6)
 
+
 set(VERSION "0.1")
-# $Format:Packaged from commit %H%nset(COMMIT %h)%nset(REFS "%d")$
+# Packaged from commit 8016d40a1546fe9e62b1f24a3ea1a8306785035a
+set(COMMIT 8016d40)
+set(REFS " (HEAD -> master)")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo Release CACHE TYPE INTERNAL)
@@ -18,6 +21,17 @@ include_directories(include src external "${CMAKE_CURRENT_BINARY_DIR}/version")
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
   enable_language(ASM)
+endif()
+
+
+if(MSVC)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+
+ 
+set(BOOST_LIBRARYDIR c:/boost_1_58_0/stage/lib)
+set(BOOST_INCLUDEDIR c:/boost_1_58_0/boost)
+set(BOOST_ROOT c:/boost_1_58_0)
 endif()
 
 if(MSVC)
