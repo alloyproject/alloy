@@ -144,6 +144,7 @@ __attribute__((unused))
 #endif
 
 const std::initializer_list<CheckpointData> CHECKPOINTS {
+  { 1, "5220a193ed61aabd5807ab8e1c948cd97bb45a53487975949fa9fef06c5fab05" },
   { 2500, "6a116d1d01afae5520e476f215dee28c1e720a9a95b8bb099450acfa59a04e4e" },
   { 5000, "f4819ea83564fde4f4eba0cb9fac9ed93558de0d6ef81e41beb538ad1b079465" },
 };
