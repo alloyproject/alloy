@@ -996,7 +996,9 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
   m_wallet->getAccountKeys(keys);
   success_msg_writer(true) << "Spend secret key: " << Common::podToHex(keys.spendSecretKey);
   success_msg_writer(true) << "View secret key: " <<  Common::podToHex(keys.viewSecretKey);
- success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import):" << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey) << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
+  success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import): "
+    << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
+    << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
 
   return true;
 }
