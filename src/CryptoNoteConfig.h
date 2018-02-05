@@ -21,7 +21,7 @@ namespace parameters {
 #define CRYPTONOTE_MAX_BLOCK_NUMBER                     500000000
 #define CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                  500000000
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
-#define CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX         54
+#define CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX         54 // starts with "A"
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            30
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              60 * 60 * 2
 
@@ -49,9 +49,8 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define TX_SAFETY_NET					20000 //upper safetynet to prevent stuck transactions
-
-#define MAX_TRANSACTION_SIZE_LIMIT                      CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 110 / 100 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
+#define TX_SAFETY_NET					                          20000 // upper safety net to prevent stuck transactions
+#define MAX_TRANSACTION_SIZE_LIMIT                      CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE / 4 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
 
 #define DIFFICULTY_TARGET                               180
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY               24 * 60 * 60 / DIFFICULTY_TARGET
@@ -76,7 +75,7 @@ namespace parameters {
 #define CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME   CRYPTONOTE_MEMPOOL_TX_LIVETIME * 7
 #define CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL 7
 
-#define FUSION_TX_MAX_SIZE                              CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_CURRENT * 30 / 100
+#define FUSION_TX_MAX_SIZE                              CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 2
 #define FUSION_TX_MIN_INPUT_COUNT                       12
 #define FUSION_TX_MIN_IN_OUT_COUNT_RATIO                4
 
@@ -146,8 +145,7 @@ __attribute__((unused))
 
 const std::initializer_list<CheckpointData> CHECKPOINTS {
   { 2500, "6a116d1d01afae5520e476f215dee28c1e720a9a95b8bb099450acfa59a04e4e" },
- { 6980, "448d87043a0656393ea6bee9e623fa912a3262e1c3b9a251ffdf4687b8bb8214" }
-
+  { 5000, "f4819ea83564fde4f4eba0cb9fac9ed93558de0d6ef81e41beb538ad1b079465" },
 };
 
 } // CryptoNote
