@@ -37,7 +37,15 @@
 
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
+
+// Indicates that this translation unit is part of Google Test's
+// implementation.  It must come before gtest-internal-inl.h is
+// included, or there will be a compiler error.  This trick is to
+// prevent a user from accidentally including gtest-internal-inl.h in
+// his code.
+#define GTEST_IMPLEMENTATION_ 1
 #include "src/gtest-internal-inl.h"
+#undef GTEST_IMPLEMENTATION_
 
 #include <stdlib.h>
 
@@ -50,6 +58,7 @@ using testing::internal::ThreadWithParam;
 #endif
 
 namespace posix = ::testing::internal::posix;
+using testing::internal::scoped_ptr;
 
 // Tests catching fatal failures.
 
@@ -102,11 +111,6 @@ TEST(NonfatalFailureTest, EscapesStringOperands) {
 
   const char* golden = kGoldenString;
   EXPECT_EQ(golden, actual);
-}
-
-TEST(NonfatalFailureTest, DiffForLongStrings) {
-  std::string golden_str(kGoldenString, sizeof(kGoldenString) - 1);
-  EXPECT_EQ(golden_str, "Line 2");
 }
 
 // Tests catching a fatal failure in a subroutine.
@@ -166,16 +170,6 @@ void SubWithTrace(int n) {
   SCOPED_TRACE(testing::Message() << "n = " << n);
 
   SubWithoutTrace(n);
-}
-
-TEST(SCOPED_TRACETest, AcceptedValues) {
-  SCOPED_TRACE("literal string");
-  SCOPED_TRACE(std::string("std::string"));
-  SCOPED_TRACE(1337);  // streamable type
-  const char* null_value = NULL;
-  SCOPED_TRACE(null_value);
-
-  ADD_FAILURE() << "Just checking that all these values work fine.";
 }
 
 // Tests that SCOPED_TRACE() obeys lexical scopes.
@@ -324,13 +318,6 @@ TEST(SCOPED_TRACETest, WorksConcurrently) {
   thread.Join();
 }
 #endif  // GTEST_IS_THREADSAFE
-
-// Tests basic functionality of the ScopedTrace utility (most of its features
-// are already tested in SCOPED_TRACETest).
-TEST(ScopedTraceTest, WithExplicitFileAndLine) {
-  testing::ScopedTrace trace("explicit_file.cc", 123, "expected trace message");
-  ADD_FAILURE() << "Check that the trace is attached to a particular location.";
-}
 
 TEST(DisabledTestsWarningTest,
      DISABLED_AlsoRunDisabledTestsFlagSuppressesWarning) {
@@ -523,8 +510,7 @@ class DeathTestAndMultiThreadsTest : public testing::Test {
 
  private:
   SpawnThreadNotifications notifications_;
-  testing::internal::scoped_ptr<ThreadWithParam<SpawnThreadNotifications*> >
-      thread_;
+  scoped_ptr<ThreadWithParam<SpawnThreadNotifications*> > thread_;
 };
 
 #endif  // GTEST_IS_THREADSAFE
@@ -764,28 +750,6 @@ TEST(ExpectFatalFailureTest, FailsWhenStatementThrows) {
 
 #endif  // GTEST_HAS_EXCEPTIONS
 
-// This #ifdef block tests the output of value-parameterized tests.
-
-std::string ParamNameFunc(const testing::TestParamInfo<std::string>& info) {
-  return info.param;
-}
-
-class ParamTest : public testing::TestWithParam<std::string> {
-};
-
-TEST_P(ParamTest, Success) {
-  EXPECT_EQ("a", GetParam());
-}
-
-TEST_P(ParamTest, Failure) {
-  EXPECT_EQ("b", GetParam()) << "Expected failure";
-}
-
-INSTANTIATE_TEST_CASE_P(PrintingStrings,
-                        ParamTest,
-                        testing::Values(std::string("a")),
-                        ParamNameFunc);
-
 // This #ifdef block tests the output of typed tests.
 #if GTEST_HAS_TYPED_TEST
 
@@ -1021,6 +985,8 @@ class BarEnvironment : public testing::Environment {
   }
 };
 
+bool GTEST_FLAG(internal_skip_environment_and_ad_hoc_tests) = false;
+
 // The main function.
 //
 // The idea is to use Google Test to run all the tests we have defined (some
@@ -1037,9 +1003,10 @@ int main(int argc, char **argv) {
   // global side effects.  The following line serves as a sanity test
   // for it.
   testing::InitGoogleTest(&argc, argv);
-  bool internal_skip_environment_and_ad_hoc_tests =
-      std::count(argv, argv + argc,
-                 std::string("internal_skip_environment_and_ad_hoc_tests")) > 0;
+  if (argc >= 2 &&
+      (std::string(argv[1]) ==
+       "--gtest_internal_skip_environment_and_ad_hoc_tests"))
+    GTEST_FLAG(internal_skip_environment_and_ad_hoc_tests) = true;
 
 #if GTEST_HAS_DEATH_TEST
   if (testing::internal::GTEST_FLAG(internal_run_death_test) != "") {
@@ -1054,7 +1021,7 @@ int main(int argc, char **argv) {
   }
 #endif  // GTEST_HAS_DEATH_TEST
 
-  if (internal_skip_environment_and_ad_hoc_tests)
+  if (GTEST_FLAG(internal_skip_environment_and_ad_hoc_tests))
     return RUN_ALL_TESTS();
 
   // Registers two global test environments.

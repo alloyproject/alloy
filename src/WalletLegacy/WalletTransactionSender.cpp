@@ -50,13 +50,19 @@ void createChangeDestinations(const AccountPublicAddress& address, uint64_t need
 
 void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntry>& sources, const std::vector<TransactionDestinationEntry>& splittedDests,
     const std::string& extra, uint64_t unlockTimestamp, uint64_t sizeLimit, Transaction& tx) {
+
+  // set a low bar to block sticking transactions
+  sizeLimit = std::min<unsigned long>(sizeLimit, TX_SAFETY_NET);
+//  printf("sizeLimit:%lu\n",sizeLimit);
+
+
   std::vector<uint8_t> extraVec;
   extraVec.reserve(extra.size());
   std::for_each(extra.begin(), extra.end(), [&extraVec] (const char el) { extraVec.push_back(el);});
 
   Logging::LoggerGroup nullLog;
   bool r = constructTransaction(keys, sources, splittedDests, extraVec, tx, unlockTimestamp, nullLog);
-
+printf("Transaction size:%lu\n",getObjectBinarySize(tx));
   throwIf(!r, error::INTERNAL_WALLET_ERROR);
   throwIf(getObjectBinarySize(tx) >= sizeLimit, error::TRANSACTION_SIZE_TOO_BIG);
 }

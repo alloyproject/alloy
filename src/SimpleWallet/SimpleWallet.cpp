@@ -470,6 +470,8 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   //m_consoleHandler.setHandler("refresh", boost::bind(&simple_wallet::refresh, this, _1), "Resynchronize transactions and balance");
   m_consoleHandler.setHandler("export_keys", boost::bind(&simple_wallet::export_keys, this, _1), "Show the secret keys of the current wallet");
   m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
+  m_consoleHandler.setHandler("b", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
+
   m_consoleHandler.setHandler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
   m_consoleHandler.setHandler("list_transfers", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
   m_consoleHandler.setHandler("payments", boost::bind(&simple_wallet::show_payments, this, _1), "payments <payment_id_1> [<payment_id_2> ... <payment_id_N>] - Show payments <payment_id_1>, ... <payment_id_N>");
@@ -994,6 +996,9 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
   m_wallet->getAccountKeys(keys);
   success_msg_writer(true) << "Spend secret key: " << Common::podToHex(keys.spendSecretKey);
   success_msg_writer(true) << "View secret key: " <<  Common::podToHex(keys.viewSecretKey);
+  success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import): "
+    << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
+    << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
 
  success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import):" << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey) << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
 

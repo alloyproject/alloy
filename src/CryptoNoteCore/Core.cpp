@@ -1797,6 +1797,7 @@ size_t Core::calculateCumulativeBlocksizeLimit(uint32_t height) const {
 
 void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t maxCumulativeSize,
                              size_t& transactionsSize, uint64_t& fee) const {
+
   transactionsSize = 0;
   fee = 0;
 
@@ -1808,23 +1809,25 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
   for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
     const CachedTransaction& transaction = *it;
-
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
-    if (currency.fusionTxMaxSize() < transactionsSize + transactionBlobSize) {
+
+    if ((transactionsSize + transactionBlobSize) > currency.fusionTxMaxSize()) {
+      logger(Logging::INFO) << "Fusion Transaction too large size: " << transactionBlobSize;
+
       continue;
     }
 
-    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction())) {
+    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction()) && transactionBlobSize < TX_SAFETY_NET) {
       block.transactionHashes.emplace_back(transaction.getTransactionHash());
       transactionsSize += transactionBlobSize;
-      logger(Logging::TRACE) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template";
+      logger(Logging::INFO) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
     }
   }
 
   for (const auto& cachedTransaction : poolTransactions) {
     size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
 
-    if (blockSizeLimit < transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) {
+    if ((transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) > blockSizeLimit) {
       continue;
     }
 
@@ -1832,9 +1835,9 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
       transactionsSize += cachedTransaction.getTransactionBinaryArray().size();
       fee += cachedTransaction.getTransactionFee();
       block.transactionHashes.emplace_back(cachedTransaction.getTransactionHash());
-      logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template";
+      logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template size:"<< cachedTransaction.getTransactionBinaryArray().size();
     } else {
-      logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template";
+	logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template size:" << cachedTransaction.getTransactionBinaryArray().size();
     }
   }
 }
@@ -1849,8 +1852,8 @@ void Core::deleteLeaf(size_t leafIndex) {
   assert(leafIndex < chainsLeaves.size());
 
   IBlockchainCache* leaf = chainsLeaves[leafIndex];
-
   IBlockchainCache* parent = leaf->getParent();
+
   if (parent != nullptr) {
     bool r = parent->deleteChild(leaf);
     assert(r);

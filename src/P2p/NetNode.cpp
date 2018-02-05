@@ -20,7 +20,7 @@
 
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
-#include <miniupnpc/upnpdev.h>
+ 
 
 #include <System/Context.h>
 #include <System/ContextGroupTimeout.h>

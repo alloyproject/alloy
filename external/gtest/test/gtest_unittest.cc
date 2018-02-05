@@ -34,9 +34,9 @@
 
 #include "gtest/gtest.h"
 
-// Verifies that the command line flag variables can be accessed in
-// code once "gtest/gtest.h" has been
-// #included.  Do not move it after other gtest #includes.
+// Verifies that the command line flag variables can be accessed
+// in code once <gtest/gtest.h> has been #included.
+// Do not move it after other #includes.
 TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
   bool dummy = testing::GTEST_FLAG(also_run_disabled_tests)
       || testing::GTEST_FLAG(break_on_failure)
@@ -66,7 +66,15 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #include <ostream>
 
 #include "gtest/gtest-spi.h"
+
+// Indicates that this translation unit is part of Google Test's
+// implementation.  It must come before gtest-internal-inl.h is
+// included, or there will be a compiler error.  This trick is to
+// prevent a user from accidentally including gtest-internal-inl.h in
+// his code.
+#define GTEST_IMPLEMENTATION_ 1
 #include "src/gtest-internal-inl.h"
+#undef GTEST_IMPLEMENTATION_
 
 namespace testing {
 namespace internal {
@@ -78,19 +86,18 @@ class StreamingListenerTest : public Test {
   class FakeSocketWriter : public StreamingListener::AbstractSocketWriter {
    public:
     // Sends a string to the socket.
-    virtual void Send(const std::string& message) { output_ += message; }
+    virtual void Send(const string& message) { output_ += message; }
 
-    std::string output_;
+    string output_;
   };
 
   StreamingListenerTest()
       : fake_sock_writer_(new FakeSocketWriter),
         streamer_(fake_sock_writer_),
-        test_info_obj_("FooTest", "Bar", NULL, NULL,
-                       CodeLocation(__FILE__, __LINE__), 0, NULL) {}
+        test_info_obj_("FooTest", "Bar", NULL, NULL, 0, NULL) {}
 
  protected:
-  std::string* output() { return &(fake_sock_writer_->output_); }
+  string* output() { return &(fake_sock_writer_->output_); }
 
   FakeSocketWriter* const fake_sock_writer_;
   StreamingListener streamer_;
@@ -226,6 +233,7 @@ using testing::TestProperty;
 using testing::TestResult;
 using testing::TimeInMillis;
 using testing::UnitTest;
+using testing::kMaxStackTraceDepth;
 using testing::internal::AddReference;
 using testing::internal::AlwaysFalse;
 using testing::internal::AlwaysTrue;
@@ -259,8 +267,6 @@ using testing::internal::IsContainerTest;
 using testing::internal::IsNotContainer;
 using testing::internal::NativeArray;
 using testing::internal::ParseInt32Flag;
-using testing::internal::RelationToSourceCopy;
-using testing::internal::RelationToSourceReference;
 using testing::internal::RemoveConst;
 using testing::internal::RemoveReference;
 using testing::internal::ShouldRunTestOnShard;
@@ -275,12 +281,11 @@ using testing::internal::TestEventListenersAccessor;
 using testing::internal::TestResultAccessor;
 using testing::internal::UInt32;
 using testing::internal::WideStringToUtf8;
-using testing::internal::edit_distance::CalculateOptimalEdits;
-using testing::internal::edit_distance::CreateUnifiedDiff;
-using testing::internal::edit_distance::EditType;
+using testing::internal::kCopy;
 using testing::internal::kMaxRandomSeed;
+using testing::internal::kReference;
 using testing::internal::kTestTypeIdInGoogleTest;
-using testing::kMaxStackTraceDepth;
+using testing::internal::scoped_ptr;
 
 #if GTEST_HAS_STREAM_REDIRECTION
 using testing::internal::CaptureStdout;
@@ -412,11 +417,19 @@ class FormatEpochTimeInMillisAsIso8601Test : public Test {
  private:
   virtual void SetUp() {
     saved_tz_ = NULL;
-
-    GTEST_DISABLE_MSC_WARNINGS_PUSH_(4996 /* getenv, strdup: deprecated */)
+#if _MSC_VER
+# pragma warning(push)          // Saves the current warning state.
+# pragma warning(disable:4996)  // Temporarily disables warning 4996
+                                // (function or variable may be unsafe
+                                // for getenv, function is deprecated for
+                                // strdup).
     if (getenv("TZ"))
       saved_tz_ = strdup(getenv("TZ"));
-    GTEST_DISABLE_MSC_WARNINGS_POP_()
+# pragma warning(pop)           // Restores the warning state again.
+#else
+    if (getenv("TZ"))
+      saved_tz_ = strdup(getenv("TZ"));
+#endif
 
     // Set up the time zone for FormatEpochTimeInMillisAsIso8601 to use.  We
     // cannot use the local time zone because the function's output depends
@@ -434,15 +447,17 @@ class FormatEpochTimeInMillisAsIso8601Test : public Test {
     // tzset() distinguishes between the TZ variable being present and empty
     // and not being present, so we have to consider the case of time_zone
     // being NULL.
-#if _MSC_VER || GTEST_OS_WINDOWS_MINGW
+#if _MSC_VER
     // ...Unless it's MSVC, whose standard library's _putenv doesn't
     // distinguish between an empty and a missing variable.
     const std::string env_var =
         std::string("TZ=") + (time_zone ? time_zone : "");
     _putenv(env_var.c_str());
-    GTEST_DISABLE_MSC_WARNINGS_PUSH_(4996 /* deprecated function */)
+# pragma warning(push)          // Saves the current warning state.
+# pragma warning(disable:4996)  // Temporarily disables warning 4996
+                                // (function is deprecated).
     tzset();
-    GTEST_DISABLE_MSC_WARNINGS_POP_()
+# pragma warning(pop)           // Restores the warning state again.
 #else
     if (time_zone) {
       setenv(("TZ"), time_zone, 1);
@@ -1380,7 +1395,7 @@ class TestResultTest : public Test {
     delete r2;
   }
 
-  // Helper that compares two TestPartResults.
+  // Helper that compares two two TestPartResults.
   static void CompareTestPartResult(const TestPartResult& expected,
                                     const TestPartResult& actual) {
     EXPECT_EQ(expected.type(), actual.type());
@@ -1509,16 +1524,6 @@ TEST(TestResultPropertyTest, GetTestProperty) {
   EXPECT_DEATH_IF_SUPPORTED(test_result.GetTestProperty(3), "");
   EXPECT_DEATH_IF_SUPPORTED(test_result.GetTestProperty(-1), "");
 }
-
-// Tests the Test class.
-//
-// It's difficult to test every public method of this class (we are
-// already stretching the limit of Google Test by using it to test itself!).
-// Fortunately, we don't have to do that, as we are already testing
-// the functionalities of the Test class extensively by using Google Test
-// alone.
-//
-// Therefore, this section only contains one test.
 
 // Tests that GTestFlagSaver works on Windows and Mac.
 
@@ -1663,8 +1668,6 @@ TEST(Int32FromGTestEnvTest, ReturnsDefaultWhenVariableIsNotSet) {
   EXPECT_EQ(10, Int32FromGTestEnv("temp", 10));
 }
 
-# if !defined(GTEST_GET_INT32_FROM_ENV_)
-
 // Tests that Int32FromGTestEnv() returns the default value when the
 // environment variable overflows as an Int32.
 TEST(Int32FromGTestEnvTest, ReturnsDefaultWhenValueOverflows) {
@@ -1688,8 +1691,6 @@ TEST(Int32FromGTestEnvTest, ReturnsDefaultWhenValueIsInvalid) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "TEMP", "12X");
   EXPECT_EQ(50, Int32FromGTestEnv("temp", 50));
 }
-
-# endif  // !defined(GTEST_GET_INT32_FROM_ENV_)
 
 // Tests that Int32FromGTestEnv() parses and returns the value of the
 // environment variable when it represents a valid decimal integer in
@@ -2088,7 +2089,7 @@ class UnitTestRecordPropertyTestEnvironment : public Environment {
 };
 
 // This will test property recording outside of any test or test case.
-Environment* record_property_env GTEST_ATTRIBUTE_UNUSED_ =
+static Environment* record_property_env =
     AddGlobalTestEnvironment(new UnitTestRecordPropertyTestEnvironment);
 
 // This group of tests is for predicate assertions (ASSERT_PRED*, etc)
@@ -2421,9 +2422,8 @@ TEST(StringAssertionTest, ASSERT_STREQ) {
   const char p2[] = "good";
   ASSERT_STREQ(p1, p2);
 
-  EXPECT_FATAL_FAILURE(
-      ASSERT_STREQ("bad", "good"),
-      "Expected equality of these values:\n  \"bad\"\n  \"good\"");
+  EXPECT_FATAL_FAILURE(ASSERT_STREQ("bad", "good"),
+                       "Expected: \"bad\"");
 }
 
 // Tests ASSERT_STREQ with NULL arguments.
@@ -2459,7 +2459,7 @@ TEST(StringAssertionTest, ASSERT_STRCASEEQ) {
 
   ASSERT_STRCASEEQ("", "");
   EXPECT_FATAL_FAILURE(ASSERT_STRCASEEQ("Hi", "hi2"),
-                       "Ignoring case");
+                       "(ignoring case)");
 }
 
 // Tests ASSERT_STRCASENE.
@@ -3108,13 +3108,13 @@ TEST(DISABLED_TestCase, DISABLED_TestShouldNotRun) {
   FAIL() << "Unexpected failure: Test in disabled test case should not be run.";
 }
 
-// Check that when all tests in a test case are disabled, SetUpTestCase() and
+// Check that when all tests in a test case are disabled, SetupTestCase() and
 // TearDownTestCase() are not called.
 class DisabledTestsTest : public Test {
  protected:
   static void SetUpTestCase() {
     FAIL() << "Unexpected failure: All tests disabled in test case. "
-              "SetUpTestCase() should not be called.";
+              "SetupTestCase() should not be called.";
   }
 
   static void TearDownTestCase() {
@@ -3253,7 +3253,7 @@ TEST_F(SingleEvaluationTest, ASSERT_STR) {
 
   // failed EXPECT_STRCASEEQ
   EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ(p1_++, p2_++),
-                          "Ignoring case");
+                          "ignoring case");
   EXPECT_EQ(s1_ + 2, p1_);
   EXPECT_EQ(s2_ + 2, p2_);
 }
@@ -3441,79 +3441,6 @@ TEST_F(NoFatalFailureTest, MessageIsStreamable) {
 
 // Tests non-string assertions.
 
-std::string EditsToString(const std::vector<EditType>& edits) {
-  std::string out;
-  for (size_t i = 0; i < edits.size(); ++i) {
-    static const char kEdits[] = " +-/";
-    out.append(1, kEdits[edits[i]]);
-  }
-  return out;
-}
-
-std::vector<size_t> CharsToIndices(const std::string& str) {
-  std::vector<size_t> out;
-  for (size_t i = 0; i < str.size(); ++i) {
-    out.push_back(str[i]);
-  }
-  return out;
-}
-
-std::vector<std::string> CharsToLines(const std::string& str) {
-  std::vector<std::string> out;
-  for (size_t i = 0; i < str.size(); ++i) {
-    out.push_back(str.substr(i, 1));
-  }
-  return out;
-}
-
-TEST(EditDistance, TestCases) {
-  struct Case {
-    int line;
-    const char* left;
-    const char* right;
-    const char* expected_edits;
-    const char* expected_diff;
-  };
-  static const Case kCases[] = {
-      // No change.
-      {__LINE__, "A", "A", " ", ""},
-      {__LINE__, "ABCDE", "ABCDE", "     ", ""},
-      // Simple adds.
-      {__LINE__, "X", "XA", " +", "@@ +1,2 @@\n X\n+A\n"},
-      {__LINE__, "X", "XABCD", " ++++", "@@ +1,5 @@\n X\n+A\n+B\n+C\n+D\n"},
-      // Simple removes.
-      {__LINE__, "XA", "X", " -", "@@ -1,2 @@\n X\n-A\n"},
-      {__LINE__, "XABCD", "X", " ----", "@@ -1,5 @@\n X\n-A\n-B\n-C\n-D\n"},
-      // Simple replaces.
-      {__LINE__, "A", "a", "/", "@@ -1,1 +1,1 @@\n-A\n+a\n"},
-      {__LINE__, "ABCD", "abcd", "////",
-       "@@ -1,4 +1,4 @@\n-A\n-B\n-C\n-D\n+a\n+b\n+c\n+d\n"},
-      // Path finding.
-      {__LINE__, "ABCDEFGH", "ABXEGH1", "  -/ -  +",
-       "@@ -1,8 +1,7 @@\n A\n B\n-C\n-D\n+X\n E\n-F\n G\n H\n+1\n"},
-      {__LINE__, "AAAABCCCC", "ABABCDCDC", "- /   + / ",
-       "@@ -1,9 +1,9 @@\n-A\n A\n-A\n+B\n A\n B\n C\n+D\n C\n-C\n+D\n C\n"},
-      {__LINE__, "ABCDE", "BCDCD", "-   +/",
-       "@@ -1,5 +1,5 @@\n-A\n B\n C\n D\n-E\n+C\n+D\n"},
-      {__LINE__, "ABCDEFGHIJKL", "BCDCDEFGJKLJK", "- ++     --   ++",
-       "@@ -1,4 +1,5 @@\n-A\n B\n+C\n+D\n C\n D\n"
-       "@@ -6,7 +7,7 @@\n F\n G\n-H\n-I\n J\n K\n L\n+J\n+K\n"},
-      {}};
-  for (const Case* c = kCases; c->left; ++c) {
-    EXPECT_TRUE(c->expected_edits ==
-                EditsToString(CalculateOptimalEdits(CharsToIndices(c->left),
-                                                    CharsToIndices(c->right))))
-        << "Left <" << c->left << "> Right <" << c->right << "> Edits <"
-        << EditsToString(CalculateOptimalEdits(
-               CharsToIndices(c->left), CharsToIndices(c->right))) << ">";
-    EXPECT_TRUE(c->expected_diff == CreateUnifiedDiff(CharsToLines(c->left),
-                                                      CharsToLines(c->right)))
-        << "Left <" << c->left << "> Right <" << c->right << "> Diff <"
-        << CreateUnifiedDiff(CharsToLines(c->left), CharsToLines(c->right))
-        << ">";
-  }
-}
-
 // Tests EqFailure(), used for implementing *EQ* assertions.
 TEST(AssertionTest, EqFailure) {
   const std::string foo_val("5"), bar_val("6");
@@ -3521,39 +3448,35 @@ TEST(AssertionTest, EqFailure) {
       EqFailure("foo", "bar", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  foo\n"
-      "    Which is: 5\n"
-      "  bar\n"
-      "    Which is: 6",
+      "Value of: bar\n"
+      "  Actual: 6\n"
+      "Expected: foo\n"
+      "Which is: 5",
       msg1.c_str());
 
   const std::string msg2(
       EqFailure("foo", "6", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  foo\n"
-      "    Which is: 5\n"
-      "  6",
+      "Value of: 6\n"
+      "Expected: foo\n"
+      "Which is: 5",
       msg2.c_str());
 
   const std::string msg3(
       EqFailure("5", "bar", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  5\n"
-      "  bar\n"
-      "    Which is: 6",
+      "Value of: bar\n"
+      "  Actual: 6\n"
+      "Expected: 5",
       msg3.c_str());
 
   const std::string msg4(
       EqFailure("5", "6", foo_val, bar_val, false).failure_message());
   EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  5\n"
-      "  6",
+      "Value of: 6\n"
+      "Expected: 5",
       msg4.c_str());
 
   const std::string msg5(
@@ -3561,32 +3484,11 @@ TEST(AssertionTest, EqFailure) {
                 std::string("\"x\""), std::string("\"y\""),
                 true).failure_message());
   EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  foo\n"
-      "    Which is: \"x\"\n"
-      "  bar\n"
-      "    Which is: \"y\"\n"
-      "Ignoring case",
+      "Value of: bar\n"
+      "  Actual: \"y\"\n"
+      "Expected: foo (ignoring case)\n"
+      "Which is: \"x\"",
       msg5.c_str());
-}
-
-TEST(AssertionTest, EqFailureWithDiff) {
-  const std::string left(
-      "1\\n2XXX\\n3\\n5\\n6\\n7\\n8\\n9\\n10\\n11\\n12XXX\\n13\\n14\\n15");
-  const std::string right(
-      "1\\n2\\n3\\n4\\n5\\n6\\n7\\n8\\n9\\n11\\n12\\n13\\n14");
-  const std::string msg1(
-      EqFailure("left", "right", left, right, false).failure_message());
-  EXPECT_STREQ(
-      "Expected equality of these values:\n"
-      "  left\n"
-      "    Which is: "
-      "1\\n2XXX\\n3\\n5\\n6\\n7\\n8\\n9\\n10\\n11\\n12XXX\\n13\\n14\\n15\n"
-      "  right\n"
-      "    Which is: 1\\n2\\n3\\n4\\n5\\n6\\n7\\n8\\n9\\n11\\n12\\n13\\n14\n"
-      "With diff:\n@@ -1,5 +1,6 @@\n 1\n-2XXX\n+2\n 3\n+4\n 5\n 6\n"
-      "@@ -7,8 +8,6 @@\n 8\n 9\n-10\n 11\n-12XXX\n+12\n 13\n 14\n-15\n",
-      msg1.c_str());
 }
 
 // Tests AppendUserMessage(), used for implementing the *EQ* macros.
@@ -3678,10 +3580,9 @@ TEST(ExpectTest, ASSERT_EQ_Double) {
 TEST(AssertionTest, ASSERT_EQ) {
   ASSERT_EQ(5, 2 + 3);
   EXPECT_FATAL_FAILURE(ASSERT_EQ(5, 2*3),
-                       "Expected equality of these values:\n"
-                       "  5\n"
-                       "  2*3\n"
-                       "    Which is: 6");
+                       "Value of: 2*3\n"
+                       "  Actual: 6\n"
+                       "Expected: 5");
 }
 
 // Tests ASSERT_EQ(NULL, pointer).
@@ -3689,7 +3590,7 @@ TEST(AssertionTest, ASSERT_EQ) {
 TEST(AssertionTest, ASSERT_EQ_NULL) {
   // A success.
   const char* p = NULL;
-  // Some older GCC versions may issue a spurious warning in this or the next
+  // Some older GCC versions may issue a spurious waring in this or the next
   // assertion statement. This warning should not be suppressed with
   // static_cast since the test verifies the ability to use bare NULL as the
   // expected parameter to the macro.
@@ -3698,7 +3599,7 @@ TEST(AssertionTest, ASSERT_EQ_NULL) {
   // A failure.
   static int n = 0;
   EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
-                       "  &n\n    Which is:");
+                       "Value of: &n\n");
 }
 #endif  // GTEST_CAN_COMPARE_NULL
 
@@ -3714,7 +3615,7 @@ TEST(ExpectTest, ASSERT_EQ_0) {
 
   // A failure.
   EXPECT_FATAL_FAILURE(ASSERT_EQ(0, 5.6),
-                       "  0\n  5.6");
+                       "Expected: 0");
 }
 
 // Tests ASSERT_NE.
@@ -3813,7 +3714,7 @@ void TestEq1(int x) {
 // Tests calling a test subroutine that's not part of a fixture.
 TEST(AssertionTest, NonFixtureSubroutine) {
   EXPECT_FATAL_FAILURE(TestEq1(2),
-                       "Which is: 2");
+                       "Value of: x");
 }
 
 // An uncopyable class.
@@ -3862,8 +3763,7 @@ TEST(AssertionTest, AssertWorksWithUncopyableObject) {
   EXPECT_FATAL_FAILURE(TestAssertNonPositive(),
     "IsPositiveUncopyable(y) evaluates to false, where\ny evaluates to -1");
   EXPECT_FATAL_FAILURE(TestAssertEqualsUncopyable(),
-                       "Expected equality of these values:\n"
-                       "  x\n    Which is: 5\n  y\n    Which is: -1");
+    "Value of: y\n  Actual: -1\nExpected: x\nWhich is: 5");
 }
 
 // Tests that uncopyable objects can be used in expects.
@@ -3875,8 +3775,7 @@ TEST(AssertionTest, ExpectWorksWithUncopyableObject) {
     "IsPositiveUncopyable(y) evaluates to false, where\ny evaluates to -1");
   EXPECT_EQ(x, x);
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(x, y),
-                          "Expected equality of these values:\n"
-                          "  x\n    Which is: 5\n  y\n    Which is: -1");
+    "Value of: y\n  Actual: -1\nExpected: x\nWhich is: 5");
 }
 
 enum NamedEnum {
@@ -3888,10 +3787,10 @@ TEST(AssertionTest, NamedEnum) {
   EXPECT_EQ(kE1, kE1);
   EXPECT_LT(kE1, kE2);
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(kE1, kE2), "Which is: 0");
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(kE1, kE2), "Which is: 1");
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(kE1, kE2), "Actual: 1");
 }
 
-// The version of gcc used in XCode 2.2 has a bug and doesn't allow
+// The version of gcc used in Xcode 2.2 has a bug and doesn't allow
 // anonymous enums in assertions.  Therefore the following test is not
 // done on Mac.
 // Sun Studio and HP aCC also reject this code.
@@ -3952,9 +3851,9 @@ TEST(AssertionTest, AnonymousEnum) {
 
   // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseB),
-                       "kCaseB");
+                       "Value of: kCaseB");
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseC),
-                       "Which is: 42");
+                       "Actual: 42");
 # endif
 
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseC),
@@ -4392,10 +4291,9 @@ TEST(ExpectTest, ExpectFalseWithAssertionResult) {
 TEST(ExpectTest, EXPECT_EQ) {
   EXPECT_EQ(5, 2 + 3);
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2*3),
-                          "Expected equality of these values:\n"
-                          "  5\n"
-                          "  2*3\n"
-                          "    Which is: 6");
+                          "Value of: 2*3\n"
+                          "  Actual: 6\n"
+                          "Expected: 5");
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2 - 3),
                           "2 - 3");
 }
@@ -4426,7 +4324,7 @@ TEST(ExpectTest, EXPECT_EQ_NULL) {
   // A failure.
   int n = 0;
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(NULL, &n),
-                          "&n\n");
+                          "Value of: &n\n");
 }
 #endif  // GTEST_CAN_COMPARE_NULL
 
@@ -4442,7 +4340,7 @@ TEST(ExpectTest, EXPECT_EQ_0) {
 
   // A failure.
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(0, 5.6),
-                          "Expected equality of these values:\n  0\n  5.6");
+                          "Expected: 0");
 }
 
 // Tests EXPECT_NE.
@@ -4542,7 +4440,7 @@ TEST(ExpectTest, EXPECT_ANY_THROW) {
 TEST(ExpectTest, ExpectPrecedence) {
   EXPECT_EQ(1 < 2, true);
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(true, true && false),
-                          "true && false");
+                          "Value of: true && false");
 }
 
 
@@ -4689,7 +4587,7 @@ TEST(EqAssertionTest, Bool) {
   EXPECT_FATAL_FAILURE({
       bool false_value = false;
       ASSERT_EQ(false_value, true);
-    }, "Which is: false");
+    }, "Value of: true");
 }
 
 // Tests using int values in {EXPECT|ASSERT}_EQ.
@@ -4723,11 +4621,10 @@ TEST(EqAssertionTest, WideChar) {
   EXPECT_EQ(L'b', L'b');
 
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(L'\0', L'x'),
-                          "Expected equality of these values:\n"
-                          "  L'\0'\n"
-                          "    Which is: L'\0' (0, 0x0)\n"
-                          "  L'x'\n"
-                          "    Which is: L'x' (120, 0x78)");
+                          "Value of: L'x'\n"
+                          "  Actual: L'x' (120, 0x78)\n"
+                          "Expected: L'\0'\n"
+                          "Which is: L'\0' (0, 0x0)");
 
   static wchar_t wchar;
   wchar = L'b';
@@ -4735,7 +4632,7 @@ TEST(EqAssertionTest, WideChar) {
                           "wchar");
   wchar = 0x8119;
   EXPECT_FATAL_FAILURE(ASSERT_EQ(static_cast<wchar_t>(0x8120), wchar),
-                       "wchar");
+                       "Value of: wchar");
 }
 
 // Tests using ::std::string values in {EXPECT|ASSERT}_EQ.
@@ -4764,8 +4661,8 @@ TEST(EqAssertionTest, StdString) {
   static ::std::string str3(str1);
   str3.at(2) = '\0';
   EXPECT_FATAL_FAILURE(ASSERT_EQ(str1, str3),
-                       "  str3\n"
-                       "    Which is: \"A \\0 in the middle\"");
+                       "Value of: str3\n"
+                       "  Actual: \"A \\0 in the middle\"");
 }
 
 #if GTEST_HAS_STD_WSTRING
@@ -4885,7 +4782,7 @@ TEST(EqAssertionTest, CharPointer) {
   ASSERT_EQ(p1, p1);
 
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p0, p2),
-                          "p2");
+                          "Value of: p2");
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p1, p2),
                           "p2");
   EXPECT_FATAL_FAILURE(ASSERT_EQ(reinterpret_cast<char*>(0x1234),
@@ -4907,7 +4804,7 @@ TEST(EqAssertionTest, WideCharPointer) {
   EXPECT_EQ(p0, p0);
 
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p0, p2),
-                          "p2");
+                          "Value of: p2");
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p1, p2),
                           "p2");
   void* pv3 = (void*)0x1234;  // NOLINT
@@ -5129,31 +5026,6 @@ TEST(AssertionResultTest, CanStreamOstreamManipulators) {
   EXPECT_STREQ("Data\n\\0Will be visible", r.message());
 }
 
-// The next test uses explicit conversion operators -- a C++11 feature.
-#if GTEST_LANG_CXX11
-
-TEST(AssertionResultTest, ConstructibleFromContextuallyConvertibleToBool) {
-  struct ExplicitlyConvertibleToBool {
-    explicit operator bool() const { return value; }
-    bool value;
-  };
-  ExplicitlyConvertibleToBool v1 = {false};
-  ExplicitlyConvertibleToBool v2 = {true};
-  EXPECT_FALSE(v1);
-  EXPECT_TRUE(v2);
-}
-
-#endif  // GTEST_LANG_CXX11
-
-struct ConvertibleToAssertionResult {
-  operator AssertionResult() const { return AssertionResult(true); }
-};
-
-TEST(AssertionResultTest, ConstructibleFromImplicitlyConvertible) {
-  ConvertibleToAssertionResult obj;
-  EXPECT_TRUE(obj);
-}
-
 // Tests streaming a user type whose definition and operator << are
 // both in the global namespace.
 class Base {
@@ -5337,59 +5209,6 @@ TEST_F(TestInfoTest, result) {
   // After the previous assertion, there is still none.
   ASSERT_EQ(0, GetTestResult(test_info)->total_part_count());
 }
-
-#define VERIFY_CODE_LOCATION \
-  const int expected_line = __LINE__ - 1; \
-  const TestInfo* const test_info = GetUnitTestImpl()->current_test_info(); \
-  ASSERT_TRUE(test_info); \
-  EXPECT_STREQ(__FILE__, test_info->file()); \
-  EXPECT_EQ(expected_line, test_info->line())
-
-TEST(CodeLocationForTEST, Verify) {
-  VERIFY_CODE_LOCATION;
-}
-
-class CodeLocationForTESTF : public Test {
-};
-
-TEST_F(CodeLocationForTESTF, Verify) {
-  VERIFY_CODE_LOCATION;
-}
-
-class CodeLocationForTESTP : public TestWithParam<int> {
-};
-
-TEST_P(CodeLocationForTESTP, Verify) {
-  VERIFY_CODE_LOCATION;
-}
-
-INSTANTIATE_TEST_CASE_P(, CodeLocationForTESTP, Values(0));
-
-template <typename T>
-class CodeLocationForTYPEDTEST : public Test {
-};
-
-TYPED_TEST_CASE(CodeLocationForTYPEDTEST, int);
-
-TYPED_TEST(CodeLocationForTYPEDTEST, Verify) {
-  VERIFY_CODE_LOCATION;
-}
-
-template <typename T>
-class CodeLocationForTYPEDTESTP : public Test {
-};
-
-TYPED_TEST_CASE_P(CodeLocationForTYPEDTESTP);
-
-TYPED_TEST_P(CodeLocationForTYPEDTESTP, Verify) {
-  VERIFY_CODE_LOCATION;
-}
-
-REGISTER_TYPED_TEST_CASE_P(CodeLocationForTYPEDTESTP, Verify);
-
-INSTANTIATE_TYPED_TEST_CASE_P(My, CodeLocationForTYPEDTESTP, int);
-
-#undef VERIFY_CODE_LOCATION
 
 // Tests setting up and tearing down a test case.
 
@@ -6406,108 +6225,7 @@ TEST_F(InitGoogleTestTest, WideStrings) {
 
   GTEST_TEST_PARSING_FLAGS_(argv, argv2, expected_flags, false);
 }
-# endif  // GTEST_OS_WINDOWS
-
-#if GTEST_USE_OWN_FLAGFILE_FLAG_
-class FlagfileTest : public InitGoogleTestTest {
- public:
-  virtual void SetUp() {
-    InitGoogleTestTest::SetUp();
-
-    testdata_path_.Set(internal::FilePath(
-        testing::TempDir() + internal::GetCurrentExecutableName().string() +
-        "_flagfile_test"));
-    testing::internal::posix::RmDir(testdata_path_.c_str());
-    EXPECT_TRUE(testdata_path_.CreateFolder());
-  }
-
-  virtual void TearDown() {
-    testing::internal::posix::RmDir(testdata_path_.c_str());
-    InitGoogleTestTest::TearDown();
-  }
-
-  internal::FilePath CreateFlagfile(const char* contents) {
-    internal::FilePath file_path(internal::FilePath::GenerateUniqueFileName(
-        testdata_path_, internal::FilePath("unique"), "txt"));
-    FILE* f = testing::internal::posix::FOpen(file_path.c_str(), "w");
-    fprintf(f, "%s", contents);
-    fclose(f);
-    return file_path;
-  }
-
- private:
-  internal::FilePath testdata_path_;
-};
-
-// Tests an empty flagfile.
-TEST_F(FlagfileTest, Empty) {
-  internal::FilePath flagfile_path(CreateFlagfile(""));
-  std::string flagfile_flag =
-      std::string("--" GTEST_FLAG_PREFIX_ "flagfile=") + flagfile_path.c_str();
-
-  const char* argv[] = {
-    "foo.exe",
-    flagfile_flag.c_str(),
-    NULL
-  };
-
-  const char* argv2[] = {
-    "foo.exe",
-    NULL
-  };
-
-  GTEST_TEST_PARSING_FLAGS_(argv, argv2, Flags(), false);
-}
-
-// Tests passing a non-empty --gtest_filter flag via --gtest_flagfile.
-TEST_F(FlagfileTest, FilterNonEmpty) {
-  internal::FilePath flagfile_path(CreateFlagfile(
-      "--"  GTEST_FLAG_PREFIX_  "filter=abc"));
-  std::string flagfile_flag =
-      std::string("--" GTEST_FLAG_PREFIX_ "flagfile=") + flagfile_path.c_str();
-
-  const char* argv[] = {
-    "foo.exe",
-    flagfile_flag.c_str(),
-    NULL
-  };
-
-  const char* argv2[] = {
-    "foo.exe",
-    NULL
-  };
-
-  GTEST_TEST_PARSING_FLAGS_(argv, argv2, Flags::Filter("abc"), false);
-}
-
-// Tests passing several flags via --gtest_flagfile.
-TEST_F(FlagfileTest, SeveralFlags) {
-  internal::FilePath flagfile_path(CreateFlagfile(
-      "--"  GTEST_FLAG_PREFIX_  "filter=abc\n"
-      "--"  GTEST_FLAG_PREFIX_  "break_on_failure\n"
-      "--"  GTEST_FLAG_PREFIX_  "list_tests"));
-  std::string flagfile_flag =
-      std::string("--" GTEST_FLAG_PREFIX_ "flagfile=") + flagfile_path.c_str();
-
-  const char* argv[] = {
-    "foo.exe",
-    flagfile_flag.c_str(),
-    NULL
-  };
-
-  const char* argv2[] = {
-    "foo.exe",
-    NULL
-  };
-
-  Flags expected_flags;
-  expected_flags.break_on_failure = true;
-  expected_flags.filter = "abc";
-  expected_flags.list_tests = true;
-
-  GTEST_TEST_PARSING_FLAGS_(argv, argv2, expected_flags, false);
-}
-#endif  // GTEST_USE_OWN_FLAGFILE_FLAG_
+#endif  // GTEST_OS_WINDOWS
 
 // Tests current_test_info() in UnitTest.
 class CurrentTestInfoTest : public Test {
@@ -6843,18 +6561,6 @@ TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
 
   SetEnv("TERM", "screen-256color");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "tmux");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "tmux-256color");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "rxvt-unicode");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "rxvt-unicode-256color");  // TERM supports colors.
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
 
   SetEnv("TERM", "linux");  // TERM supports colors.
@@ -7621,7 +7327,7 @@ TEST(CopyArrayTest, WorksForTwoDimensionalArrays) {
 
 TEST(NativeArrayTest, ConstructorFromArrayWorks) {
   const int a[3] = { 0, 1, 2 };
-  NativeArray<int> na(a, 3, RelationToSourceReference());
+  NativeArray<int> na(a, 3, kReference);
   EXPECT_EQ(3U, na.size());
   EXPECT_EQ(a, na.begin());
 }
@@ -7631,7 +7337,7 @@ TEST(NativeArrayTest, CreatesAndDeletesCopyOfArrayWhenAskedTo) {
   Array* a = new Array[1];
   (*a)[0] = 0;
   (*a)[1] = 1;
-  NativeArray<int> na(*a, 2, RelationToSourceCopy());
+  NativeArray<int> na(*a, 2, kCopy);
   EXPECT_NE(*a, na.begin());
   delete[] a;
   EXPECT_EQ(0, na.begin()[0]);
@@ -7651,7 +7357,7 @@ TEST(NativeArrayTest, TypeMembersAreCorrect) {
 
 TEST(NativeArrayTest, MethodsWork) {
   const int a[3] = { 0, 1, 2 };
-  NativeArray<int> na(a, 3, RelationToSourceCopy());
+  NativeArray<int> na(a, 3, kCopy);
   ASSERT_EQ(3U, na.size());
   EXPECT_EQ(3, na.end() - na.begin());
 
@@ -7659,25 +7365,25 @@ TEST(NativeArrayTest, MethodsWork) {
   EXPECT_EQ(0, *it);
   ++it;
   EXPECT_EQ(1, *it);
-  ++it;
+  it++;
   EXPECT_EQ(2, *it);
   ++it;
   EXPECT_EQ(na.end(), it);
 
   EXPECT_TRUE(na == na);
 
-  NativeArray<int> na2(a, 3, RelationToSourceReference());
+  NativeArray<int> na2(a, 3, kReference);
   EXPECT_TRUE(na == na2);
 
   const int b1[3] = { 0, 1, 1 };
   const int b2[4] = { 0, 1, 2, 3 };
-  EXPECT_FALSE(na == NativeArray<int>(b1, 3, RelationToSourceReference()));
-  EXPECT_FALSE(na == NativeArray<int>(b2, 4, RelationToSourceCopy()));
+  EXPECT_FALSE(na == NativeArray<int>(b1, 3, kReference));
+  EXPECT_FALSE(na == NativeArray<int>(b2, 4, kCopy));
 }
 
 TEST(NativeArrayTest, WorksForTwoDimensionalArray) {
   const char a[2][3] = { "hi", "lo" };
-  NativeArray<char[3]> na(a, 2, RelationToSourceReference());
+  NativeArray<char[3]> na(a, 2, kReference);
   ASSERT_EQ(2U, na.size());
   EXPECT_EQ(a, na.begin());
 }

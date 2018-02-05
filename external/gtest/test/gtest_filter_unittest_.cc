@@ -117,6 +117,7 @@ TEST(DISABLED_FoobarbazTest, TestA) {
   FAIL() << "Expected failure.";
 }
 
+#if GTEST_HAS_PARAM_TEST
 class ParamTest : public testing::TestWithParam<int> {
 };
 
@@ -128,6 +129,7 @@ TEST_P(ParamTest, TestY) {
 
 INSTANTIATE_TEST_CASE_P(SeqP, ParamTest, testing::Values(1, 2));
 INSTANTIATE_TEST_CASE_P(SeqQ, ParamTest, testing::Values(5, 6));
+#endif  // GTEST_HAS_PARAM_TEST
 
 }  // namespace
 
