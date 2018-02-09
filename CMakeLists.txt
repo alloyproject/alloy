@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.6)
 
+execute_process(COMMAND git log -1 --pretty=format:%h
+WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+OUTPUT_VARIABLE VERSION)
+add_definitions(-DGIT_REVISION="${VERSION}")
 
-set(VERSION "0.1")
-# Packaged from commit 8016d40a1546fe9e62b1f24a3ea1a8306785035a
-set(COMMIT 8016d40)
-set(REFS " (HEAD -> master)")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo Release CACHE TYPE INTERNAL)
@@ -137,6 +137,7 @@ endif()
 
 set(COMMIT_ID_IN_VERSION ON CACHE BOOL "Include commit ID in version")
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/version")
+
 if (NOT COMMIT_ID_IN_VERSION)
   set(VERSION "${VERSION}-unknown")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version/version.h")
