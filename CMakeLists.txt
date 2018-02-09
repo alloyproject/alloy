@@ -29,9 +29,9 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
  
-set(BOOST_LIBRARYDIR c:/boost_1_58_0/stage/lib)
-set(BOOST_INCLUDEDIR c:/boost_1_58_0/boost)
-set(BOOST_ROOT c:/boost_1_58_0)
+set(BOOST_LIBRARYDIR c:/boost_1_63_0/stage/lib)
+set(BOOST_INCLUDEDIR c:/boost_1_63_0/boost)
+set(BOOST_ROOT c:/boost_1_63_0)
 endif()
 
 if(MSVC)
