@@ -3,6 +3,10 @@
 Copyright (c) 2017-2018, The Alloy Developers.   
 Portions Copyright (c) 2012-2017, The CryptoNote Developers, The Bytecoin Developers.
 
+# Download Releases
+https://github.com/alloy-project/alloy/releases
+
+
 ## Introduction
 
 Alloy is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
