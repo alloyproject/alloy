@@ -6,6 +6,24 @@ Portions Copyright (c) 2012-2017, The CryptoNote Developers, The Bytecoin Develo
 # Download Releases
 https://github.com/alloy-project/alloy/releases
 
+# How to Compile
+
+```sudo apt-get -y install build-essential libssl-dev libboost-all-dev```
+
+```sudo apt-get -y install gcc-4.8 g++-4.8  git cmake```
+
+```git clone https://github.com/alloy-project/alloy```
+
+```cd alloy```
+
+```mkdir build ; cd build```
+
+```cmake ..```
+
+```make```
+
+
+
 
 ## Introduction
 
