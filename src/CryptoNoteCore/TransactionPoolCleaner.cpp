@@ -9,6 +9,8 @@
  */
 
 #include "TransactionPoolCleaner.h"
+#include "CryptoNoteConfig.h"
+
 
 #include "Common/StringTools.h"
 
@@ -76,10 +78,30 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::getTransactionHashesByPay
 
 std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
   try {
-    uint64_t currentTime = timeProvider->now();
+      
+         uint64_t currentTime = timeProvider->now();
+          std::vector<Crypto::Hash> deletedTransactions;
+          
+  std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
+  
+  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
+    const CachedTransaction& transaction = *it;
+    auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
+    auto hash=transaction.getTransactionHash();
+if (transactionBlobSize > TX_SAFETY_NET) {
+        logger(Logging::INFO) << "Cleaner Deleting transaction size: "  << transactionBlobSize << ", hash: "<<Common::podToHex(hash) << "  from pool";
+       recentlyDeletedTransactions.emplace(hash, currentTime);
+        transactionPool->removeTransaction(hash);
+        deletedTransactions.emplace_back(std::move(hash));
+ }
+
+}
+      
+      
+  
     auto transactionHashes = transactionPool->getTransactionHashes();
 
-    std::vector<Crypto::Hash> deletedTransactions;
+
     for (const auto& hash: transactionHashes) {
       uint64_t transactionAge = currentTime - transactionPool->getTransactionReceiveTime(hash);
       if (transactionAge >= timeout) {

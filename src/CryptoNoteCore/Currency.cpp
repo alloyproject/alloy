@@ -196,6 +196,9 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
   size_t maxSize = static_cast<size_t>(m_maxBlockSizeInitial +
     (height * m_maxBlockSizeGrowthSpeedNumerator) / m_maxBlockSizeGrowthSpeedDenominator);
 
+    //printf("Current Real MaxSize:%lu\n",maxSize);
+    
+    
   assert(maxSize >= m_maxBlockSizeInitial);
   return maxSize;
 }
