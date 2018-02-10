@@ -1820,7 +1820,7 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
     if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction()) && transactionBlobSize < TX_SAFETY_NET) {
       block.transactionHashes.emplace_back(transaction.getTransactionHash());
       transactionsSize += transactionBlobSize;
-      logger(Logging::INFO) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
+      logger(Logging::DEBUGGING) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
     }
   }
 
@@ -1835,7 +1835,7 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
       transactionsSize += cachedTransaction.getTransactionBinaryArray().size();
       fee += cachedTransaction.getTransactionFee();
       block.transactionHashes.emplace_back(cachedTransaction.getTransactionHash());
-      logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template size:"<< cachedTransaction.getTransactionBinaryArray().size();
+      logger(Logging::DEBUGGING) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template size:"<< cachedTransaction.getTransactionBinaryArray().size();
     } else {
 	logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template size:" << cachedTransaction.getTransactionBinaryArray().size();
     }

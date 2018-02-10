@@ -1000,7 +1000,6 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
     << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
     << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
 
- success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import):" << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey) << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
 
 
 
