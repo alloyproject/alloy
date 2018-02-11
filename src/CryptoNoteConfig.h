@@ -49,7 +49,9 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define TX_SAFETY_NET					                          20000 // upper safety net to prevent stuck transactions
+#define TX_SAFETY_NET					                26000 // upper safety net to prevent stuck transactions, based on block height
+#define MEMPOOL_POLLING_INTERVAL                        60 //how often to clean mempool
+
 #define MAX_TRANSACTION_SIZE_LIMIT                      CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE / 4 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
 
 #define DIFFICULTY_TARGET                               180
@@ -147,6 +149,7 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
   { 1, "5220a193ed61aabd5807ab8e1c948cd97bb45a53487975949fa9fef06c5fab05" },
   { 2500, "6a116d1d01afae5520e476f215dee28c1e720a9a95b8bb099450acfa59a04e4e" },
   { 5000, "f4819ea83564fde4f4eba0cb9fac9ed93558de0d6ef81e41beb538ad1b079465" },
+  {9670, "c7528f5cc457e128932a5eeae16bdd93e52475f7da11660c2ad8bcb93891a1d6" }
 };
 
 } // CryptoNote

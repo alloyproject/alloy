@@ -179,7 +179,7 @@ uint32_t findCommonRoot(IMainChainStorage& storage, IBlockchainCache& rootSegmen
   return left;
 }
 
-const std::chrono::seconds OUTDATED_TRANSACTION_POLLING_INTERVAL = std::chrono::seconds(60);
+const std::chrono::seconds OUTDATED_TRANSACTION_POLLING_INTERVAL = std::chrono::seconds(MEMPOOL_POLLING_INTERVAL);
 
 }
 
