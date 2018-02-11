@@ -1804,10 +1804,15 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   size_t maxTotalSize = (125 * medianSize) / 100;
   maxTotalSize = std::min(maxTotalSize, maxCumulativeSize) - currency.minerTxBlobReservedSize();
 
+//printf("max total:%lu\n", maxTotalSize);
+
+
+
   TransactionSpentInputsChecker spentInputsChecker;
 
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
-  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
+
+/*  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
     const CachedTransaction& transaction = *it;
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
 
@@ -1822,10 +1827,15 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
       transactionsSize += transactionBlobSize;
       logger(Logging::DEBUGGING) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
     }
-  }
+  }*/
+
 
   for (const auto& cachedTransaction : poolTransactions) {
-    size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
+   //size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
+     size_t blockSizeLimit  =maxTotalSize;
+
+
+  //printf("transactionsSize:%lu\n",transactionsSize);
 
     if ((transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) > blockSizeLimit) {
       continue;
