@@ -801,6 +801,10 @@ std::error_code Core::addBlock(RawBlock&& rawBlock) {
 std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   throwIfNotInitialized();
 
+
+ logger(Logging::INFO) << "*** Submitting Block **** ";
+
+
   BlockTemplate blockTemplate;
   bool result = fromBinaryArray(blockTemplate, rawBlockTemplate);
   if (!result) {
