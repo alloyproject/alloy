@@ -56,10 +56,10 @@ namespace parameters {
 
 #define DIFFICULTY_TARGET                               180
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY               24 * 60 * 60 / DIFFICULTY_TARGET
-#define DIFFICULTY_WINDOW                               EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
+#define DIFFICULTY_WINDOW                               20 //EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
 #define DIFFICULTY_WINDOW_V1                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V2                            DIFFICULTY_WINDOW
-#define DIFFICULTY_CUT                                  60
+#define DIFFICULTY_CUT                                  0
 #define DIFFICULTY_CUT_V1                               DIFFICULTY_CUT
 #define DIFFICULTY_CUT_V2                               DIFFICULTY_CUT
 #define DIFFICULTY_LAG                                  15
