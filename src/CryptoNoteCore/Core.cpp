@@ -801,6 +801,10 @@ std::error_code Core::addBlock(RawBlock&& rawBlock) {
 std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   throwIfNotInitialized();
 
+
+ logger(Logging::INFO) << "*** Submitting Block **** ";
+
+
   BlockTemplate blockTemplate;
   bool result = fromBinaryArray(blockTemplate, rawBlockTemplate);
   if (!result) {
@@ -1803,29 +1807,21 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
 
   size_t maxTotalSize = (125 * medianSize) / 100;
   maxTotalSize = std::min(maxTotalSize, maxCumulativeSize) - currency.minerTxBlobReservedSize();
+     size_t blockSizeLimit  =maxTotalSize;
+   //size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
+//printf("max total:%lu\n", maxTotalSize);
+
+
 
   TransactionSpentInputsChecker spentInputsChecker;
 
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
-  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
-    const CachedTransaction& transaction = *it;
-    auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
 
-    if ((transactionsSize + transactionBlobSize) > currency.fusionTxMaxSize()) {
-      logger(Logging::INFO) << "Fusion Transaction too large size: " << transactionBlobSize;
-
-      continue;
-    }
-
-    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction()) && transactionBlobSize < TX_SAFETY_NET) {
-      block.transactionHashes.emplace_back(transaction.getTransactionHash());
-      transactionsSize += transactionBlobSize;
-      logger(Logging::DEBUGGING) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
-    }
-  }
 
   for (const auto& cachedTransaction : poolTransactions) {
-    size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
+
+
+  //printf("transactionsSize:%lu\n",transactionsSize);
 
     if ((transactionsSize + cachedTransaction.getTransactionBinaryArray().size()) > blockSizeLimit) {
       continue;
@@ -1840,6 +1836,27 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
 	logger(Logging::INFO) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template size:" << cachedTransaction.getTransactionBinaryArray().size();
     }
   }
+
+
+  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend() && it->getTransactionFee() == 0; ++it) {
+    const CachedTransaction& transaction = *it;
+    auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
+
+    if ((transactionsSize + transactionBlobSize) > blockSizeLimit) {
+      logger(Logging::DEBUGGING) << "Fusion Transaction will not fit in block: " << transactionBlobSize;
+
+      continue;
+    }
+
+    if (!spentInputsChecker.haveSpentInputs(transaction.getTransaction())) {
+      block.transactionHashes.emplace_back(transaction.getTransactionHash());
+      transactionsSize += transactionBlobSize;
+      logger(Logging::DEBUGGING) << "Fusion transaction " << transaction.getTransactionHash() << " included to block template size:" <<transactionBlobSize;
+    }
+  }
+
+
+
 }
 
 void Core::deleteAlternativeChains() {
