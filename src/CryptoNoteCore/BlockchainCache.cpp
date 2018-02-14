@@ -534,17 +534,17 @@ uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) c
     return 0;
   }
 
- // uint32_t blockIndex = parent->getTimestampLowerBoundBlockIndex(timestamp);
- // return blockIndex == INVALID_BLOCK_INDEX ? blockIndex : startIndex;
+  uint32_t blockIndex = parent->getTimestampLowerBoundBlockIndex(timestamp);
+  return blockIndex == INVALID_BLOCK_INDEX ? blockIndex : startIndex;
 
 //From the Turtlecoin logic suggestion
 //https://github.com/turtlecoin/turtlecoin/commit/1af3f4e2400fc4eec5afb921a6d8c7be25fa7a29
- try {
-     return parent->getTimestampLowerBoundBlockIndex(timestamp);
-   } catch (std::runtime_error&) {
-     // parent didn't have the block, so index.front() must be the block we're looking for
-     return startIndex;
-   }
+// try {
+//     return parent->getTimestampLowerBoundBlockIndex(timestamp);
+//   } catch (std::runtime_error&) {
+//     // parent didn't have the block, so index.front() must be the block we're looking for
+//     return startIndex;
+//   }
 
 }
 
