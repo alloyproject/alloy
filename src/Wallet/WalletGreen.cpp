@@ -1947,7 +1947,7 @@ bool WalletGreen::adjustTransfer(size_t transactionId, size_t firstTransferIdx, 
           it->second.amount = amount;
           updated = true;
         }
-        
+
         firstAddressTransferFound = true;
         ++it;
       }
@@ -2061,11 +2061,8 @@ void WalletGreen::sendTransaction(const CryptoNote::Transaction& cryptoNoteTrans
 size_t WalletGreen::validateSaveAndSendTransaction(const ITransactionReader& transaction, const std::vector<WalletTransfer>& destinations, bool isFusion, bool send) {
   BinaryArray transactionData = transaction.getTransactionData();
 
-// m_logger(DEBUGGING) << "m_upperTransactionSizeLimit:"<<m_upperTransactionSizeLimit;
-
-int sizeLimit = std::min<unsigned long>(m_upperTransactionSizeLimit, TX_SAFETY_NET); 
-
- m_logger(DEBUGGING) << "transactionData.size():"<<transactionData.size();
+  int sizeLimit = std::min<unsigned long>(m_upperTransactionSizeLimit, MAX_TRANSACTION_SIZE_LIMIT);
+  m_logger(DEBUGGING) << "transactionData.size():"<<transactionData.size();
 
   if (transactionData.size() > sizeLimit) {
     m_logger(ERROR, BRIGHT_RED) << "Transaction is too big. Transaction hash " << transaction.getTransactionHash() <<
@@ -3133,7 +3130,7 @@ std::vector<WalletGreen::OutputToTransfer> WalletGreen::pickRandomFusionInputs(c
       break;
     }
   }
-  
+
   if (bucketNumberIndex == bucketNumbers.size()) {
     return {};
   }
@@ -3145,7 +3142,7 @@ std::vector<WalletGreen::OutputToTransfer> WalletGreen::pickRandomFusionInputs(c
   for (size_t i = 0; i < selectedBucket; ++i) {
     lowerBound *= 10;
   }
-   
+
   uint64_t upperBound = selectedBucket == std::numeric_limits<uint64_t>::digits10 ? UINT64_MAX : lowerBound * 10;
   std::vector<WalletGreen::OutputToTransfer> selectedOuts;
   selectedOuts.reserve(bucketSizes[selectedBucket]);
@@ -3171,7 +3168,7 @@ std::vector<WalletGreen::OutputToTransfer> WalletGreen::pickRandomFusionInputs(c
   }
 
   std::sort(trimmedSelectedOuts.begin(), trimmedSelectedOuts.end(), outputsSortingFunction);
-  return trimmedSelectedOuts;  
+  return trimmedSelectedOuts;
 }
 
 std::vector<TransactionsInBlockInfo> WalletGreen::getTransactionsInBlocks(uint32_t blockIndex, size_t count) const {

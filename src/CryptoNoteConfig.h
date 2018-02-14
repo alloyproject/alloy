@@ -49,10 +49,8 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define TX_SAFETY_NET					                26000 // upper safety net to prevent stuck transactions, based on block height
-#define MEMPOOL_POLLING_INTERVAL                        60 //how often to clean mempool
-
-#define MAX_TRANSACTION_SIZE_LIMIT                      CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE / 4 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
+#define MAX_TRANSACTION_SIZE_LIMIT                      (CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE / 4) - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
+#define MEMPOOL_POLLING_INTERVAL                        60 // how often to clean mempool
 
 #define DIFFICULTY_TARGET                               180
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY               24 * 60 * 60 / DIFFICULTY_TARGET
