@@ -6,6 +6,10 @@ Portions Copyright (c) 2012-2017, The CryptoNote Developers, The Bytecoin Develo
 # Download Releases
 https://github.com/alloy-project/alloy/releases
 
+# GUI Wallet
+Located Here: https://github.com/alloy-project/alloy-gui
+
+
 # How to Compile
 
 ```sudo apt-get -y install build-essential libssl-dev libboost-all-dev```
