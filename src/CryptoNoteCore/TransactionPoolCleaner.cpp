@@ -78,39 +78,37 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::getTransactionHashesByPay
 
 std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
   try {
-      
-         uint64_t currentTime = timeProvider->now();
-          std::vector<Crypto::Hash> deletedTransactions;
-          
+
+  uint64_t currentTime = timeProvider->now();
+  std::vector<Crypto::Hash> deletedTransactions;
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
-  
+/*
   for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
     const CachedTransaction& transaction = *it;
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
     auto hash=transaction.getTransactionHash();
-if (transactionBlobSize > TX_SAFETY_NET) {
-        logger(Logging::INFO) << "Cleaner Deleting transaction size: "  << transactionBlobSize << ", hash: "<<Common::podToHex(hash) << "  from pool";
-       recentlyDeletedTransactions.emplace(hash, currentTime);
-        transactionPool->removeTransaction(hash);
-        deletedTransactions.emplace_back(std::move(hash));
- }
 
-}
-      
-      
-  
-    auto transactionHashes = transactionPool->getTransactionHashes();
+    if (transactionBlobSize > MAX_TRANSACTION_SIZE_LIMIT) {
+      logger(Logging::INFO) << "Cleaner Deleting transaction size: "  << transactionBlobSize
+      << ", hash: " << Common::podToHex(hash) << "  from pool";
 
+      recentlyDeletedTransactions.emplace(hash, currentTime);
+      transactionPool->removeTransaction(hash);
+      deletedTransactions.emplace_back(std::move(hash));
+     }
+   }
+*/
+  auto transactionHashes = transactionPool->getTransactionHashes();
 
-    for (const auto& hash: transactionHashes) {
-      uint64_t transactionAge = currentTime - transactionPool->getTransactionReceiveTime(hash);
-      if (transactionAge >= timeout) {
-        logger(Logging::DEBUGGING) << "Deleting transaction " << Common::podToHex(hash) << " from pool";
-        recentlyDeletedTransactions.emplace(hash, currentTime);
-        transactionPool->removeTransaction(hash);
-        deletedTransactions.emplace_back(std::move(hash));
-      }
+  for (const auto& hash: transactionHashes) {
+    uint64_t transactionAge = currentTime - transactionPool->getTransactionReceiveTime(hash);
+    if (transactionAge >= timeout) {
+      logger(Logging::DEBUGGING) << "Deleting transaction " << Common::podToHex(hash) << " from pool";
+      recentlyDeletedTransactions.emplace(hash, currentTime);
+      transactionPool->removeTransaction(hash);
+      deletedTransactions.emplace_back(std::move(hash));
     }
+  }
 
     cleanRecentlyDeletedTransactions(currentTime);
     return deletedTransactions;

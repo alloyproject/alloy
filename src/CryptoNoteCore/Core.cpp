@@ -819,8 +819,11 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   for (const auto& transactionHash : blockTemplate.transactionHashes) {
     if (!transactionPool->checkIfTransactionPresent(transactionHash)) {
       logger(Logging::WARNING) << "The transaction " << Common::podToHex(transactionHash)
-                               << " is absent in transaction pool";
-      return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
+                               << " is absent in transaction pool. Next!";
+      //return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
+
+	//We will just add it even if recently dropped from mempool to deal with long block time issue.
+
     }
 
     rawBlock.transactions.emplace_back(transactionPool->getTransaction(transactionHash).getTransactionBinaryArray());
