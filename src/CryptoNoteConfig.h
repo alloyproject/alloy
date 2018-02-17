@@ -34,6 +34,9 @@ namespace parameters {
 #define ZAWY_DIFFICULTY_BLOCK_INDEX                     0
 #define ZAWY_DIFFICULTY_V2                              1
 #define ZAWY_DIFFICULTY_DIFFICULTY_BLOCK_VERSION        0
+#define KHAN_DIFFICULTY_BLOCK_INDEX 			12000
+
+
 #define EMISSION_SPEED_FACTOR                           20
 #define GENESIS_BLOCK_REWARD                            4560000
 
@@ -64,7 +67,7 @@ namespace parameters {
 #define DIFFICULTY_LAG_V1                               DIFFICULTY_LAG
 #define DIFFICULTY_LAG_V2                               DIFFICULTY_LAG
 
-#define MAX_BLOCK_SIZE_INITIAL                          20 * 1024
+#define MAX_BLOCK_SIZE_INITIAL                          100 * 1024
 #define MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR           100 * 1024
 #define MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR         365 * 24 * 60 * 60 / DIFFICULTY_TARGET
 
