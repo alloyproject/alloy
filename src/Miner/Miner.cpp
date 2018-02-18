@@ -95,9 +95,22 @@ void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty
     BlockTemplate block = blockTemplate;
     Crypto::cn_context cryptoContext;
 
+int hashes=0;
+ clock_t t;
+    t = clock();
+
     while (m_state == MiningState::MINING_IN_PROGRESS) {
       CachedBlock cachedBlock(block);
       Crypto::Hash hash = cachedBlock.getBlockLongHash(cryptoContext);
+	hashes++;
+
+	float	 telapsed = clock() - t;
+
+	float 	hs=hashes/(telapsed/CLOCKS_PER_SEC);
+	if (hashes  % 100 ==0) {
+	 m_logger(Logging::INFO) << "   Hashes per Second:"<<hs <<"      hashes : " << hashes;
+	}
+
       if (check_hash(hash, difficulty)) {
         m_logger(Logging::INFO) << "Found block for difficulty " << difficulty;
 
