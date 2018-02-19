@@ -159,7 +159,15 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
     return m_upgradeHeightV2;
   } else if (majorVersion == BLOCK_MAJOR_VERSION_3) {
     return m_upgradeHeightV3;
-  } else {
+  } 
+
+else if (majorVersion == BLOCK_MAJOR_VERSION_4) {
+printf("m_upgradeHeightV4:%lu\n",m_upgradeHeightV4);
+
+    return m_upgradeHeightV4;
+  }
+
+else {
     return static_cast<uint32_t>(-1);
   }
 }
@@ -482,6 +490,15 @@ Difficulty Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps,
   std::vector<Difficulty> cumulativeDifficulties) const {
 
+
+if (version >= BLOCK_MAJOR_VERSION_4 ) {
+
+// echo Khan's Magical Diff Algo
+
+}
+
+
+
   std::vector<uint64_t> timestamps_o(timestamps);
   std::vector<uint64_t> cumulativeDifficulties_o(cumulativeDifficulties);
   size_t c_difficultyWindow = difficultyWindowByBlockVersion(version);
@@ -721,6 +738,8 @@ m_fusionTxMinInputCount(currency.m_fusionTxMinInputCount),
 m_fusionTxMinInOutCountRatio(currency.m_fusionTxMinInOutCountRatio),
 m_upgradeHeightV2(currency.m_upgradeHeightV2),
 m_upgradeHeightV3(currency.m_upgradeHeightV3),
+m_upgradeHeightV4(currency.m_upgradeHeightV4),
+
 m_upgradeVotingThreshold(currency.m_upgradeVotingThreshold),
 m_upgradeVotingWindow(currency.m_upgradeVotingWindow),
 m_upgradeWindow(currency.m_upgradeWindow),
@@ -795,6 +814,8 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 
   upgradeHeightV2(UPGRADE_HEIGHT_V2);
   upgradeHeightV3(UPGRADE_HEIGHT_V3);
+  upgradeHeightV4(UPGRADE_HEIGHT_V4);
+
   upgradeVotingThreshold(UPGRADE_VOTING_THRESHOLD);
   upgradeVotingWindow(UPGRADE_VOTING_WINDOW);
   upgradeWindow(UPGRADE_WINDOW);

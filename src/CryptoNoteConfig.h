@@ -34,7 +34,6 @@ namespace parameters {
 #define ZAWY_DIFFICULTY_BLOCK_INDEX                     0
 #define ZAWY_DIFFICULTY_V2                              1
 #define ZAWY_DIFFICULTY_DIFFICULTY_BLOCK_VERSION        0
-#define KHAN_DIFFICULTY_BLOCK_INDEX 			12000
 
 
 #define EMISSION_SPEED_FACTOR                           20
@@ -85,6 +84,8 @@ namespace parameters {
 #define KEY_IMAGE_CHECKING_BLOCK_INDEX                  0
 #define UPGRADE_HEIGHT_V2                               1
 #define UPGRADE_HEIGHT_V3                               2
+#define UPGRADE_HEIGHT_V4                               15000
+
 #define UPGRADE_VOTING_THRESHOLD                        90
 #define UPGRADE_VOTING_WINDOW                           EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
 #define UPGRADE_WINDOW                                  EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
@@ -106,6 +107,8 @@ namespace parameters {
 #define BLOCK_MAJOR_VERSION_1                           1
 #define BLOCK_MAJOR_VERSION_2                           2
 #define BLOCK_MAJOR_VERSION_3                           3
+#define BLOCK_MAJOR_VERSION_4                           4
+
 #define BLOCK_MINOR_VERSION_0                           0
 #define BLOCK_MINOR_VERSION_1                           1
 
