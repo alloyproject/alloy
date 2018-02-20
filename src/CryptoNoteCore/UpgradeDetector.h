@@ -43,6 +43,10 @@ namespace CryptoNote {
 
     bool init() {
       uint32_t upgradeHeight = m_currency.upgradeHeight(m_targetVersion);
+
+//printf("BasicUpgradeDetector Upgrade Height:%lu",upgradeHeight);
+
+
       if (upgradeHeight == UNDEF_HEIGHT) {
         if (m_blockchain.empty()) {
           m_votingCompleteHeight = UNDEF_HEIGHT;
@@ -101,6 +105,9 @@ namespace CryptoNote {
     uint32_t votingCompleteHeight() const { return m_votingCompleteHeight; }
 
     uint32_t upgradeHeight() const {
+
+//printf("upgradedetctor upgradeHeight()\n");
+
       if (m_currency.upgradeHeight(m_targetVersion) == UNDEF_HEIGHT) {
         return m_votingCompleteHeight == UNDEF_HEIGHT ? UNDEF_HEIGHT : m_currency.calculateUpgradeHeight(m_votingCompleteHeight);
       } else {
@@ -109,6 +116,9 @@ namespace CryptoNote {
     }
 
     void blockPushed() {
+
+//printf("upgradedetctor blockPushed\n");
+
       assert(!m_blockchain.empty());
 
       if (m_currency.upgradeHeight(m_targetVersion) != UNDEF_HEIGHT) {
@@ -169,6 +179,9 @@ namespace CryptoNote {
     }
 
     size_t getNumberOfVotes(uint32_t height) {
+
+//printf("In getNumberOfVotes\n");
+
       if (height < m_currency.upgradeVotingWindow() - 1) {
         return 0;
       }
@@ -197,6 +210,9 @@ namespace CryptoNote {
     }
 
     bool isVotingComplete(uint32_t height) {
+
+//printf("In isVotingComplete\n");
+
       assert(m_currency.upgradeHeight(m_targetVersion) == UNDEF_HEIGHT);
       assert(m_currency.upgradeVotingWindow() > 1);
       assert(m_currency.upgradeVotingThreshold() > 0 && m_currency.upgradeVotingThreshold() <= 100);

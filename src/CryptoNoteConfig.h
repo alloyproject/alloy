@@ -159,3 +159,4 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
 } // CryptoNote
 
 #define ALLOW_DEBUG_COMMANDS
+

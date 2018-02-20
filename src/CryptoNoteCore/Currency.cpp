@@ -155,6 +155,9 @@ size_t Currency::blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVers
 }
 
 uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
+
+//printf("In  Currency::upgradeHeight  majorVersion:%lu\n",majorVersion);
+
   if (majorVersion == BLOCK_MAJOR_VERSION_2) {
     return m_upgradeHeightV2;
   } else if (majorVersion == BLOCK_MAJOR_VERSION_3) {
@@ -162,7 +165,6 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
   } 
 
 else if (majorVersion == BLOCK_MAJOR_VERSION_4) {
-printf("m_upgradeHeightV4:%lu\n",m_upgradeHeightV4);
 
     return m_upgradeHeightV4;
   }
@@ -491,9 +493,18 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
   std::vector<Difficulty> cumulativeDifficulties) const {
 
 
+//printf("at block %lu\n",blockIndex);
+
+//if (blockIndex>=12166 ) {
+//return 1;
+//}
+
+
+
 if (version >= BLOCK_MAJOR_VERSION_4 ) {
 
 // echo Khan's Magical Diff Algo
+//return 5;
 
 }
 
@@ -672,6 +683,8 @@ bool Currency::checkProofOfWork(Crypto::cn_context& context, const CachedBlock& 
 
   case BLOCK_MAJOR_VERSION_2:
   case BLOCK_MAJOR_VERSION_3:
+  case BLOCK_MAJOR_VERSION_4:
+
     return checkProofOfWorkV2(context, block, currentDiffic);
   }
 
