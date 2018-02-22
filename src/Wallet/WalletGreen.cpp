@@ -2065,7 +2065,7 @@ size_t WalletGreen::validateSaveAndSendTransaction(const ITransactionReader& tra
   m_logger(DEBUGGING) << "transactionData.size():"<<transactionData.size();
 
   if (transactionData.size() > sizeLimit) {
-    m_logger(ERROR, BRIGHT_RED) << "Transaction is too big. Transaction hash " << transaction.getTransactionHash() <<
+    m_logger(ERROR, BRIGHT_RED) << "Transaction size was too big. It will need a larger Fee. Transaction hash " << transaction.getTransactionHash() <<
       ", size " << transactionData.size() << ", size limit " << m_upperTransactionSizeLimit;
     throw std::system_error(make_error_code(error::TRANSACTION_SIZE_TOO_BIG));
   }

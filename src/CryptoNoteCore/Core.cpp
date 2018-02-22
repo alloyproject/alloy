@@ -1809,12 +1809,14 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   fee = 0;
 
   size_t maxTotalSize = (125 * medianSize) / 100;
+  
+  
   maxTotalSize = std::min(maxTotalSize, maxCumulativeSize) - currency.minerTxBlobReservedSize();
-     size_t blockSizeLimit  =maxTotalSize;
-   //size_t blockSizeLimit = (cachedTransaction.getTransactionFee() == 0) ? medianSize : maxTotalSize;
-//printf("max total:%lu\n", maxTotalSize);
-
-
+   size_t blockSizeLimit  =maxCumulativeSize;
+   
+   logger(Logging::DEBUGGING) << "blockSizeLimit:"<<blockSizeLimit;
+   
+   
 
   TransactionSpentInputsChecker spentInputsChecker;
 
