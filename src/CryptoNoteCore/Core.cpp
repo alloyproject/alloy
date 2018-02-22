@@ -1809,10 +1809,9 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
   fee = 0;
 
   size_t maxTotalSize = (125 * medianSize) / 100;
-  
-  
   maxTotalSize = std::min(maxTotalSize, maxCumulativeSize) - currency.minerTxBlobReservedSize();
-   size_t blockSizeLimit  =maxCumulativeSize;
+  
+   size_t blockSizeLimit  =maxTotalSize;
    
    logger(Logging::DEBUGGING) << "blockSizeLimit:"<<blockSizeLimit;
    
