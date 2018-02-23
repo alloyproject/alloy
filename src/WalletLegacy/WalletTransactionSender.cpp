@@ -58,7 +58,7 @@ void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntr
 
   Logging::LoggerGroup nullLog;
   bool r = constructTransaction(keys, sources, splittedDests, extraVec, tx, unlockTimestamp, nullLog);
-  //printf("Transaction size:%lu\n", getObjectBinarySize(tx));
+  printf("Transaction size in bytes:%lu\n", getObjectBinarySize(tx));
   throwIf(!r, error::INTERNAL_WALLET_ERROR);
   throwIf(getObjectBinarySize(tx) >= sizeLimit, error::TRANSACTION_SIZE_TOO_BIG);
 }
