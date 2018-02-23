@@ -111,7 +111,9 @@ bool Currency::generateGenesisBlock() {
 }
 
 size_t Currency::difficultyWindowByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_3) {
+  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_4) {
+    return DIFFICULTY_WINDOW_V4;
+  } else if (blockMajorVersion == BLOCK_MAJOR_VERSION_3) {
     return m_difficultyWindow;
   } else if (blockMajorVersion == BLOCK_MAJOR_VERSION_2) {
     return DIFFICULTY_WINDOW_V2;
@@ -162,7 +164,7 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
     return m_upgradeHeightV2;
   } else if (majorVersion == BLOCK_MAJOR_VERSION_3) {
     return m_upgradeHeightV3;
-  } 
+  }
 
 else if (majorVersion == BLOCK_MAJOR_VERSION_4) {
 
@@ -207,8 +209,8 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
     (height * m_maxBlockSizeGrowthSpeedNumerator) / m_maxBlockSizeGrowthSpeedDenominator);
 
     //printf("Current Real MaxSize:%lu\n",maxSize);
-    
-    
+
+
   assert(maxSize >= m_maxBlockSizeInitial);
   return maxSize;
 }
@@ -499,15 +501,63 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
 //return 1;
 //}
 
+  if (version >= BLOCK_MAJOR_VERSION_4 ) {
+    int T = m_difficultyTarget;
+    size_t N = difficultyWindowByBlockVersion(version);
+    assert(N >= 2);
 
+    sort(timestamps.begin(), timestamps.end());
+    sort(cumulativeDifficulties.begin(), cumulativeDifficulties.end());
 
-if (version >= BLOCK_MAJOR_VERSION_4 ) {
+    if (timestamps.size() > N) {
+        timestamps.resize(N);
+        cumulativeDifficulties.resize(N);
+    }
+    size_t length = timestamps.size();
+    assert(length == cumulativeDifficulties.size());
+    assert(length <= N);
+    if (length <= 1) {
+        return 1;
+    }
 
-// echo Khan's Magical Diff Algo
-//return 5;
+    uint64_t k = 0, w = 0;
+    int t = 0, j = 0, len = length;
 
-}
+    const double_t adjust = pow (0.9989,500/T);
+    k = adjust * ((length + 1) / 2) * T;
 
+    for (int i = 1; i < len; i++) {
+        int solvetime;
+        solvetime = timestamps[i] - timestamps[i-1];
+
+        if (solvetime > 10 * T) { solvetime =  10 * T; }
+        if (solvetime < -(5 * T)) { solvetime = -(5 * T); }
+
+        j = j + 1;
+        w +=  solvetime * j;
+        t += solvetime;
+    }
+
+    if (w < T * length / 2) {
+        w = T * length / 2;
+    }
+
+    Difficulty totalWork = cumulativeDifficulties.back() - cumulativeDifficulties.front();
+    assert(totalWork > 0);
+    uint64_t low, high;
+    low = mul128(totalWork, k, &high);
+    if (high != 0) {
+        return 0;
+    }
+
+    uint64_t nextDiffZ = low / w;
+
+    if (nextDiffZ <= 1) {
+      nextDiffZ = 1;
+    }
+
+    return nextDiffZ;
+  }
 
 
   std::vector<uint64_t> timestamps_o(timestamps);

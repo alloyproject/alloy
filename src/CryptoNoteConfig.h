@@ -59,6 +59,7 @@ namespace parameters {
 #define DIFFICULTY_WINDOW                               EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
 #define DIFFICULTY_WINDOW_V1                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V2                            DIFFICULTY_WINDOW
+#define DIFFICULTY_WINDOW_V4                            62
 #define DIFFICULTY_CUT                                  60
 #define DIFFICULTY_CUT_V1                               DIFFICULTY_CUT
 #define DIFFICULTY_CUT_V2                               DIFFICULTY_CUT
@@ -159,4 +160,3 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
 } // CryptoNote
 
 #define ALLOW_DEBUG_COMMANDS
-
