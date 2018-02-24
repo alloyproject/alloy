@@ -169,4 +169,6 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/version")
 
 add_subdirectory(external)
 add_subdirectory(src)
-add_subdirectory(tests)
+
+#enable if you want tests to be built
+#add_subdirectory(tests)
