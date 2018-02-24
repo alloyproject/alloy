@@ -67,7 +67,9 @@ void Miner::stop() {
 void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threadCount) {
   assert(threadCount > 0);
 
-  m_logger(Logging::INFO) << "Starting mining for difficulty " << blockMiningParameters.difficulty;
+  int height = boost::get<BaseInput>( blockMiningParameters.blockTemplate.baseTransaction.inputs.front()).blockIndex;
+
+  m_logger(Logging::INFO) << "Starting mining block " << height << " for difficulty " << blockMiningParameters.difficulty;
 
   try {
     blockMiningParameters.blockTemplate.nonce = Crypto::rand<uint32_t>();
