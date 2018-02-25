@@ -191,6 +191,8 @@ Core::Core(const Currency& currency, Logging::ILogger& logger, Checkpoints&& che
 
   upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_2, currency.upgradeHeight(BLOCK_MAJOR_VERSION_2));
   upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_3, currency.upgradeHeight(BLOCK_MAJOR_VERSION_3));
+  upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_4, currency.upgradeHeight(BLOCK_MAJOR_VERSION_4));
+
 
   transactionPool = std::unique_ptr<ITransactionPoolCleanWrapper>(new TransactionPoolCleanWrapper(
     std::unique_ptr<ITransactionPool>(new TransactionPool(logger)),
@@ -1013,6 +1015,10 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
   }
 
   b = boost::value_initialized<BlockTemplate>();
+
+//printf("GBT/getBlockMajorVersionForHeight:%lu\n",getBlockMajorVersionForHeight(height));
+
+
   b.majorVersion = getBlockMajorVersionForHeight(height);
 
   if (b.majorVersion == BLOCK_MAJOR_VERSION_1) {
@@ -1020,7 +1026,14 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
   } else if (b.majorVersion >= BLOCK_MAJOR_VERSION_2) {
     if (currency.upgradeHeight(BLOCK_MAJOR_VERSION_3) == IUpgradeDetector::UNDEF_HEIGHT) {
       b.minorVersion = b.majorVersion == BLOCK_MAJOR_VERSION_2 ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
-    } else {
+    } 
+	else if (currency.upgradeHeight(BLOCK_MAJOR_VERSION_4) == IUpgradeDetector::UNDEF_HEIGHT) {
+      b.minorVersion = b.majorVersion == BLOCK_MAJOR_VERSION_3 ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
+    }
+
+
+
+	else {
       b.minorVersion = BLOCK_MINOR_VERSION_0;
     }
 
@@ -1047,6 +1060,9 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
 
   size_t transactionsSize;
   uint64_t fee;
+
+//printf("GBT: majv:%lu   minv:%lu\n",b.majorVersion, b.minorVersion);
+
   fillBlockTemplate(b, medianSize, currency.maxBlockCumulativeSize(height), transactionsSize, fee);
 
   /*
@@ -1391,6 +1407,7 @@ std::error_code Core::validateBlock(const CachedBlock& cachedBlock, IBlockchainC
   // assert(block.previousBlockHash == cache->getBlockHash(previousBlockIndex));
 
   minerReward = 0;
+//printf("In Core::validateBlock \n");
 
   if (upgradeManager->getBlockMajorVersion(cachedBlock.getBlockIndex()) != block.majorVersion) {
     return error::BlockValidationError::WRONG_VERSION;

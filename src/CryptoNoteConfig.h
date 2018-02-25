@@ -34,6 +34,8 @@ namespace parameters {
 #define ZAWY_DIFFICULTY_BLOCK_INDEX                     0
 #define ZAWY_DIFFICULTY_V2                              1
 #define ZAWY_DIFFICULTY_DIFFICULTY_BLOCK_VERSION        0
+
+
 #define EMISSION_SPEED_FACTOR                           20
 #define GENESIS_BLOCK_REWARD                            4560000
 
@@ -57,6 +59,7 @@ namespace parameters {
 #define DIFFICULTY_WINDOW                               EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
 #define DIFFICULTY_WINDOW_V1                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V2                            DIFFICULTY_WINDOW
+#define DIFFICULTY_WINDOW_V4                            62
 #define DIFFICULTY_CUT                                  60
 #define DIFFICULTY_CUT_V1                               DIFFICULTY_CUT
 #define DIFFICULTY_CUT_V2                               DIFFICULTY_CUT
@@ -64,7 +67,7 @@ namespace parameters {
 #define DIFFICULTY_LAG_V1                               DIFFICULTY_LAG
 #define DIFFICULTY_LAG_V2                               DIFFICULTY_LAG
 
-#define MAX_BLOCK_SIZE_INITIAL                          20 * 1024
+#define MAX_BLOCK_SIZE_INITIAL                          100 * 1024
 #define MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR           100 * 1024
 #define MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR         365 * 24 * 60 * 60 / DIFFICULTY_TARGET
 
@@ -82,6 +85,8 @@ namespace parameters {
 #define KEY_IMAGE_CHECKING_BLOCK_INDEX                  0
 #define UPGRADE_HEIGHT_V2                               1
 #define UPGRADE_HEIGHT_V3                               2
+#define UPGRADE_HEIGHT_V4                               17500
+
 #define UPGRADE_VOTING_THRESHOLD                        90
 #define UPGRADE_VOTING_WINDOW                           EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
 #define UPGRADE_WINDOW                                  EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
@@ -103,6 +108,8 @@ namespace parameters {
 #define BLOCK_MAJOR_VERSION_1                           1
 #define BLOCK_MAJOR_VERSION_2                           2
 #define BLOCK_MAJOR_VERSION_3                           3
+#define BLOCK_MAJOR_VERSION_4                           4
+
 #define BLOCK_MINOR_VERSION_0                           0
 #define BLOCK_MINOR_VERSION_1                           1
 
@@ -129,8 +136,11 @@ namespace parameters {
 #define P2P_STAT_TRUSTED_PUB_KEY                        "8f80f9a5a434a9f1510d13336228debfee9c918ce505efe225d8c94d045fa115"
 
 const std::initializer_list<const char*> SEED_NODES {
-  "34.197.53.233:1810",
-  "89.18.26.10:1810"
+   "34.197.53.233:1810",
+  "89.18.26.10:1810",
+  "89.18.27.201:1810",
+  "195.201.35.225:1810"
+  
 };
 
 struct CheckpointData {
@@ -147,7 +157,9 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
   { 2500, "6a116d1d01afae5520e476f215dee28c1e720a9a95b8bb099450acfa59a04e4e" },
   { 5000, "f4819ea83564fde4f4eba0cb9fac9ed93558de0d6ef81e41beb538ad1b079465" },
   {9670, "c7528f5cc457e128932a5eeae16bdd93e52475f7da11660c2ad8bcb93891a1d6" },
-  {13200, "a08896b7f43240bc6e97f0fe69fa3002d13ea9de7b5224779e7a6cf3d7f21356"}
+  {13200, "a08896b7f43240bc6e97f0fe69fa3002d13ea9de7b5224779e7a6cf3d7f21356"},
+  {14850, "de4cc2ab2f1b111b10bf71a788f62b5573975321b6a8336d62c46d00b714f5ed"}
+  
 };
 
 } // CryptoNote

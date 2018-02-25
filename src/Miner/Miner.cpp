@@ -67,14 +67,16 @@ void Miner::stop() {
 void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threadCount) {
   assert(threadCount > 0);
 
-  m_logger(Logging::INFO) << "Starting mining for difficulty " << blockMiningParameters.difficulty;
+  int height = boost::get<BaseInput>( blockMiningParameters.blockTemplate.baseTransaction.inputs.front()).blockIndex;
+
+  m_logger(Logging::INFO) << "Starting mining block " << height << " for difficulty " << blockMiningParameters.difficulty;
 
   try {
     blockMiningParameters.blockTemplate.nonce = Crypto::rand<uint32_t>();
 
     for (size_t i = 0; i < threadCount; ++i) {
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
-        new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount)))
+        new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount, i)))
       );
 
       blockMiningParameters.blockTemplate.nonce++;
@@ -90,14 +92,27 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
   m_miningStopped.set();
 }
 
-void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep) {
+void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep, int threadnum) {
   try {
     BlockTemplate block = blockTemplate;
     Crypto::cn_context cryptoContext;
 
+int hashes=0;
+ clock_t t;
+    t = clock();
+
     while (m_state == MiningState::MINING_IN_PROGRESS) {
       CachedBlock cachedBlock(block);
       Crypto::Hash hash = cachedBlock.getBlockLongHash(cryptoContext);
+	hashes++;
+
+	float	 telapsed = clock() - t;
+
+	float 	hs=hashes/(telapsed/CLOCKS_PER_SEC);
+	if (hashes  % 300 ==0) {
+	 m_logger(Logging::INFO) << "Thread:" << threadnum  << "  Hashes per Second:"<<hs <<"      hashes : " << hashes;
+	}
+
       if (check_hash(hash, difficulty)) {
         m_logger(Logging::INFO) << "Found block for difficulty " << difficulty;
 
