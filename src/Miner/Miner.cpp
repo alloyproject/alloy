@@ -76,7 +76,7 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
 
     for (size_t i = 0; i < threadCount; ++i) {
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
-        new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount)))
+        new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount, i)))
       );
 
       blockMiningParameters.blockTemplate.nonce++;
@@ -92,7 +92,7 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
   m_miningStopped.set();
 }
 
-void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep) {
+void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep, int threadnum) {
   try {
     BlockTemplate block = blockTemplate;
     Crypto::cn_context cryptoContext;
@@ -109,8 +109,8 @@ int hashes=0;
 	float	 telapsed = clock() - t;
 
 	float 	hs=hashes/(telapsed/CLOCKS_PER_SEC);
-	if (hashes  % 100 ==0) {
-	 m_logger(Logging::INFO) << "   Hashes per Second:"<<hs <<"      hashes : " << hashes;
+	if (hashes  % 300 ==0) {
+	 m_logger(Logging::INFO) << "Thread:" << threadnum  << "  Hashes per Second:"<<hs <<"      hashes : " << hashes;
 	}
 
       if (check_hash(hash, difficulty)) {

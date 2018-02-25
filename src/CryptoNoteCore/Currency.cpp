@@ -449,8 +449,11 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps,
   std::vector<Difficulty> cumulativeDifficulties) const {
 
+//diff testing code so cpu miners can advance chain.      
+//if (blockIndex >= 14806 && version == BLOCK_MAJOR_VERSION_3) {return 1000;}
 
 
+//New WHM based diff code
   if (version >= BLOCK_MAJOR_VERSION_4 ) {
     int T = m_difficultyTarget;
     size_t N = difficultyWindowByBlockVersion(version);
@@ -506,10 +509,13 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
       nextDiffZ = 1;
     }
 
+    //diags
+    //printf("WHM Diff Algo, BLK V4 Diff:%lu  height:%lu  TS size:%lu  CD size:%lu\n",nextDiffZ,blockIndex,timestamps.size(),cumulativeDifficulties.size());
+    
     return nextDiffZ;
   }
 
-
+//old ZAWY Diff Algo Code
   std::vector<uint64_t> timestamps_o(timestamps);
   std::vector<uint64_t> cumulativeDifficulties_o(cumulativeDifficulties);
   size_t c_difficultyWindow = difficultyWindowByBlockVersion(version);
@@ -541,7 +547,7 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
     cutEnd = cutBegin + (c_difficultyWindow - 2 * c_difficultyCut);
   }
 
-  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+  assert(  cutBegin + 2 <= cutEnd && cutEnd <= length);
   uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
   if (timeSpan == 0) {
     timeSpan = 1;
@@ -570,70 +576,10 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
     return nextDiffZ;
   }
 
-  if (m_zawyDifficultyBlockIndex && m_zawyDifficultyBlockIndex <= blockIndex) {
-    if (high != 0) {
-      return 0;
-    }
-
-    /*
-      Recalculating 'low' and 'timespan' with hardcoded values:
-      DIFFICULTY_CUT=0
-      DIFFICULTY_LAG=0
-      DIFFICULTY_WINDOW=17
-    */
-    c_difficultyWindow = 17;
-    c_difficultyCut = 0;
-
-    assert(c_difficultyWindow >= 2);
-
-    size_t t_difficultyWindow = c_difficultyWindow;
-    if (c_difficultyWindow > timestamps.size()) {
-      t_difficultyWindow = timestamps.size();
-    }
-    std::vector<uint64_t> timestamps_tmp(timestamps_o.end() - t_difficultyWindow, timestamps_o.end());
-    std::vector<uint64_t> cumulativeDifficulties_tmp(cumulativeDifficulties_o.end() - t_difficultyWindow, cumulativeDifficulties_o.end());
-
-    length = timestamps_tmp.size();
-    assert(length == cumulativeDifficulties_tmp.size());
-    assert(length <= c_difficultyWindow);
-    if (length <= 1) {
-      return 1;
-    }
-
-    sort(timestamps_tmp.begin(), timestamps_tmp.end());
-
-    assert(2 * c_difficultyCut <= c_difficultyWindow - 2);
-    if (length <= c_difficultyWindow - 2 * c_difficultyCut) {
-      cutBegin = 0;
-      cutEnd = length;
-    } else {
-      cutBegin = (length - (c_difficultyWindow - 2 * c_difficultyCut) + 1) / 2;
-      cutEnd = cutBegin + (c_difficultyWindow - 2 * c_difficultyCut);
-    }
-
-    assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
-    timeSpan = timestamps_tmp[cutEnd - 1] - timestamps_tmp[cutBegin];
-    if (timeSpan == 0) {
-      timeSpan = 1;
-    }
-
-    totalWork = cumulativeDifficulties_tmp[cutEnd - 1] - cumulativeDifficulties_tmp[cutBegin];
-    assert(totalWork > 0);
-
-    low = mul128(totalWork, m_difficultyTarget, &high);
-    if (high != 0 || std::numeric_limits<uint64_t>::max() - low < (timeSpan - 1)) {
-      return 0;
-    }
-
-    uint64_t nextDiffZ = low / timeSpan;
-    if (nextDiffZ <= 100) {
-      nextDiffZ = 100;
-    }
-
-    return nextDiffZ;
-  }
-
-  return (low + timeSpan - 1) / timeSpan;
+  
+  
+ 
+  
 }
 
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const CachedBlock& block, Difficulty currentDifficulty) const {
