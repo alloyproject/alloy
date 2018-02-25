@@ -1041,9 +1041,9 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
 }
 
 bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
-  success_msg_writer() << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
+  std::cout << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
     ", locked amount: " << m_currency.formatAmount(m_wallet->pendingBalance()) <<
-    ", total amount: " << m_currency.formatAmount(m_wallet->actualBalance() + m_wallet->pendingBalance());
+    ", total amount: " << m_currency.formatAmount(m_wallet->actualBalance() + m_wallet->pendingBalance()) << std::endl;
 
 
   return true;
