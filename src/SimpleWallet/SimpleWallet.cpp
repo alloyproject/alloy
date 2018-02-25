@@ -777,8 +777,7 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
     m_wallet->getAccountKeys(keys);
 
     logger(INFO, BRIGHT_WHITE) <<
-      "Generated new wallet: " << m_wallet->getAddress() << std::endl <<
-      "view key: " << Common::podToHex(keys.viewSecretKey);
+      "Generated new wallet: " << m_wallet->getAddress();
   }
   catch (const std::exception& e) {
     fail_msg_writer() << "failed to generate new wallet: " << e.what();
@@ -1023,11 +1022,17 @@ void simple_wallet::synchronizationProgressUpdated(uint32_t current, uint32_t to
 bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
   AccountKeys keys;
   m_wallet->getAccountKeys(keys);
-  success_msg_writer(true) << "Spend secret key: " << Common::podToHex(keys.spendSecretKey);
-  success_msg_writer(true) << "View secret key: " <<  Common::podToHex(keys.viewSecretKey);
-  success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import): "
-    << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
-    << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
+  Common::Console::setTextColor(Common::Console::Color::BrightWhite);
+  std::cout << "\nPrivate spend key: " << Common::podToHex(keys.spendSecretKey);
+  std::cout << "\nPrivate view key: " << Common::podToHex(keys.viewSecretKey);
+  std::cout << "\nGUI wallet import key: " 
+  << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
+  << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
+  Common::Console::setTextColor(Common::Console::Color::BrightRed);
+  std::cout <<
+  "\n\n**********************************************************************\n" <<
+  "Copy above private keys and keep them in a secure location\n" <<
+  "**********************************************************************\n\n";
 
 
 
