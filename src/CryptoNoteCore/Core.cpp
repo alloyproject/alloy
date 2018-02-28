@@ -822,7 +822,9 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
     if (!transactionPool->checkIfTransactionPresent(transactionHash)) {
       logger(Logging::WARNING) << "The transaction " << Common::podToHex(transactionHash)
                                << " is absent in transaction pool. We cannot submit this block.";
-      return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
+      
+	//Mempool injection issue. We risk a coredump but the hashes are not wasted in this case.
+	//return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
 
 
     }
