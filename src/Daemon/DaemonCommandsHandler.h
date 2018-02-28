@@ -63,4 +63,9 @@ private:
   bool print_pool_sh(const std::vector<std::string>& args);
   bool start_mining(const std::vector<std::string>& args);
   bool stop_mining(const std::vector<std::string>& args);
+  bool version(const std::vector<std::string>& args);
+  bool diff(const std::vector<std::string>& args);
+  bool total_txs(const std::vector<std::string>& args);
+  bool mempool(const std::vector<std::string>& args);
+  bool hashrate(const std::vector<std::string>& args);
 };
