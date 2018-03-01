@@ -821,10 +821,11 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   for (const auto& transactionHash : blockTemplate.transactionHashes) {
     if (!transactionPool->checkIfTransactionPresent(transactionHash)) {
       logger(Logging::WARNING) << "The transaction " << Common::podToHex(transactionHash)
-                               << " is absent in transaction pool. Next!";
-      //return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
+                               << " is absent in transaction pool. We cannot submit this block.";
+      
+	//Mempool injection issue. We risk a coredump but the hashes are not wasted in this case.
+	//return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
 
-	//We will just add it even if recently dropped from mempool to deal with long block time issue.
 
     }
 
@@ -936,8 +937,9 @@ bool Core::addTransactionToPool(CachedTransaction&& cachedTransaction) {
 
 bool Core::isTransactionValidForPool(const CachedTransaction& cachedTransaction, TransactionValidatorState& validatorState) {
   uint64_t fee;
-
   if (auto validationResult = validateTransaction(cachedTransaction, validatorState, chainsLeaves[0], fee, getTopBlockIndex())) {
+
+
     logger(Logging::WARNING) << "Transaction " << cachedTransaction.getTransactionHash()
       << " is not valid. Reason: " << validationResult.message();
     return false;

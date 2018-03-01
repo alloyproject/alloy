@@ -176,7 +176,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
   }
 
   void P2pConnectionContext::interrupt() {
-    logger(DEBUGGING) << *this << "Interrupt connection";
+    logger(TRACE) << *this << "Interrupt connection";
     assert(context != nullptr);
     stopped = true;
     queueEvent.set();
@@ -722,7 +722,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
 
         connection = std::move(connectionContext.get());
       } catch (System::InterruptedException&) {
-        logger(DEBUGGING) << "Connection timed out";
+        logger(TRACE) << "Connection timed out";
         return false;
       }
 
@@ -758,7 +758,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
       }
 
       if (just_take_peerlist) {
-        logger(Logging::DEBUGGING, Logging::BRIGHT_GREEN) << ctx << "CONNECTION HANDSHAKED OK AND CLOSED.";
+        logger(Logging::TRACE, Logging::BRIGHT_GREEN) << ctx << "CONNECTION HANDSHAKED OK AND CLOSED.";
         return true;
       }
 
@@ -820,7 +820,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
       if(is_peer_used(pe))
         continue;
 
-      logger(DEBUGGING) << "Selected peer: " << pe.id << " " << pe.adr << " [white=" << use_white_list
+      logger(TRACE) << "Selected peer: " << pe.id << " " << pe.adr << " [white=" << use_white_list
                     << "] last_seen: " << (pe.last_seen ? Common::timeIntervalToString(time(NULL) - pe.last_seen) : "never");
 
       if(!try_to_connect_and_handshake_with_new_peer(pe.adr, false, pe.last_seen, use_white_list))
@@ -1119,7 +1119,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
         return false;
       }
     } catch (std::exception& e) {
-      logger(DEBUGGING) << context << "Back ping connection to " << ip << ":" << port << " failed: " << e.what();
+      logger(TRACE) << context << "Back ping connection to " << ip << ":" << port << " failed: " << e.what();
       return false;
     }
 
@@ -1196,7 +1196,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     get_local_node_data(rsp.node_data);
     m_payload_handler.get_payload_sync_data(rsp.payload_data);
 
-    logger(Logging::DEBUGGING, Logging::BRIGHT_GREEN) << "COMMAND_HANDSHAKE";
+    logger(Logging::TRACE, Logging::BRIGHT_GREEN) << "COMMAND_HANDSHAKE";
     return 1;
   }
   //-----------------------------------------------------------------------------------
@@ -1307,14 +1307,14 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
 
         m_workingContextGroup.spawn(std::bind(&NodeServer::connectionHandler, this, std::cref(connectionId), std::ref(connection)));
       } catch (System::InterruptedException&) {
-        logger(DEBUGGING) << "acceptLoop() is interrupted";
+        logger(TRACE) << "acceptLoop() is interrupted";
         break;
       } catch (const std::exception& e) {
         logger(WARNING) << "Exception in acceptLoop: " << e.what();
       }
     }
 
-    logger(DEBUGGING) << "acceptLoop finished";
+    logger(TRACE) << "acceptLoop finished";
   }
 
   void NodeServer::onIdle() {
@@ -1325,14 +1325,14 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
         idle_worker();
         m_idleTimer.sleep(std::chrono::seconds(1));
       } catch (System::InterruptedException&) {
-        logger(DEBUGGING) << "onIdle() is interrupted";
+        logger(TRACE) << "onIdle() is interrupted";
         break;
       } catch (std::exception& e) {
         logger(WARNING) << "Exception in onIdle: " << e.what();
       }
     }
 
-    logger(DEBUGGING) << "onIdle finished";
+    logger(TRACE) << "onIdle finished";
   }
 
   void NodeServer::timeoutLoop() {
@@ -1350,7 +1350,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
         }
       }
     } catch (System::InterruptedException&) {
-      logger(DEBUGGING) << "timeoutLoop() is interrupted";
+      logger(TRACE) << "timeoutLoop() is interrupted";
     } catch (std::exception& e) {
       logger(WARNING) << "Exception in timeoutLoop: " << e.what();
     } catch (...) {
@@ -1365,12 +1365,12 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
         timedSync();
       }
     } catch (System::InterruptedException&) {
-      logger(DEBUGGING) << "timedSyncLoop() is interrupted";
+      logger(TRACE) << "timedSyncLoop() is interrupted";
     } catch (std::exception& e) {
       logger(WARNING) << "Exception in timedSyncLoop: " << e.what();
     }
 
-    logger(DEBUGGING) << "timedSyncLoop finished";
+    logger(TRACE) << "timedSyncLoop finished";
   }
 
   void NodeServer::connectionHandler(const boost::uuids::uuid& connectionId, P2pConnectionContext& ctx) {
@@ -1416,7 +1416,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
           }
         }
       } catch (System::InterruptedException&) {
-        logger(DEBUGGING) << ctx << "connectionHandler() inner context is interrupted";
+        logger(TRACE) << ctx << "connectionHandler() inner context is interrupted";
       } catch (std::exception& e) {
         logger(DEBUGGING) << ctx << "Exception in connectionHandler: " << e.what();
       }
@@ -1434,7 +1434,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     try {
       context.get();
     } catch (System::InterruptedException&) {
-      logger(DEBUGGING) << "connectionHandler() is interrupted";
+      logger(TRACE) << "connectionHandler() is interrupted";
     } catch (std::exception& e) {
       logger(WARNING) << "connectionHandler() throws exception: " << e.what();
     } catch (...) {
@@ -1443,7 +1443,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
   }
 
   void NodeServer::writeHandler(P2pConnectionContext& ctx) {
-    logger(DEBUGGING) << ctx << "writeHandler started";
+    logger(TRACE) << ctx << "writeHandler started";
 
     try {
       LevinProtocol proto(ctx.connection);
@@ -1455,7 +1455,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
         }
 
         for (const auto& msg : msgs) {
-          logger(DEBUGGING) << ctx << "msg " << msg.type << ':' << msg.command;
+          logger(TRACE) << ctx << "msg " << msg.type << ':' << msg.command;
           switch (msg.type) {
           case P2pMessage::COMMAND:
             proto.sendMessage(msg.command, msg.buffer, true);
@@ -1473,13 +1473,13 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
       }
     } catch (System::InterruptedException&) {
       // connection stopped
-      logger(DEBUGGING) << ctx << "writeHandler() is interrupted";
+      logger(TRACE) << ctx << "writeHandler() is interrupted";
     } catch (std::exception& e) {
       logger(WARNING) << ctx << "error during write: " << e.what();
       safeInterrupt(ctx); // stop connection on write error
     }
 
-    logger(DEBUGGING) << ctx << "writeHandler finished";
+    logger(TRACE) << ctx << "writeHandler finished";
   }
 
   template<typename T>
