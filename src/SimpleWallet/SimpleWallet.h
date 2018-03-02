@@ -89,6 +89,9 @@ bool new_wallet(Crypto::SecretKey &secret_key, Crypto::SecretKey &view_key, cons
     bool save(const std::vector<std::string> &args);
     bool reset(const std::vector<std::string> &args);
     bool set_log(const std::vector<std::string> &args);
+    bool clear(const std::vector<std::string> &args);
+    bool version(const std::vector<std::string> &args);
+    bool payment_id(const std::vector<std::string> &args);
 
     bool ask_wallet_create_if_needed();
 

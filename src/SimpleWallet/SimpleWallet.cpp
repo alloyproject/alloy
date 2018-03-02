@@ -489,8 +489,26 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   m_consoleHandler.setHandler("help", boost::bind(&simple_wallet::help, this, _1), "Show this help");
   m_consoleHandler.setHandler("exit", boost::bind(&simple_wallet::exit, this, _1), "Exit wallet");
   m_consoleHandler.setHandler("e", boost::bind(&simple_wallet::exit, this, _1), "Exit wallet");
+  m_consoleHandler.setHandler("clear", boost::bind(&simple_wallet::clear, this, _1), "Clear screen");
+  m_consoleHandler.setHandler("version", boost::bind(&simple_wallet::version, this, _1), "Print build version");
+  m_consoleHandler.setHandler("payment_id", boost::bind(&simple_wallet::payment_id, this, _1), "Generate random payment ID");
 }
 
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::payment_id(const std::vector<std::string> &args) {
+  success_msg_writer() << "Random payment ID: " << Crypto::rand<Crypto::Hash>();
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::version(const std::vector<std::string> &args) {
+  success_msg_writer() << "Build: " << CRYPTONOTE_NAME << " v" << PROJECT_VERSION_LONG;
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::clear(const std::vector<std::string> &args) {
+  std::cout << "\033[2J\033[1;1H" << std::endl;
+  return true;
+}
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args) {
   bool hasTransfers = false;
