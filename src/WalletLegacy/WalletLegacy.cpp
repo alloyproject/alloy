@@ -200,7 +200,7 @@ void WalletLegacy::initSync() {
   sub.syncStart.timestamp = m_account.get_createtime() - ACCOUN_CREATE_TIME_ACCURACY;
  if (m_syncAll == 1)
     sub.syncStart.timestamp = 0;
-  std::cout << "Sync from timestamp: " << sub.syncStart.timestamp << std::endl;
+//  std::cout << "Sync from timestamp: " << sub.syncStart.timestamp << std::endl;
   
   auto& subObject = m_transfersSync.addSubscription(sub);
   m_transferDetails = &subObject.getContainer();

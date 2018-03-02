@@ -695,7 +695,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     m_wallet.reset(new WalletLegacy(m_currency, *m_node));
 
 
-    m_wallet->syncAll(sync_from_zero);
+   // m_wallet->syncAll(sync_from_zero);
 
     try {
       m_wallet_file = tryToOpenWalletOrLoadKeysOrThrow(logger, m_wallet, m_wallet_file_arg, pwd_container.password());
