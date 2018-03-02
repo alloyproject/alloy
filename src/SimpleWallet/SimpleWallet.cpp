@@ -713,6 +713,9 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       "**********************************************************************\n" <<
       "Use \"help\" command to see the list of available commands.\n" <<
       "**********************************************************************";
+  m_wallet->reset();
+
+
   }
 
   return true;
@@ -1016,13 +1019,13 @@ void simple_wallet::synchronizationProgressUpdated(uint32_t current, uint32_t to
 bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
   AccountKeys keys;
   m_wallet->getAccountKeys(keys);
-  Common::Console::setTextColor(Common::Console::Color::BrightWhite);
+  Common::Console::setTextColor(Common::Console::Color::BrightGreen);
   std::cout << "\nPrivate spend key: " << Common::podToHex(keys.spendSecretKey);
   std::cout << "\nPrivate view key: " << Common::podToHex(keys.viewSecretKey);
   std::cout << "\nGUI wallet import key: " 
   << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
   << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
-  Common::Console::setTextColor(Common::Console::Color::BrightRed);
+  Common::Console::setTextColor(Common::Console::Color::BrightGreen);
   std::cout <<
   "\n\n**********************************************************************\n" <<
   "Copy above private keys and keep them in a secure location\n" <<
