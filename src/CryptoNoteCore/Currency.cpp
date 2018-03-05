@@ -457,7 +457,7 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
 
 
 //New WHM based diff code
-  if (version >= BLOCK_MAJOR_VERSION_4 || blockIndex>=UPGRADE_HEIGHT_V4) {
+  if (version >= BLOCK_MAJOR_VERSION_4 ) {
     int T = m_difficultyTarget;
     size_t N = difficultyWindowByBlockVersion(version);
     assert(N >= 2);
