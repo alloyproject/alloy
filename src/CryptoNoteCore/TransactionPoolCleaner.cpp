@@ -82,8 +82,10 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
   uint64_t currentTime = timeProvider->now();
   std::vector<Crypto::Hash> deletedTransactions;
   std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
+
+
  //this will clean out mempool TX's based on size
-  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
+/*  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
     const CachedTransaction& transaction = *it;
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
     auto hash=transaction.getTransactionHash();
@@ -97,7 +99,7 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
       deletedTransactions.emplace_back(std::move(hash));
      }
    }
-
+*/
   auto transactionHashes = transactionPool->getTransactionHashes();
 
   for (const auto& hash: transactionHashes) {

@@ -52,7 +52,7 @@ namespace parameters {
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
 #define MAX_TRANSACTION_SIZE_LIMIT                      27000 
-#define MEMPOOL_POLLING_INTERVAL                        240 // how often to clean mempool
+#define MEMPOOL_POLLING_INTERVAL                        60 // how often to clean mempool
 
 #define DIFFICULTY_TARGET                               180
 #define EXPECTED_NUMBER_OF_BLOCKS_PER_DAY               24 * 60 * 60 / DIFFICULTY_TARGET
