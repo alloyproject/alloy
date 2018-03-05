@@ -450,7 +450,10 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
   std::vector<Difficulty> cumulativeDifficulties) const {
 
 //diff testing code so cpu miners can advance chain.      
-//if (blockIndex >= 14806 && version == BLOCK_MAJOR_VERSION_3) {return 1000;}
+//printf("blockIndex:%lu\n",blockIndex);
+if (blockIndex >= 17500 && blockIndex<=17505) {return 1000;}
+
+
 
 
 //New WHM based diff code
