@@ -451,13 +451,13 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
 
 //diff testing code so cpu miners can advance chain.      
 //printf("blockIndex:%lu\n",blockIndex);
-if (blockIndex >= 17500 && blockIndex<=17505) {return 1000;}
+//if (blockIndex >= 17500 && blockIndex<=17505) {return 1000;}
 
 
 
 
 //New WHM based diff code
-  if (version >= BLOCK_MAJOR_VERSION_4 ) {
+  if (version >= BLOCK_MAJOR_VERSION_4 || blockIndex>=UPGRADE_HEIGHT_V4) {
     int T = m_difficultyTarget;
     size_t N = difficultyWindowByBlockVersion(version);
     assert(N >= 2);
