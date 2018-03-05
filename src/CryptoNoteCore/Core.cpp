@@ -921,11 +921,27 @@ bool Core::addTransactionToPool(const BinaryArray& transactionBinaryArray) {
 bool Core::addTransactionToPool(CachedTransaction&& cachedTransaction) {
   TransactionValidatorState validatorState;
 
+
   if (!isTransactionValidForPool(cachedTransaction, validatorState)) {
     return false;
   }
 
+
+int tsize=cachedTransaction.getTransactionBinaryArray().size();
   auto transactionHash = cachedTransaction.getTransactionHash();
+
+//printf("** addTransactionToPool, size:%lu\n",tsize);
+//filter out the oversized transactions that cause issues
+if (tsize > MAX_TRANSACTION_SIZE_LIMIT) {
+ logger(Logging::INFO) << "Dropping Oversized TX  " << transactionHash << " bytes:"<< tsize;
+    return false;
+
+}
+
+
+
+
+
   if (!transactionPool->pushTransaction(std::move(cachedTransaction), std::move(validatorState))) {
     logger(Logging::DEBUGGING) << "Failed to push transaction " << transactionHash << " to pool, already exists";
     return false;

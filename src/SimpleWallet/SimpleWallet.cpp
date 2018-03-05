@@ -438,7 +438,7 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
 
 std::string simple_wallet::get_commands_str() {
   std::stringstream ss;
-  ss << "Commands: " << ENDL;
+  ss << "\n\nWallet Commands: \n" << ENDL;
   std::string usage = m_consoleHandler.getUsage();
   boost::replace_all(usage, "\n", "\n  ");
   usage.insert(0, "  ");
@@ -468,35 +468,47 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   //m_consoleHandler.setHandler("start_mining", boost::bind(&simple_wallet::start_mining, this, _1), "start_mining [<number_of_threads>] - Start mining in daemon");
   //m_consoleHandler.setHandler("stop_mining", boost::bind(&simple_wallet::stop_mining, this, _1), "Stop mining in daemon");
   //m_consoleHandler.setHandler("refresh", boost::bind(&simple_wallet::refresh, this, _1), "Resynchronize transactions and balance");
-  m_consoleHandler.setHandler("export_keys", boost::bind(&simple_wallet::export_keys, this, _1), "Show the secret keys of the current wallet");
-  m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
-  m_consoleHandler.setHandler("b", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
-
-  m_consoleHandler.setHandler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
-m_consoleHandler.setHandler("outgoing_transfers", boost::bind(&simple_wallet::show_outgoing_transfers, this, _1), "Show outgoing transfers");
-
-  m_consoleHandler.setHandler("list_transfers", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
-  m_consoleHandler.setHandler("payments", boost::bind(&simple_wallet::show_payments, this, _1), "payments <payment_id_1> [<payment_id_2> ... <payment_id_N>] - Show payments <payment_id_1>, ... <payment_id_N>");
-  m_consoleHandler.setHandler("bc_height", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
   m_consoleHandler.setHandler("transfer", boost::bind(&simple_wallet::transfer, this, _1),
-    "transfer <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [-p payment_id] [-f fee]"
-    " - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. "
-    "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
-
-     m_consoleHandler.setHandler("t", boost::bind(&simple_wallet::transfer, this, _1),
-    "transfer <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [-p payment_id] [-f fee]"
-    " - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. "
-    "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
-
-        
-  m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
-  m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet public address");
-  m_consoleHandler.setHandler("save", boost::bind(&simple_wallet::save, this, _1), "Save wallet synchronized data");
-  m_consoleHandler.setHandler("reset", boost::bind(&simple_wallet::reset, this, _1), "Discard cache data and start synchronizing from the start");
+    "Make transfer(s): t <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> <addr_3> <amount_3> ...] [-p payment_id] [-f fee]");   
+  m_consoleHandler.setHandler("t", boost::bind(&simple_wallet::transfer, this, _1),
+    "Make transfer(s): t <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> <addr_3> <amount_3> ...] [-p payment_id] [-f fee]"); 
+  m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show balance");
+  m_consoleHandler.setHandler("b", boost::bind(&simple_wallet::show_balance, this, _1), "Show balance");
+  m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show address");
+  m_consoleHandler.setHandler("a", boost::bind(&simple_wallet::print_address, this, _1), "Show address");  
+  m_consoleHandler.setHandler("export_keys", boost::bind(&simple_wallet::export_keys, this, _1), "Show private keys");
+  m_consoleHandler.setHandler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
+  m_consoleHandler.setHandler("outgoing_transfers", boost::bind(&simple_wallet::show_outgoing_transfers, this, _1), "Show outgoing transfers");
+  m_consoleHandler.setHandler("all_transfers", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
+  m_consoleHandler.setHandler("show_payments", boost::bind(&simple_wallet::show_payments, this, _1), 
+    "Show transfer(s) by payment ID(s): show_payments <payment_id_1> [<payment_id_2> <payment_id_3> ...]");
+  m_consoleHandler.setHandler("height", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
+  m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "Change log level 0-4: set_log <number>");
+  m_consoleHandler.setHandler("save", boost::bind(&simple_wallet::save, this, _1), "Save wallet data");
+  m_consoleHandler.setHandler("reset", boost::bind(&simple_wallet::reset, this, _1), "Discard cached data and resync from block 1");
   m_consoleHandler.setHandler("help", boost::bind(&simple_wallet::help, this, _1), "Show this help");
-  m_consoleHandler.setHandler("exit", boost::bind(&simple_wallet::exit, this, _1), "Close wallet");
+  m_consoleHandler.setHandler("exit", boost::bind(&simple_wallet::exit, this, _1), "Exit wallet");
+  m_consoleHandler.setHandler("e", boost::bind(&simple_wallet::exit, this, _1), "Exit wallet");
+  m_consoleHandler.setHandler("clear", boost::bind(&simple_wallet::clear, this, _1), "Clear screen");
+  m_consoleHandler.setHandler("version", boost::bind(&simple_wallet::version, this, _1), "Print build version");
+  m_consoleHandler.setHandler("payment_id", boost::bind(&simple_wallet::payment_id, this, _1), "Generate random payment ID");
 }
 
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::payment_id(const std::vector<std::string> &args) {
+  success_msg_writer() << "Random payment ID: " << Crypto::rand<Crypto::Hash>();
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::version(const std::vector<std::string> &args) {
+  success_msg_writer() << "Build: " << CRYPTONOTE_NAME << " v" << PROJECT_VERSION_LONG;
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::clear(const std::vector<std::string> &args) {
+  std::cout << "\033[2J\033[1;1H" << std::endl;
+  return true;
+}
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args) {
   bool hasTransfers = false;
@@ -701,7 +713,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     m_wallet.reset(new WalletLegacy(m_currency, *m_node));
 
 
-    m_wallet->syncAll(sync_from_zero);
+   // m_wallet->syncAll(sync_from_zero);
 
     try {
       m_wallet_file = tryToOpenWalletOrLoadKeysOrThrow(logger, m_wallet, m_wallet_file_arg, pwd_container.password());
@@ -719,6 +731,9 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       "**********************************************************************\n" <<
       "Use \"help\" command to see the list of available commands.\n" <<
       "**********************************************************************";
+  m_wallet->reset();
+
+
   }
 
   return true;
@@ -777,8 +792,7 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
     m_wallet->getAccountKeys(keys);
 
     logger(INFO, BRIGHT_WHITE) <<
-      "Generated new wallet: " << m_wallet->getAddress() << std::endl <<
-      "view key: " << Common::podToHex(keys.viewSecretKey);
+      "Generated new wallet: " << m_wallet->getAddress();
   }
   catch (const std::exception& e) {
     fail_msg_writer() << "failed to generate new wallet: " << e.what();
@@ -786,7 +800,7 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
   }
 
   success_msg_writer() <<
-    "**********************************************************************\n" <<
+    "\n**********************************************************************\n" <<
     "Your wallet has been generated.\n" <<
     "Use \"help\" command to see the list of available commands.\n" <<
     "Always use \"exit\" command when closing simplewallet to save\n" <<
@@ -1023,11 +1037,17 @@ void simple_wallet::synchronizationProgressUpdated(uint32_t current, uint32_t to
 bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
   AccountKeys keys;
   m_wallet->getAccountKeys(keys);
-  success_msg_writer(true) << "Spend secret key: " << Common::podToHex(keys.spendSecretKey);
-  success_msg_writer(true) << "View secret key: " <<  Common::podToHex(keys.viewSecretKey);
-  success_msg_writer(true) << "Complete Private Key (Suitable for GUI Wallet Import): "
-    << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
-    << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
+  Common::Console::setTextColor(Common::Console::Color::BrightGreen);
+  std::cout << "\nPrivate spend key: " << Common::podToHex(keys.spendSecretKey);
+  std::cout << "\nPrivate view key: " << Common::podToHex(keys.viewSecretKey);
+  std::cout << "\nGUI wallet import key: " 
+  << Common::podToHex(keys.address.spendPublicKey) << Common::podToHex(keys.address.viewPublicKey)
+  << Common::podToHex(keys.spendSecretKey) <<  Common::podToHex(keys.viewSecretKey);
+  Common::Console::setTextColor(Common::Console::Color::BrightGreen);
+  std::cout <<
+  "\n\n**********************************************************************\n" <<
+  "Copy above private keys and keep them in a secure location\n" <<
+  "**********************************************************************\n\n";
 
 
 
@@ -1036,9 +1056,9 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
 }
 
 bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
-  success_msg_writer() << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
+  std::cout << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
     ", locked amount: " << m_currency.formatAmount(m_wallet->pendingBalance()) <<
-    ", total amount: " << m_currency.formatAmount(m_wallet->actualBalance() + m_wallet->pendingBalance());
+    ", total amount: " << m_currency.formatAmount(m_wallet->actualBalance() + m_wallet->pendingBalance()) << std::endl;
 
 
   return true;
