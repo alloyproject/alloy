@@ -51,7 +51,7 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define MAX_TRANSACTION_SIZE_LIMIT                      35000 
+#define MAX_TRANSACTION_SIZE_LIMIT                      27000 
 #define MEMPOOL_POLLING_INTERVAL                        60 // how often to clean mempool
 
 #define DIFFICULTY_TARGET                               180
