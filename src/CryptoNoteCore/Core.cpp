@@ -830,9 +830,15 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
     }
 
     rawBlock.transactions.emplace_back(transactionPool->getTransaction(transactionHash).getTransactionBinaryArray());
-  }
+ 
+ logger(Logging::INFO) << "The transaction " << Common::podToHex(transactionHash)<< " will go into this block";
+
+
+ }
 
   CachedBlock cachedBlock(blockTemplate);
+ logger(Logging::INFO) << "block contructed, calling AddBlock";
+
   return addBlock(cachedBlock, std::move(rawBlock));
 }
 
