@@ -109,6 +109,8 @@ namespace parameters {
 #define BLOCK_MAJOR_VERSION_2                           2
 #define BLOCK_MAJOR_VERSION_3                           3
 #define BLOCK_MAJOR_VERSION_4                           4
+#define BLOCK_MAJOR_VERSION_5                           5
+
 
 #define BLOCK_MINOR_VERSION_0                           0
 #define BLOCK_MINOR_VERSION_1                           1
@@ -175,7 +177,9 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
 {15282,"619f25eeabae9173410266f8770fe3620c19e5e5d33dcfc232b19ca129d43157"},
 {15283,"23b3373341b0efc6f00c7f10f25ada710b8be3243d66029e15db03aca03ad086"},
 {15284,"877244f49025029946ffde5bd85b0548fd0e889b1d8df4bd3e33baef75b1079e"},
-{15800, "37aef506f2b5f6568e56d001790badb8bc1f09d2e0af5e1eba45a7afbe5842ad"}  
+{15800, "37aef506f2b5f6568e56d001790badb8bc1f09d2e0af5e1eba45a7afbe5842ad"},
+{17665, "ca518008a7558a464c0fe8fa8fbea97041aa42d6434f2a11239017b107541711"}
+
 };
 
 } // CryptoNote
