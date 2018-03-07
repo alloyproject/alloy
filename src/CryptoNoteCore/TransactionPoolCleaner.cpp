@@ -81,16 +81,18 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
 
   uint64_t currentTime = timeProvider->now();
   std::vector<Crypto::Hash> deletedTransactions;
-  std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
+  auto transactionHashes = transactionPool->getTransactionHashes();  
 
 
  //this will clean out mempool TX's based on size
-/*  for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
+/*  
+std::vector<CachedTransaction> poolTransactions = transactionPool->getPoolTransactions();
+    for (auto it = poolTransactions.rbegin(); it != poolTransactions.rend(); ++it) {
     const CachedTransaction& transaction = *it;
     auto transactionBlobSize = transaction.getTransactionBinaryArray().size();
     auto hash=transaction.getTransactionHash();
 
-    if (transactionBlobSize > MAX_TRANSACTION_SIZE_LIMIT) {
+    if (transactionBlobSize > ALLOY_TRANSACTION_SIZE_LIMIT) {
       logger(Logging::INFO) << "Cleaner Deleting transaction size: "  << transactionBlobSize
       << ", hash: " << Common::podToHex(hash) << "  from pool";
 
@@ -100,12 +102,12 @@ std::vector<Crypto::Hash> TransactionPoolCleanWrapper::clean() {
      }
    }
 */
-  auto transactionHashes = transactionPool->getTransactionHashes();
+  
 
   for (const auto& hash: transactionHashes) {
     uint64_t transactionAge = currentTime - transactionPool->getTransactionReceiveTime(hash);
     if (transactionAge >= timeout) {
-      logger(Logging::DEBUGGING) << "Deleting transaction " << Common::podToHex(hash) << " from pool";
+      logger(Logging::INFO) << "Deleting transaction " << Common::podToHex(hash) << " from pool after timeout:"<<timeout;
       recentlyDeletedTransactions.emplace(hash, currentTime);
       transactionPool->removeTransaction(hash);
       deletedTransactions.emplace_back(std::move(hash));

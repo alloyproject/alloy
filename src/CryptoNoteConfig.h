@@ -51,7 +51,7 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define MAX_TRANSACTION_SIZE_LIMIT                      27000 
+#define ALLOY_TRANSACTION_SIZE_LIMIT                    57000 
 #define MEMPOOL_POLLING_INTERVAL                        60 // how often to clean mempool
 
 #define DIFFICULTY_TARGET                               180
@@ -78,7 +78,6 @@ namespace parameters {
 #define CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME   CRYPTONOTE_MEMPOOL_TX_LIVETIME * 7
 #define CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL 7
 
-#define FUSION_TX_MAX_SIZE                              MAX_TRANSACTION_SIZE_LIMIT * 2
 #define FUSION_TX_MIN_INPUT_COUNT                       12
 #define FUSION_TX_MIN_IN_OUT_COUNT_RATIO                4
 
@@ -86,6 +85,7 @@ namespace parameters {
 #define UPGRADE_HEIGHT_V2                               1
 #define UPGRADE_HEIGHT_V3                               2
 #define UPGRADE_HEIGHT_V4                               17500
+#define UPGRADE_HEIGHT_V5                               99999999999999999999
 
 #define UPGRADE_VOTING_THRESHOLD                        90
 #define UPGRADE_VOTING_WINDOW                           EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
@@ -172,13 +172,17 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
 {15262,"2ded52aae2d18adea006eabc4a8b7bacdb10e8054e6d81f336e1ef85785c521d"},
 {15263, "5f4898734df48fbc189490e07e353f5181836c94c0aa8a752c2f8ffef9d3a211"},
 {15264, "4a69275e70d2dc90e982e1c1dcbc9f94f554baac789de258b9ad87a8d274d32d"},
-
 {15281,"827076b6eda612b5e1a55bf0decd76d231b9c4079f08ce859c8acb97cfd035e9"},
 {15282,"619f25eeabae9173410266f8770fe3620c19e5e5d33dcfc232b19ca129d43157"},
 {15283,"23b3373341b0efc6f00c7f10f25ada710b8be3243d66029e15db03aca03ad086"},
 {15284,"877244f49025029946ffde5bd85b0548fd0e889b1d8df4bd3e33baef75b1079e"},
 {15800, "37aef506f2b5f6568e56d001790badb8bc1f09d2e0af5e1eba45a7afbe5842ad"},
+
+
 {17665, "ca518008a7558a464c0fe8fa8fbea97041aa42d6434f2a11239017b107541711"}
+
+{18200, "a81fc84267dd514d29c05c968419ac78610813097df2e3d75c3993a902eebd14"}
+
 
 };
 

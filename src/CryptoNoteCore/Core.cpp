@@ -821,11 +821,9 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   for (const auto& transactionHash : blockTemplate.transactionHashes) {
     if (!transactionPool->checkIfTransactionPresent(transactionHash)) {
       logger(Logging::WARNING) << "The transaction " << Common::podToHex(transactionHash)
-                               << " is absent in transaction pool. We will try to submit this block anyways.";
+                               << " is absent in transaction pool. We have an out of date BlockTemplate, you should need to adjust pool software.";
       
-	//Mempool injection issue. We risk a coredump but the hashes are not wasted in this case.
-	//return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
-
+        return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
 
     }
 
@@ -933,18 +931,7 @@ bool Core::addTransactionToPool(CachedTransaction&& cachedTransaction) {
   }
 
 
-int tsize=cachedTransaction.getTransactionBinaryArray().size();
   auto transactionHash = cachedTransaction.getTransactionHash();
-
-//printf("** addTransactionToPool, size:%lu\n",tsize);
-//filter out the oversized transactions that cause issues
-if (tsize > MAX_TRANSACTION_SIZE_LIMIT) {
- logger(Logging::INFO) << "Dropping Oversized TX  " << transactionHash << " bytes:"<< tsize;
-    return false;
-
-}
-
-
 
 
 
@@ -967,7 +954,8 @@ bool Core::isTransactionValidForPool(const CachedTransaction& cachedTransaction,
     return false;
   }
 
-  auto maxTransactionSize = getMaximumTransactionAllowedSize(blockMedianSize, currency);
+  //auto maxTransactionSize = getMaximumTransactionAllowedSize(blockMedianSize, currency);
+  auto maxTransactionSize = ALLOY_TRANSACTION_SIZE_LIMIT;
   if (cachedTransaction.getTransactionBinaryArray().size() > maxTransactionSize) {
     logger(Logging::WARNING) << "Transaction " << cachedTransaction.getTransactionHash()
       << " is not valid. Reason: transaction is too big (" << cachedTransaction.getTransactionBinaryArray().size()
