@@ -9,6 +9,10 @@ if(MSVC)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
     add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
     set_property(TARGET upnpc-static gtest gtest_main rocksdblib PROPERTY FOLDER "external")
+    
+       
+    
+   
 elseif(NOT MSVC)
     set_property(TARGET upnpc-static gtest gtest_main PROPERTY FOLDER "external")
     add_custom_target(
