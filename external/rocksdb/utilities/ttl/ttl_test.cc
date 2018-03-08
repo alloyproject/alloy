@@ -4,12 +4,12 @@
 
 #ifndef ROCKSDB_LITE
 
+#include <map>
 #include <memory>
 #include "rocksdb/compaction_filter.h"
 #include "rocksdb/utilities/db_ttl.h"
+#include "util/string_util.h"
 #include "util/testharness.h"
-#include "util/logging.h"
-#include <map>
 #ifndef OS_WIN
 #include <unistd.h>
 #endif
@@ -36,7 +36,7 @@ class SpecialTimeEnv : public EnvWrapper {
   }
 
  private:
-  int64_t current_time_;
+  int64_t current_time_ = 0;
 };
 
 class TtlTest : public testing::Test {
@@ -47,7 +47,7 @@ class TtlTest : public testing::Test {
     options_.create_if_missing = true;
     options_.env = env_.get();
     // ensure that compaction is kicked in to always strip timestamp from kvs
-    options_.max_grandparent_overlap_factor = 0;
+    options_.max_compaction_bytes = 1;
     // compaction should take place always from level0 for determinism
     db_ttl_ = nullptr;
     DestroyDB(dbname_, Options());

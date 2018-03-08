@@ -1,7 +1,7 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #ifndef STORAGE_ROCKSDB_INCLUDE_PERF_CONTEXT_H
 #define STORAGE_ROCKSDB_INCLUDE_PERF_CONTEXT_H
@@ -45,8 +45,7 @@ struct PerfContext {
   //    tombstones are not included in this counter, while previous updates
   //    hidden by the tombstones will be included here.
   // 4. symmetric cases for Prev() and SeekToLast()
-  // We sometimes also skip entries of more recent updates than the snapshot
-  // we read from, but they are not included in this counter.
+  // internal_recent_skipped_count is not included in this counter.
   //
   uint64_t internal_key_skipped_count;
   // Total number of deletes and single deletes skipped over during iteration
@@ -57,6 +56,13 @@ struct PerfContext {
   // still older updates invalidated by the tombstones.
   //
   uint64_t internal_delete_skipped_count;
+  // How many times iterators skipped over internal keys that are more recent
+  // than the snapshot that iterator is using.
+  //
+  uint64_t internal_recent_skipped_count;
+  // How many values were fed into merge operator by iterators.
+  //
+  uint64_t internal_merge_count;
 
   uint64_t get_snapshot_time;       // total nanos spent on getting snapshot
   uint64_t get_from_memtable_time;  // total nanos spent on querying memtables
@@ -67,12 +73,18 @@ struct PerfContext {
   // total nanos spent on seeking memtable
   uint64_t seek_on_memtable_time;
   // number of seeks issued on memtable
+  // (including SeekForPrev but not SeekToFirst and SeekToLast)
   uint64_t seek_on_memtable_count;
+  // number of Next()s issued on memtable
+  uint64_t next_on_memtable_count;
+  // number of Prev()s issued on memtable
+  uint64_t prev_on_memtable_count;
   // total nanos spent on seeking child iters
   uint64_t seek_child_seek_time;
   // number of seek issued in child iterators
   uint64_t seek_child_seek_count;
-  uint64_t seek_min_heap_time;  // total nanos spent on the merge heap
+  uint64_t seek_min_heap_time;  // total nanos spent on the merge min heap
+  uint64_t seek_max_heap_time;  // total nanos spent on the merge max heap
   // total nanos spent on seeking the internal entries
   uint64_t seek_internal_seek_time;
   // total nanos spent on iterating internal entries to find the next user entry
@@ -113,15 +125,34 @@ struct PerfContext {
   uint64_t bloom_sst_hit_count;
   // total number of SST table bloom misses
   uint64_t bloom_sst_miss_count;
+
+  // Total time spent in Env filesystem operations. These are only populated
+  // when TimedEnv is used.
+  uint64_t env_new_sequential_file_nanos;
+  uint64_t env_new_random_access_file_nanos;
+  uint64_t env_new_writable_file_nanos;
+  uint64_t env_reuse_writable_file_nanos;
+  uint64_t env_new_random_rw_file_nanos;
+  uint64_t env_new_directory_nanos;
+  uint64_t env_file_exists_nanos;
+  uint64_t env_get_children_nanos;
+  uint64_t env_get_children_file_attributes_nanos;
+  uint64_t env_delete_file_nanos;
+  uint64_t env_create_dir_nanos;
+  uint64_t env_create_dir_if_missing_nanos;
+  uint64_t env_delete_dir_nanos;
+  uint64_t env_get_file_size_nanos;
+  uint64_t env_get_file_modification_time_nanos;
+  uint64_t env_rename_file_nanos;
+  uint64_t env_link_file_nanos;
+  uint64_t env_lock_file_nanos;
+  uint64_t env_unlock_file_nanos;
+  uint64_t env_new_logger_nanos;
 };
 
-#if defined(NPERF_CONTEXT) || defined(IOS_CROSS_COMPILE)
-extern PerfContext perf_context;
-#elif _WIN32
-extern __declspec(thread) PerfContext perf_context;
-#else
-extern __thread PerfContext perf_context;
-#endif
+// Get Thread-local PerfContext object pointer
+// if defined(NPERF_CONTEXT), then the pointer is not thread-local
+PerfContext* get_perf_context();
 
 }
 

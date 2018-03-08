@@ -208,7 +208,11 @@ rocksdb::Options RocksDBWrapper::getDBOptions(const DataBaseConfig& config) {
   }
 
   rocksdb::BlockBasedTableOptions tableOptions;
-  tableOptions.block_cache = rocksdb::NewLRUCache(config.getReadCacheSize());
+int cacheSize=config.getReadCacheSize();
+  logger(INFO) << "Read Cache Size: "<<cacheSize;
+
+
+  tableOptions.block_cache = rocksdb::NewLRUCache(cacheSize);
   std::shared_ptr<rocksdb::TableFactory> tfp(NewBlockBasedTableFactory(tableOptions));
   fOptions.table_factory = tfp;
 

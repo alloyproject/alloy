@@ -59,7 +59,7 @@ fi
 CLEANUP_ENV="
 {
     'name':'Cleanup environment',
-    'shell':'rm -rf /dev/shm/rocksdb && mkdir /dev/shm/rocksdb && chmod +t /dev/shm && make clean',
+    'shell':'rm -rf /dev/shm/rocksdb && mkdir /dev/shm/rocksdb && (chmod +t /dev/shm || true)  && make clean',
     'user':'root'
 }"
 
@@ -81,6 +81,7 @@ PARALLELISM="$PARALLEL_J $PARALLEL_j"
 
 DEBUG="OPT=-g"
 SHM="TEST_TMPDIR=/dev/shm/rocksdb"
+NON_SHM="TMPD=/tmp/rocksdb_test_tmp"
 GCC_481="ROCKSDB_FBCODE_BUILD_WITH_481=1"
 ASAN="COMPILE_WITH_ASAN=1"
 CLANG="USE_CLANG=1"
@@ -89,7 +90,7 @@ TSAN="COMPILE_WITH_TSAN=1"
 UBSAN="COMPILE_WITH_UBSAN=1"
 DISABLE_JEMALLOC="DISABLE_JEMALLOC=1"
 HTTP_PROXY="https_proxy=http://fwdproxy.29.prn1:8080 http_proxy=http://fwdproxy.29.prn1:8080 ftp_proxy=http://fwdproxy.29.prn1:8080"
-SETUP_JAVA_ENV="export $HTTP_PROXY; export JAVA_HOME=/usr/local/jdk-7u10-64/; export PATH=\$PATH:\$JAVA_HOME/bin"
+SETUP_JAVA_ENV="export $HTTP_PROXY; export JAVA_HOME=/usr/local/jdk-8u60-64/; export PATH=\$JAVA_HOME/bin:\$PATH"
 PARSER="'parser':'python build_tools/error_filter.py $1'"
 
 CONTRUN_NAME="ROCKSDB_CONTRUN_NAME"
@@ -100,7 +101,7 @@ CONTRUN_NAME="ROCKSDB_CONTRUN_NAME"
 # the value of $ONCALL. If it's a diff then just call `false` to make sure
 # that errors will be properly propagated to the caller.
 if [ ! -z $ONCALL ]; then
-  TASK_CREATION_TOOL="/usr/local/bin/mysql_mtr_filter --rocksdb"
+  TASK_CREATION_TOOL="/usr/local/bin/mysql_mtr_filter --rocksdb --oncall $ONCALL"
 else
   TASK_CREATION_TOOL="false"
 fi
@@ -126,35 +127,6 @@ DISABLE_COMMANDS="[
               'user':'root'
             },
         ],
-    }
-]"
-
-#
-# RocksDB unit test in parallel
-# Currently we always have noise in our parallel runs. This job is to help
-# manage the noise
-#
-PARALLEL_UNIT_TEST_COMMANDS="[
-    {
-        'name':'Rocksdb Parallel Unit Test',
-        'oncall':'$ONCALL',
-        'steps': [
-            $CLEANUP_ENV,
-            {
-                'name':'Build and test RocksDB debug version',
-                'shell':'$DEBUG make -j$(nproc) all && $SHM make check > /dev/null 2>&1 || $CONTRUN_NAME=punit_check $TASK_CREATION_TOOL || cat t/log-*',
-                'user':'root',
-                $PARSER
-            },
-            $CLEANUP_ENV,
-            {
-                'name':'Build and test RocksDB debug version under gcc-4.8.1',
-                'shell':'$GCC_481 $DEBUG make -j$(nproc) all && $SHM make check > /dev/null 2>&1 || $CONTRUN_NAME=punit_check_gcc481 $TASK_CREATION_TOOL || cat t/log-*',
-                'user':'root',
-                $PARSER
-            },
-        ],
-        $REPORT
     }
 ]"
 
@@ -191,7 +163,7 @@ UNIT_TEST_NON_SHM_COMMANDS="[
             {
                 'name':'Build and test RocksDB debug version',
                 'timeout': 86400,
-                'shell':'$DEBUG make $PARALLELISM check || $CONTRUN_NAME=non_shm_check $TASK_CREATION_TOOL',
+                'shell':'$NON_SHM $DEBUG make $PARALLELISM check || $CONTRUN_NAME=non_shm_check $TASK_CREATION_TOOL',
                 'user':'root',
                 $PARSER
             },
@@ -548,7 +520,7 @@ VALGRIND_TEST_COMMANDS="[
             {
                 'name':'Run RocksDB debug unit tests',
                 'timeout': 86400,
-                'shell':'$DISABLE_JEMALLOC $SHM $DEBUG make $PARALLELISM valgrind_check || $CONTRUN_NAME=valgrind_check $TASK_CREATION_TOOL',
+                'shell':'$SHM $DEBUG make $PARALLELISM valgrind_test || $CONTRUN_NAME=valgrind_check $TASK_CREATION_TOOL',
                 'user':'root',
                 $PARSER
             },
@@ -775,9 +747,6 @@ JAVA_BUILD_TEST_COMMANDS="[
 
 
 case $1 in
-  punit)
-    echo $PARALLEL_UNIT_TEST_COMMANDS
-    ;;
   unit)
     echo $UNIT_TEST_COMMANDS
     ;;
