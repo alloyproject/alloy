@@ -731,7 +731,11 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       "**********************************************************************\n" <<
       "Use \"help\" command to see the list of available commands.\n" <<
       "**********************************************************************";
-  m_wallet->reset();
+
+
+//force a reset on open
+//  m_wallet->reset();
+
 
 
   }
@@ -898,7 +902,7 @@ bool simple_wallet::reset(const std::vector<std::string> &args) {
   }
 
   m_wallet->reset();
-  success_msg_writer(true) << "Reset completed successfully.";
+//  success_msg_writer(true) << "Reset completed successfully.";
 
   std::unique_lock<std::mutex> lock(m_walletSynchronizedMutex);
   while (!m_walletSynchronized) {
@@ -1213,12 +1217,12 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::run() {
-  {
+  /*{
     std::unique_lock<std::mutex> lock(m_walletSynchronizedMutex);
     while (!m_walletSynchronized) {
       m_walletSynchronizedCV.wait(lock);
     }
-  }
+  }*/
 
   std::cout << std::endl;
 

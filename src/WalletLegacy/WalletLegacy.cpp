@@ -186,6 +186,7 @@ void WalletLegacy::initAndLoad(std::istream& source, const std::string& password
   m_state = LOADING;
       
   m_asyncContextCounter.addAsyncContext();
+//printf("Calling DoLoad\n");
   std::thread loader(&WalletLegacy::doLoad, this, std::ref(source));
   loader.detach();
 }
@@ -195,12 +196,13 @@ void WalletLegacy::initSync() {
   sub.keys = reinterpret_cast<const AccountKeys&>(m_account.getAccountKeys());
   sub.transactionSpendableAge = 1;
   sub.syncStart.height = 0;
+//printf("In void WalletLegacy::initSync() {. Create time:%lu:\n", m_account.get_createtime());
 
-//force the reset from block 0
+
   sub.syncStart.timestamp = m_account.get_createtime() - ACCOUN_CREATE_TIME_ACCURACY;
  if (m_syncAll == 1)
     sub.syncStart.timestamp = 0;
-//  std::cout << "Sync from timestamp: " << sub.syncStart.timestamp << std::endl;
+  std::cout << "Sync from timestamp: " << sub.syncStart.timestamp << std::endl;
   
   auto& subObject = m_transfersSync.addSubscription(sub);
   m_transferDetails = &subObject.getContainer();
@@ -210,11 +212,19 @@ void WalletLegacy::initSync() {
   m_state = INITIALIZED;
   
   m_blockchainSync.addObserver(this);
+
+
+
+//printf( "Exit out of WalletLegacy::initSync()\n");
+
 }
 
 void WalletLegacy::doLoad(std::istream& source) {
+
+//printf("Enter DoLoad\n");
+
   ContextCounterHolder counterHolder(m_asyncContextCounter);
-  try {
+ try {
     std::unique_lock<std::mutex> lock(m_cacheMutex);
     
     std::string cache;
@@ -223,14 +233,27 @@ void WalletLegacy::doLoad(std::istream& source) {
       
     initSync();
 
+
+
+
     try {
       if (!cache.empty()) {
+
         std::stringstream stream(cache);
+	//printf("doLoad, m_transfersSync.load(stream)\n"); 
+
+
         m_transfersSync.load(stream);
+
+        //printf("doLoad,  m_transfersSync.load(stream\n");
+
       }
     } catch (const std::exception&) {
+	//printf("Somekind of doLoad Error\n");
       // ignore cache loading errors
     }
+
+
   } catch (std::system_error& e) {
     runAtomic(m_cacheMutex, [this] () {this->m_state = WalletLegacy::NOT_INITIALIZED;} );
     m_observerManager.notify(&IWalletLegacyObserver::initCompleted, e.code());
@@ -241,7 +264,12 @@ void WalletLegacy::doLoad(std::istream& source) {
     return;
   }
 
+
+
   m_observerManager.notify(&IWalletLegacyObserver::initCompleted, std::error_code());
+
+
+
 }
 
 void WalletLegacy::shutdown() {
@@ -284,6 +312,9 @@ void WalletLegacy::shutdown() {
 }
 
 void WalletLegacy::reset() {
+
+//printf("In WalletLegacy::reset()\n");
+
   try {
     std::error_code saveError;
     std::stringstream ss;
@@ -299,7 +330,8 @@ void WalletLegacy::reset() {
       InitWaiter initWaiter;
       WalletHelper::IWalletRemoveObserverGuard initGuarantee(*this, initWaiter);
       initAndLoad(ss, m_password);
-      initWaiter.waitInit();
+      //printf("in waitInit\n");
+	initWaiter.waitInit();
     }
   } catch (std::exception& e) {
     std::cout << "exception in reset: " << e.what() << std::endl;

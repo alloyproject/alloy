@@ -243,7 +243,7 @@ PushedBlockInfo BlockchainCache::getPushedBlockInfo(uint32_t blockIndex) const {
 // TODO: first move containers to new cache, then copy elements back. This can be much more effective, cause we usualy
 // split blockchain near its top.
 std::unique_ptr<IBlockchainCache> BlockchainCache::split(uint32_t splitBlockIndex) {
-  logger(Logging::DEBUGGING) << "Splitting at block index: " << splitBlockIndex << ", top block index: " << getTopBlockIndex();
+  logger(Logging::INFO) << "Splitting at block index: " << splitBlockIndex << ", top block index: " << getTopBlockIndex();
 
   assert(splitBlockIndex > startIndex);
   assert(splitBlockIndex <= getTopBlockIndex());
@@ -311,7 +311,7 @@ void BlockchainCache::splitBlocks(BlockchainCache& newCache, uint32_t splitBlock
   std::move(bound, blocksIndex.end(), std::back_inserter(newCache.blockInfos.get<BlockIndexTag>()));
   blocksIndex.erase(bound, blocksIndex.end());
 
-  logger(Logging::DEBUGGING) << "Blocks split completed";
+  logger(Logging::INFO) << "Blocks split completed";
 }
 
 void BlockchainCache::splitKeyOutputsGlobalIndexes(BlockchainCache& newCache, uint32_t splitBlockIndex) {
@@ -508,16 +508,22 @@ size_t BlockchainCache::getKeyOutputsCountForAmount(uint64_t amount, uint32_t bl
   return it->second.startIndex + static_cast<size_t>(std::distance(it->second.outputs.begin(), lowerBound));
 }
 
+
 uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) const {
   assert(!blockInfos.empty());
 
   auto& index = blockInfos.get<BlockIndexTag>();
+logger(Logging::INFO) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invokved so we are probably in a split chain situation.\n";
+printf("index.front().TS:%lu   (index.back().timestamp:%lu\n",index.front().timestamp,index.back().timestamp);
+
+//index.back is the last block so if we are beyond that, something is wrong
   if (index.back().timestamp < timestamp) {
     // we don't have it
     throw std::runtime_error("no blocks for this timestamp, too large");
   }
 
   if (index.front().timestamp < timestamp) {
+printf("getTimestampLowerBoundBlockIndex, CP1\n");
     // we know the timestamp is in current segment for sure
     auto bound =
         std::lower_bound(index.begin(), index.end(), timestamp,
@@ -530,21 +536,24 @@ uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) c
   // so we ask parent. If it doesn't have it then index.front() is the block being searched for.
 
   if (parent == nullptr) {
+printf("getTimestampLowerBoundBlockIndex, CP2\n");
     // if given timestamp is less or equal genesis block timestamp
     return 0;
   }
 
 
-//Handle the getTimestampLowerBoundBlockIndex error situation. Credit to turtle coin and deertacos for suggestion.
-
  try {
 
   uint32_t blockIndex = parent->getTimestampLowerBoundBlockIndex(timestamp);
+printf("CP4  getTimestampLowerBoundBlockIndex, blockIndex:%lu   startIndex:%lu    timestamp:%lu\n",blockIndex,startIndex,timestamp);
+
+//This part looks TOTALLY wrong. Seems it should return blockIndex preferentially. Will revise if can repro more split chain cases.
 return blockIndex == INVALID_BLOCK_INDEX ? blockIndex : startIndex;
+
 
 }
  catch (std::runtime_error&) {
-  logger(Logging::DEBUGGING) << "Encountered Rare getTimestampLowerBoundBlockIndex() error.";
+  logger(Logging::INFO) << "Encountered Rare getTimestampLowerBoundBlockIndex() error.";
 
      // parent didn't have the block, so index.front() must be the block we're looking for
      return startIndex;
@@ -555,6 +564,7 @@ return blockIndex == INVALID_BLOCK_INDEX ? blockIndex : startIndex;
 
 
 }
+
 
 bool BlockchainCache::getTransactionGlobalIndexes(const Crypto::Hash& transactionHash,
                                                   std::vector<uint32_t>& globalIndexes) const {

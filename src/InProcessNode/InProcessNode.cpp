@@ -674,6 +674,8 @@ void InProcessNode::queryBlocks(std::vector<Crypto::Hash>&& knownBlockIds, uint6
 
 std::error_code InProcessNode::doQueryBlocksLite(std::vector<Crypto::Hash>&& knownBlockIds, uint64_t timestamp,
                                                  std::vector<BlockShortEntry>& newBlocks, uint32_t& startHeight) {
+
+
   uint32_t currentHeight, fullOffset;
   std::vector<CryptoNote::BlockShortInfo> entries;
 
