@@ -513,8 +513,8 @@ uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) c
   assert(!blockInfos.empty());
 
   auto& index = blockInfos.get<BlockIndexTag>();
-logger(Logging::INFO) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invokved so we are probably in a split chain situation.\n";
-printf("index.front().TS:%lu   (index.back().timestamp:%lu\n",index.front().timestamp,index.back().timestamp);
+logger(Logging::INFO) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invoked so we are probably in a temp split situation.\n";
+printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front().timestamp,timestamp,index.back().timestamp);
 
 //index.back is the last block so if we are beyond that, something is wrong
   if (index.back().timestamp < timestamp) {
@@ -545,10 +545,15 @@ printf("getTimestampLowerBoundBlockIndex, CP2\n");
  try {
 
   uint32_t blockIndex = parent->getTimestampLowerBoundBlockIndex(timestamp);
-printf("CP4  getTimestampLowerBoundBlockIndex, blockIndex:%lu   startIndex:%lu    timestamp:%lu\n",blockIndex,startIndex,timestamp);
+printf("AskParent  getTimestampLowerBoundBlockIndex, blockIndex:%lu   startIndex:%lu    timestamp:%lu\n",blockIndex,startIndex,timestamp);
 
-//This part looks TOTALLY wrong. Seems it should return blockIndex preferentially. Will revise if can repro more split chain cases.
-return blockIndex == INVALID_BLOCK_INDEX ? blockIndex : startIndex;
+// corrected this so it makes logical sense. Return the Block Index if we find it otherwise ret startIndex if get get some crazy invalid_block_index value
+if (blockIndex == INVALID_BLOCK_INDEX) {
+printf("### Actually got a INVALID_BLOCK_INDEX situation. Will return startIndex\n");
+return startIndex;
+}
+else
+return blockIndex;
 
 
 }
