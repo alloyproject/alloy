@@ -1,7 +1,7 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #pragma once
 
@@ -20,7 +20,9 @@ class Iterator;
 class TransactionDB;
 class WriteBatchWithIndex;
 
-typedef std::string TransactionName;
+using TransactionName = std::string;
+
+using TransactionID = uint64_t;
 
 // Provides notification to the caller of SetSnapshotOnNextOperation when
 // the actual snapshot gets created
@@ -207,10 +209,11 @@ class Transaction {
   // or other errors if this key could not be read.
   virtual Status GetForUpdate(const ReadOptions& options,
                               ColumnFamilyHandle* column_family,
-                              const Slice& key, std::string* value) = 0;
+                              const Slice& key, std::string* value,
+                              bool exclusive = true) = 0;
 
   virtual Status GetForUpdate(const ReadOptions& options, const Slice& key,
-                              std::string* value) = 0;
+                              std::string* value, bool exclusive = true) = 0;
 
   virtual std::vector<Status> MultiGetForUpdate(
       const ReadOptions& options,
@@ -389,13 +392,23 @@ class Transaction {
 
   virtual void SetLogNumber(uint64_t log) { log_number_ = log; }
 
-  virtual uint64_t GetLogNumber() { return log_number_; }
+  virtual uint64_t GetLogNumber() const { return log_number_; }
 
   virtual Status SetName(const TransactionName& name) = 0;
 
-  virtual TransactionName GetName() { return name_; }
+  virtual TransactionName GetName() const { return name_; }
 
-  enum ExecutionStatus {
+  virtual TransactionID GetID() const { return 0; }
+
+  virtual bool IsDeadlockDetect() const { return false; }
+
+  virtual std::vector<TransactionID> GetWaitingTxns(uint32_t* column_family_id,
+                                                    std::string* key) const {
+    assert(false);
+    return std::vector<TransactionID>();
+  }
+
+  enum TransactionState {
     STARTED = 0,
     AWAITING_PREPARE = 1,
     PREPARED = 2,
@@ -406,8 +419,8 @@ class Transaction {
     LOCKS_STOLEN = 7,
   };
 
-  // Execution status of the transaction.
-  std::atomic<ExecutionStatus> exec_status_;
+  TransactionState GetState() const { return txn_state_; }
+  void SetState(TransactionState state) { txn_state_ = state; }
 
  protected:
   explicit Transaction(const TransactionDB* db) {}
@@ -417,6 +430,9 @@ class Transaction {
   // (for two phase commit)
   uint64_t log_number_;
   TransactionName name_;
+
+  // Execution status of the transaction.
+  std::atomic<TransactionState> txn_state_;
 
  private:
   // No copying allowed

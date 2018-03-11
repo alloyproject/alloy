@@ -954,8 +954,8 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     std::list<PeerlistEntry> peerlist_ = peerlist;
     if(!fix_time_delta(peerlist_, local_time, delta))
       return false;
-    logger(Logging::TRACE) << context << "REMOTE PEERLIST: TIME_DELTA: " << delta << ", remote peerlist size=" << peerlist_.size();
-    logger(Logging::TRACE) << context << "REMOTE PEERLIST: " <<  print_peerlist_to_string(peerlist_);
+    //logger(Logging::TRACE) << context << "REMOTE PEERLIST: TIME_DELTA: " << delta << ", remote peerlist size=" << peerlist_.size();
+    //logger(Logging::TRACE) << context << "REMOTE PEERLIST: " <<  print_peerlist_to_string(peerlist_);
     return m_peerlist.merge_peerlist(peerlist_);
   }
   //-----------------------------------------------------------------------------------
@@ -1139,7 +1139,7 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     rsp.local_time = time(NULL);
     m_peerlist.get_peerlist_head(rsp.local_peerlist);
     m_payload_handler.get_payload_sync_data(rsp.payload_data);
-    logger(Logging::TRACE) << context << "COMMAND_TIMED_SYNC";
+  //  logger(Logging::TRACE) << context << "COMMAND_TIMED_SYNC";
     return 1;
   }
   //-----------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 #pragma once
 
@@ -12,15 +12,15 @@
 #include <deque>
 
 #include "db/dbformat.h"
-#include "db/filename.h"
 #include "db/memtable.h"
-#include "db/skiplist.h"
+#include "db/range_del_aggregator.h"
+#include "monitoring/instrumented_mutex.h"
 #include "rocksdb/db.h"
 #include "rocksdb/iterator.h"
 #include "rocksdb/options.h"
 #include "rocksdb/types.h"
 #include "util/autovector.h"
-#include "util/instrumented_mutex.h"
+#include "util/filename.h"
 #include "util/log_buffer.h"
 
 namespace rocksdb {
@@ -53,12 +53,14 @@ class MemTableListVersion {
   // will be stored in *seq on success (regardless of whether true/false is
   // returned).  Otherwise, *seq will be set to kMaxSequenceNumber.
   bool Get(const LookupKey& key, std::string* value, Status* s,
-           MergeContext* merge_context, SequenceNumber* seq);
+           MergeContext* merge_context, RangeDelAggregator* range_del_agg,
+           SequenceNumber* seq, const ReadOptions& read_opts);
 
   bool Get(const LookupKey& key, std::string* value, Status* s,
-           MergeContext* merge_context) {
+           MergeContext* merge_context, RangeDelAggregator* range_del_agg,
+           const ReadOptions& read_opts) {
     SequenceNumber seq;
-    return Get(key, value, s, merge_context, &seq);
+    return Get(key, value, s, merge_context, range_del_agg, &seq, read_opts);
   }
 
   // Similar to Get(), but searches the Memtable history of memtables that
@@ -66,12 +68,23 @@ class MemTableListVersion {
   // queries (such as Transaction validation) as the history may contain
   // writes that are also present in the SST files.
   bool GetFromHistory(const LookupKey& key, std::string* value, Status* s,
-                      MergeContext* merge_context, SequenceNumber* seq);
+                      MergeContext* merge_context,
+                      RangeDelAggregator* range_del_agg, SequenceNumber* seq,
+                      const ReadOptions& read_opts);
   bool GetFromHistory(const LookupKey& key, std::string* value, Status* s,
-                      MergeContext* merge_context) {
+                      MergeContext* merge_context,
+                      RangeDelAggregator* range_del_agg,
+                      const ReadOptions& read_opts) {
     SequenceNumber seq;
-    return GetFromHistory(key, value, s, merge_context, &seq);
+    return GetFromHistory(key, value, s, merge_context, range_del_agg, &seq,
+                          read_opts);
   }
+
+  Status AddRangeTombstoneIterators(const ReadOptions& read_opts, Arena* arena,
+                                    RangeDelAggregator* range_del_agg);
+  Status AddRangeTombstoneIterators(
+      const ReadOptions& read_opts,
+      std::vector<InternalIterator*>* range_del_iters);
 
   void AddIterators(const ReadOptions& options,
                     std::vector<InternalIterator*>* iterator_list,
@@ -84,7 +97,8 @@ class MemTableListVersion {
 
   uint64_t GetTotalNumDeletes() const;
 
-  uint64_t ApproximateSize(const Slice& start_ikey, const Slice& end_ikey);
+  MemTable::MemTableStats ApproximateStats(const Slice& start_ikey,
+                                           const Slice& end_ikey);
 
   // Returns the value of MemTable::GetEarliestSequenceNumber() on the most
   // recent MemTable in this list or kMaxSequenceNumber if the list is empty.
@@ -102,7 +116,8 @@ class MemTableListVersion {
 
   bool GetFromList(std::list<MemTable*>* list, const LookupKey& key,
                    std::string* value, Status* s, MergeContext* merge_context,
-                   SequenceNumber* seq);
+                   RangeDelAggregator* range_del_agg, SequenceNumber* seq,
+                   const ReadOptions& read_opts);
 
   void AddMemTable(MemTable* m);
 
@@ -208,6 +223,8 @@ class MemTableList {
   // parameter). This flush request will persist until the next time
   // PickMemtablesToFlush() is called.
   void FlushRequested() { flush_requested_ = true; }
+
+  bool HasFlushRequested() { return flush_requested_; }
 
   // Copying allowed
   // MemTableList(const MemTableList&);

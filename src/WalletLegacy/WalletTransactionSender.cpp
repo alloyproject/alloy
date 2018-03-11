@@ -51,7 +51,7 @@ void createChangeDestinations(const AccountPublicAddress& address, uint64_t need
 void constructTx(const AccountKeys keys, const std::vector<TransactionSourceEntry>& sources, const std::vector<TransactionDestinationEntry>& splittedDests,
     const std::string& extra, uint64_t unlockTimestamp, uint64_t sizeLimit, Transaction& tx) {
 
-  sizeLimit = std::min<unsigned long>(sizeLimit, MAX_TRANSACTION_SIZE_LIMIT);
+  sizeLimit = std::min<unsigned long>(sizeLimit, ALLOY_TRANSACTION_SIZE_LIMIT);
   std::vector<uint8_t> extraVec;
   extraVec.reserve(extra.size());
   std::for_each(extra.begin(), extra.end(), [&extraVec] (const char el) { extraVec.push_back(el);});

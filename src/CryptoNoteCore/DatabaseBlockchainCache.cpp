@@ -1342,6 +1342,9 @@ size_t DatabaseBlockchainCache::getKeyOutputsCountForAmount(uint64_t amount, uin
 uint32_t DatabaseBlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) const {
   auto midnight = roundToMidnight(timestamp);
 
+//printf(" DatabaseBlockchainCache::getTimestampLowerBoundBlockIndex  timestamp:%lu\n",timestamp);
+
+
   while (midnight > 0) {
     auto dbRes = requestClosestBlockIndexByTimestamp(midnight, database);
     if (!dbRes.second) {

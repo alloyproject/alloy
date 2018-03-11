@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #include "rocksdb/utilities/sim_cache.h"
 #include <cstdlib>
@@ -95,7 +95,8 @@ TEST_F(SimCacheTest, SimCache) {
     CheckCacheCounters(options, 1, 0, 1, 0);
     iterators[i].reset(iter);
   }
-  ASSERT_EQ(kNumBlocks, simCache->get_lookup_counter());
+  ASSERT_EQ(kNumBlocks,
+            simCache->get_hit_counter() + simCache->get_miss_counter());
   ASSERT_EQ(0, simCache->get_hit_counter());
   size_t usage = simCache->GetUsage();
   ASSERT_LT(0, usage);
@@ -132,7 +133,8 @@ TEST_F(SimCacheTest, SimCache) {
     CheckCacheCounters(options, 1, 0, 1, 0);
   }
   ASSERT_EQ(0, simCache->GetPinnedUsage());
-  ASSERT_EQ(3 * kNumBlocks + 1, simCache->get_lookup_counter());
+  ASSERT_EQ(3 * kNumBlocks + 1,
+            simCache->get_hit_counter() + simCache->get_miss_counter());
   ASSERT_EQ(6, simCache->get_hit_counter());
 }
 

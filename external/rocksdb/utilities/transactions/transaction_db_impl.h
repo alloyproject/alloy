@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #pragma once
 #ifndef ROCKSDB_LITE
@@ -25,7 +25,13 @@ class TransactionDBImpl : public TransactionDB {
   explicit TransactionDBImpl(DB* db,
                              const TransactionDBOptions& txn_db_options);
 
+  explicit TransactionDBImpl(StackableDB* db,
+                             const TransactionDBOptions& txn_db_options);
+
   ~TransactionDBImpl();
+
+  Status Initialize(const std::vector<size_t>& compaction_enabled_cf_indices,
+                    const std::vector<ColumnFamilyHandle*>& handles);
 
   Transaction* BeginTransaction(const WriteOptions& write_options,
                                 const TransactionOptions& txn_options,
@@ -57,7 +63,8 @@ class TransactionDBImpl : public TransactionDB {
   using StackableDB::DropColumnFamily;
   virtual Status DropColumnFamily(ColumnFamilyHandle* column_family) override;
 
-  Status TryLock(TransactionImpl* txn, uint32_t cfh_id, const std::string& key);
+  Status TryLock(TransactionImpl* txn, uint32_t cfh_id, const std::string& key,
+                 bool exclusive);
 
   void UnLock(TransactionImpl* txn, const TransactionKeyMap* keys);
   void UnLock(TransactionImpl* txn, uint32_t cfh_id, const std::string& key);
@@ -87,6 +94,8 @@ class TransactionDBImpl : public TransactionDB {
 
   // not thread safe. current use case is during recovery (single thread)
   void GetAllPreparedTransactions(std::vector<Transaction*>* trans) override;
+
+  TransactionLockMgr::LockStatusData GetLockStatusData() override;
 
  private:
   void ReinitializeTransaction(

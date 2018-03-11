@@ -539,6 +539,9 @@ bool CryptoNoteProtocolHandler::request_missing_objects(CryptoNoteConnectionCont
       }
       it = context.m_needed_objects.erase(it);
     }
+
+//printf("CryptoNoteProtocolHandler::request_missing_objects. Count:%lu  context.m_remote_blockchain_height:%lu\n", count,context.m_remote_blockchain_height );
+
     logger(Logging::TRACE) << context << "-->>NOTIFY_REQUEST_GET_OBJECTS: blocks.size()=" << req.blocks.size() << ", txs.size()=" << req.txs.size();
     post_notify<NOTIFY_REQUEST_GET_OBJECTS>(*m_p2p, req, context);
   } else if (context.m_last_response_height < context.m_remote_blockchain_height - 1) {//we have to fetch more objects ids, request blockchain entry
@@ -561,6 +564,8 @@ bool CryptoNoteProtocolHandler::request_missing_objects(CryptoNoteConnectionCont
         << "\r\non connection [" << context << "]";
       return false;
     }
+
+//printf("CryptoNoteProtocolHandler::request_missing_objects pool tx\n");
 
     requestMissingPoolTransactions(context);
 

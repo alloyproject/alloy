@@ -2061,7 +2061,7 @@ void WalletGreen::sendTransaction(const CryptoNote::Transaction& cryptoNoteTrans
 size_t WalletGreen::validateSaveAndSendTransaction(const ITransactionReader& transaction, const std::vector<WalletTransfer>& destinations, bool isFusion, bool send) {
   BinaryArray transactionData = transaction.getTransactionData();
 
-  int sizeLimit = std::min<unsigned long>(m_upperTransactionSizeLimit, MAX_TRANSACTION_SIZE_LIMIT);
+  int sizeLimit = std::min<unsigned long>(m_upperTransactionSizeLimit, ALLOY_TRANSACTION_SIZE_LIMIT);
   m_logger(DEBUGGING) << "transactionData.size():"<<transactionData.size();
 
   if (transactionData.size() > sizeLimit) {

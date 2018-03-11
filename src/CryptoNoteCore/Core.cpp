@@ -398,8 +398,8 @@ bool Core::queryBlocks(const std::vector<Crypto::Hash>& blockHashes, uint64_t ti
     fillQueryBlockFullInfo(fullOffset, currentIndex, BLOCKS_SYNCHRONIZING_DEFAULT_COUNT, entries);
 
     return true;
-  } catch (std::exception&) {
-    // TODO log
+  } catch (std::exception& e) {
+logger(Logging::WARNING) << "Exception in QueryBlock: " << e.what();
     return false;
   }
 }
@@ -415,24 +415,33 @@ bool Core::queryBlocksLite(const std::vector<Crypto::Hash>& knownBlockHashes, ui
     IBlockchainCache* mainChain = chainsLeaves[0];
     currentIndex = mainChain->getTopBlockIndex();
 
-    startIndex = findBlockchainSupplement(knownBlockHashes); // throws
+    startIndex =  findBlockchainSupplement(knownBlockHashes); // throws
+
+
 
     fullOffset = mainChain->getTimestampLowerBoundBlockIndex(timestamp);
     if (fullOffset < startIndex) {
       fullOffset = startIndex;
     }
 
-    size_t hashesPushed = pushBlockHashes(startIndex, fullOffset, BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT, entries);
+size_t hashesPushed =0;
+
+ hashesPushed = pushBlockHashes(startIndex, fullOffset, BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT, entries);
+
+
+//printf("queryBlocksLite startIndex:%lu  currentIndex:%lu  fullOffset:%lu   hashesPushed:%lu   timestamp:%lu\n",startIndex, currentIndex,fullOffset,hashesPushed,timestamp);
 
     if (startIndex + static_cast<uint32_t>(hashesPushed) != fullOffset) {
-      return true;
+     return true;
     }
 
     fillQueryBlockShortInfo(fullOffset, currentIndex, BLOCKS_SYNCHRONIZING_DEFAULT_COUNT, entries);
 
+
     return true;
-  } catch (std::exception&) {
-    // TODO log
+ } catch (std::exception& e) {
+logger(Logging::WARNING) << "Exception in QueryBlock: " << e.what();
+
     return false;
   }
 }
@@ -821,11 +830,9 @@ std::error_code Core::submitBlock(BinaryArray&& rawBlockTemplate) {
   for (const auto& transactionHash : blockTemplate.transactionHashes) {
     if (!transactionPool->checkIfTransactionPresent(transactionHash)) {
       logger(Logging::WARNING) << "The transaction " << Common::podToHex(transactionHash)
-                               << " is absent in transaction pool. We will try to submit this block anyways.";
+                               << " is absent in transaction pool. We have an out of date BlockTemplate, you should need to adjust pool software.";
       
-	//Mempool injection issue. We risk a coredump but the hashes are not wasted in this case.
-	//return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
-
+        return error::BlockValidationError::TRANSACTION_ABSENT_IN_POOL;
 
     }
 
@@ -933,18 +940,7 @@ bool Core::addTransactionToPool(CachedTransaction&& cachedTransaction) {
   }
 
 
-int tsize=cachedTransaction.getTransactionBinaryArray().size();
   auto transactionHash = cachedTransaction.getTransactionHash();
-
-//printf("** addTransactionToPool, size:%lu\n",tsize);
-//filter out the oversized transactions that cause issues
-if (tsize > MAX_TRANSACTION_SIZE_LIMIT) {
- logger(Logging::INFO) << "Dropping Oversized TX  " << transactionHash << " bytes:"<< tsize;
-    return false;
-
-}
-
-
 
 
 
@@ -967,7 +963,8 @@ bool Core::isTransactionValidForPool(const CachedTransaction& cachedTransaction,
     return false;
   }
 
-  auto maxTransactionSize = getMaximumTransactionAllowedSize(blockMedianSize, currency);
+  //auto maxTransactionSize = getMaximumTransactionAllowedSize(blockMedianSize, currency);
+  auto maxTransactionSize = ALLOY_TRANSACTION_SIZE_LIMIT;
   if (cachedTransaction.getTransactionBinaryArray().size() > maxTransactionSize) {
     logger(Logging::WARNING) << "Transaction " << cachedTransaction.getTransactionHash()
       << " is not valid. Reason: transaction is too big (" << cachedTransaction.getTransactionBinaryArray().size()
@@ -1725,6 +1722,7 @@ size_t Core::pushBlockHashes(uint32_t startIndex, uint32_t fullOffset, size_t ma
   return blockIds.size();
 }
 
+
 //TODO: decompose these two methods
 size_t Core::pushBlockHashes(uint32_t startIndex, uint32_t fullOffset, size_t maxItemsCount,
                              std::vector<BlockFullInfo>& entries) const {
@@ -1746,6 +1744,8 @@ size_t Core::pushBlockHashes(uint32_t startIndex, uint32_t fullOffset, size_t ma
 
   return blockIds.size();
 }
+
+
 
 void Core::fillQueryBlockFullInfo(uint32_t fullOffset, uint32_t currentIndex, size_t maxItemsCount,
                                   std::vector<BlockFullInfo>& entries) const {
@@ -1770,8 +1770,12 @@ void Core::fillQueryBlockShortInfo(uint32_t fullOffset, uint32_t currentIndex, s
                                    std::vector<BlockShortInfo>& entries) const {
   assert(currentIndex >= fullOffset);
 
-  uint32_t fullBlocksCount = static_cast<uint32_t>(std::min(static_cast<uint32_t>(maxItemsCount), currentIndex - fullOffset + 1));
+  uint32_t fullBlocksCount = static_cast<uint32_t>(std::min(static_cast<uint32_t>(maxItemsCount), currentIndex - fullOffset + 1 ));
   entries.reserve(entries.size() + fullBlocksCount);
+
+
+//printf("fillQueryBlockShortInfo  fullBlocksCount:%lu\n",fullBlocksCount);
+
 
   for (uint32_t blockIndex = fullOffset; blockIndex < fullOffset + fullBlocksCount; ++blockIndex) {
     IBlockchainCache* segment = findMainChainSegmentContainingBlock(blockIndex);
