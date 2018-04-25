@@ -57,15 +57,24 @@ const Crypto::Hash& CachedBlock::getBlockLongHash(cn_context& cryptoContext) con
     if (block.majorVersion == BLOCK_MAJOR_VERSION_1) {
       const auto& rawHashingBlock = getBlockHashingBinaryArray();
       blockLongHash = Hash();
-      cn_slow_hash(cryptoContext, rawHashingBlock.data(), rawHashingBlock.size(), blockLongHash.get());
+      cn_slow_hash(cryptoContext, rawHashingBlock.data(), rawHashingBlock.size(), blockLongHash.get(), 0x80000);
     } else if (block.majorVersion == BLOCK_MAJOR_VERSION_2 || block.majorVersion == BLOCK_MAJOR_VERSION_3 || block.majorVersion == BLOCK_MAJOR_VERSION_4  ) {
       const auto& rawHashingBlock = getParentBlockHashingBinaryArray(true);
       blockLongHash = Hash();
-      cn_slow_hash(cryptoContext, rawHashingBlock.data(), rawHashingBlock.size(), blockLongHash.get());
+      //printf("Crypto::Hash& CachedBlock::getBlockLongHash, cn_slow_hash\n");
+      
+      cn_slow_hash(cryptoContext, rawHashingBlock.data(), rawHashingBlock.size(), blockLongHash.get(), 0x80000);
     } 
-//else if (block.majorVersion == BLOCK_MAJOR_VERSION_5) {
-//future POW
-//    }
+else if (block.majorVersion == BLOCK_MAJOR_VERSION_5) {
+    const auto& rawHashingBlock = getParentBlockHashingBinaryArray(true);
+      blockLongHash = Hash();
+      //printf("Crypto::Hash& CachedBlock::getBlockLongHash, cn_slow_hash\n");
+      
+      cn_slow_hash(cryptoContext, rawHashingBlock.data(), rawHashingBlock.size(), blockLongHash.get(), ITERS_V5);
+    }
+    
+    
+    
 else {
       throw std::runtime_error("Unknown block major version.");
     }

@@ -251,11 +251,6 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
       INVOKE_HANDLER(COMMAND_HANDSHAKE, &NodeServer::handle_handshake)
       INVOKE_HANDLER(COMMAND_TIMED_SYNC, &NodeServer::handle_timed_sync)
       INVOKE_HANDLER(COMMAND_PING, &NodeServer::handle_ping)
-#ifdef ALLOW_DEBUG_COMMANDS
-      INVOKE_HANDLER(COMMAND_REQUEST_STAT_INFO, &NodeServer::handle_get_stat_info)
-      INVOKE_HANDLER(COMMAND_REQUEST_NETWORK_STATE, &NodeServer::handle_get_network_state)
-      INVOKE_HANDLER(COMMAND_REQUEST_PEER_ID, &NodeServer::handle_get_peer_id)
-#endif
     default: {
         handled = false;
         ret = m_payload_handler.handleCommand(cmd.isNotify, cmd.command, cmd.buf, out, ctx, handled);
@@ -975,85 +970,6 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     return true;
   }
   //-----------------------------------------------------------------------------------
-#ifdef ALLOW_DEBUG_COMMANDS
-
-  bool NodeServer::check_trust(const proof_of_trust &tr) {
-    uint64_t local_time = time(NULL);
-    uint64_t time_delata = local_time > tr.time ? local_time - tr.time : tr.time - local_time;
-
-    if (time_delata > 24 * 60 * 60) {
-      logger(ERROR) << "check_trust failed to check time conditions, local_time=" << local_time << ", proof_time=" << tr.time;
-      return false;
-    }
-
-    if (m_last_stat_request_time >= tr.time) {
-      logger(ERROR) << "check_trust failed to check time conditions, last_stat_request_time=" << m_last_stat_request_time << ", proof_time=" << tr.time;
-      return false;
-    }
-
-    if (m_config.m_peer_id != tr.peer_id) {
-      logger(ERROR) << "check_trust failed: peer_id mismatch (passed " << tr.peer_id << ", expected " << m_config.m_peer_id << ")";
-      return false;
-    }
-
-    Crypto::PublicKey pk;
-    Common::podFromHex(P2P_STAT_TRUSTED_PUB_KEY, pk);
-    Crypto::Hash h = get_proof_of_trust_hash(tr);
-    if (!Crypto::check_signature(h, pk, tr.sign)) {
-      logger(ERROR) << "check_trust failed: sign check failed";
-      return false;
-    }
-
-    //update last request time
-    m_last_stat_request_time = tr.time;
-    return true;
-  }
-  //-----------------------------------------------------------------------------------
-
-  int NodeServer::handle_get_stat_info(int command, COMMAND_REQUEST_STAT_INFO::request& arg, COMMAND_REQUEST_STAT_INFO::response& rsp, P2pConnectionContext& context)
-  {
-    if(!check_trust(arg.tr)) {
-      context.m_state = CryptoNoteConnectionContext::state_shutdown;
-      return 1;
-    }
-    rsp.connections_count = get_connections_count();
-    rsp.incoming_connections_count = rsp.connections_count - get_outgoing_connections_count();
-    rsp.version = PROJECT_VERSION_LONG;
-    rsp.os_version = Tools::get_os_version_string();
-    rsp.payload_info = m_payload_handler.getStatistics();
-    return 1;
-  }
-  //-----------------------------------------------------------------------------------
-
-  int NodeServer::handle_get_network_state(int command, COMMAND_REQUEST_NETWORK_STATE::request& arg, COMMAND_REQUEST_NETWORK_STATE::response& rsp, P2pConnectionContext& context)
-  {
-    if(!check_trust(arg.tr)) {
-      context.m_state = CryptoNoteConnectionContext::state_shutdown;
-      return 1;
-    }
-
-    for (const auto& cntxt : m_connections) {
-      connection_entry ce;
-      ce.adr.ip = cntxt.second.m_remote_ip;
-      ce.adr.port = cntxt.second.m_remote_port;
-      ce.id = cntxt.second.peerId;
-      ce.is_income = cntxt.second.m_is_income;
-      rsp.connections_list.push_back(ce);
-    }
-
-    m_peerlist.get_peerlist_full(rsp.local_peerlist_gray, rsp.local_peerlist_white);
-    rsp.my_id = m_config.m_peer_id;
-    rsp.local_time = time(NULL);
-    return 1;
-  }
-  //-----------------------------------------------------------------------------------
-
-  int NodeServer::handle_get_peer_id(int command, COMMAND_REQUEST_PEER_ID::request& arg, COMMAND_REQUEST_PEER_ID::response& rsp, P2pConnectionContext& context)
-  {
-    rsp.my_id = m_config.m_peer_id;
-    return 1;
-  }
-#endif
 
   //-----------------------------------------------------------------------------------
 

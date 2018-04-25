@@ -27,10 +27,10 @@
 #include "hash-ops.h"
 #include "oaes_lib.h"
 
-void (*cn_slow_hash_fp)(void *, const void *, size_t, void *);
+void (*cn_slow_hash_fp)(void *, const void *, size_t, void *,size_t );
 
-void cn_slow_hash_f(void * a, const void * b, size_t c, void * d){
-(*cn_slow_hash_fp)(a, b, c, d);
+void cn_slow_hash_f(void * a, const void * b, size_t c, void * d,size_t e){
+(*cn_slow_hash_fp)(a, b, c, d, e);
 }
 
 #if defined(__GNUC__)
@@ -47,7 +47,7 @@ void cn_slow_hash_f(void * a, const void * b, size_t c, void * d){
 #endif
 
 #define MEMORY         (1 << 21) /* 2 MiB */
-#define ITER           (1 << 20)
+//#define ITER           (1 << 20)
 #define AES_BLOCK_SIZE  16
 #define AES_KEY_SIZE    32 /*16*/
 #define INIT_SIZE_BLK   8
