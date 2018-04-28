@@ -128,7 +128,10 @@ size_t Currency::difficultyWindowByBlockVersion(uint8_t blockMajorVersion) const
 }
 
 size_t Currency::difficultyLagByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_3) {
+
+if (blockMajorVersion >= BLOCK_MAJOR_VERSION_5) return 0;
+
+  if (blockMajorVersion == BLOCK_MAJOR_VERSION_3 || blockMajorVersion == BLOCK_MAJOR_VERSION_4) {
     return m_difficultyLag;
   } else if (blockMajorVersion == BLOCK_MAJOR_VERSION_2) {
     return DIFFICULTY_LAG_V2;
@@ -462,61 +465,47 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
 
 //diff testing code so cpu miners can advance chain.      
 //printf("blockIndex:%lu\n",blockIndex);
-//if (blockIndex >= 39400 && blockIndex < (UPGRADE_HEIGHT_V5-1)) {return 5000;}
+//if (blockIndex >= 39400 && blockIndex < (UPGRADE_HEIGHT_V5-1)) {return 1500;}
 
+// easy diff for transition
+if (blockIndex >= (UPGRADE_HEIGHT_V5-1) && blockIndex <= (UPGRADE_HEIGHT_V5+DIFFICULTY_WINDOW_V5) ) {return 8000000;}
 
-//{return 500;}  
-if (blockIndex >= (UPGRADE_HEIGHT_V5-1) && blockIndex <= (UPGRADE_HEIGHT_V5+70) ) {return 2600000;}
-
-//Fixed Zawy diff code
+//new Alloy diff code
   if (version == BLOCK_MAJOR_VERSION_5 ) {
-    int T = m_difficultyTarget;
-    size_t N = difficultyWindowByBlockVersion(version);
-    assert(N >= 2);
+    int64_t T = m_difficultyTarget;
 
-  
-    if (timestamps.size() > N) {
-        timestamps.resize(N);
-        cumulativeDifficulties.resize(N);
-    }
+//printf("size ts:%lu\n",timestamps.size());
+
     size_t length = timestamps.size();
     assert(length == cumulativeDifficulties.size());
-    assert(length <= N);
-    if (length <= 1) {
-        return 1;
-    }
 
-    int64_t k = 0, w = 0;
-    int t = 0, j = 0, len = length;
+    int64_t  t = 0,d=0;
 
-    const double_t adjust = pow (0.9989,500/T);
-    k = adjust * ((length + 1) / 2) * T;
+int solvetime=0;
+int diff=0;
 
-    for (int i = 1; i < len; i++) {
-        int solvetime;
+    for (size_t i = 1; i < length; i++) {
         solvetime = timestamps[i] - timestamps[i-1];
+	diff = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
+//printf("%lu: TS:%lu    solvetime:%d,  diff:%d\n",i,timestamps[i],solvetime,diff);
 
-        if (solvetime > 7 * T) { solvetime =  7 * T; }
-        if (solvetime < -(6 * T)) { solvetime = -(6 * T); }
+//cap crazy  values
+        if (solvetime < 0) { solvetime = 0; }
 
-        j = j + 1;
-        w +=  solvetime * j;
-        t += solvetime;
+        t +=  solvetime ;
+d+=diff;
+
+
     }
 
-    if (w < T * length / 2) {
-        w = T * length / 2;
-    }
 
-    Difficulty totalWork = cumulativeDifficulties.back() - cumulativeDifficulties.front();
-    assert(totalWork > 0);
-    uint64_t low, high;
-    low = mul128(totalWork, k, &high);
-    if (high != 0) {
-        return 0;
-    }
+float avgtime=t/length;
+float avgdiff=d/length;
+float adj=T/avgtime;
 
-    uint64_t nextDiffZ = low / w;
+
+    uint64_t nextDiffZ = avgdiff*adj;
+//printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
 
     if (nextDiffZ <= 1) {
       nextDiffZ = 1;
@@ -654,7 +643,7 @@ if (blockIndex >= (UPGRADE_HEIGHT_V5-1) && blockIndex <= (UPGRADE_HEIGHT_V5+70) 
   
   
  
-  
+return 0; //should't be here  
 }
 
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const CachedBlock& block, Difficulty currentDifficulty) const {

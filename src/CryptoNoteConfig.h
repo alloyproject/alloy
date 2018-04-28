@@ -60,7 +60,7 @@ namespace parameters {
 #define DIFFICULTY_WINDOW_V1                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V2                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V4                            62
-#define DIFFICULTY_WINDOW_V5                            62
+#define DIFFICULTY_WINDOW_V5                            90
 #define DIFFICULTY_CUT                                  60
 #define DIFFICULTY_CUT_V1                               DIFFICULTY_CUT
 #define DIFFICULTY_CUT_V2                               DIFFICULTY_CUT
@@ -89,7 +89,7 @@ namespace parameters {
 #define UPGRADE_HEIGHT_V2                               1
 #define UPGRADE_HEIGHT_V3                               2
 #define UPGRADE_HEIGHT_V4                               17500
-#define UPGRADE_HEIGHT_V5                               99999999999999
+#define UPGRADE_HEIGHT_V5                               44000
 
 #define UPGRADE_VOTING_THRESHOLD                        90
 #define UPGRADE_VOTING_WINDOW                           EXPECTED_NUMBER_OF_BLOCKS_PER_DAY

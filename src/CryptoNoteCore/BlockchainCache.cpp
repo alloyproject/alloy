@@ -514,7 +514,7 @@ uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) c
 
   auto& index = blockInfos.get<BlockIndexTag>();
 logger(Logging::TRACE) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invoked so we are probably in a temp split situation.\n";
-printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front().timestamp,timestamp,index.back().timestamp);
+//printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front().timestamp,timestamp,index.back().timestamp);
 
 //index.back is the last block so if we are beyond that, something is wrong
   if (index.back().timestamp < timestamp) {
