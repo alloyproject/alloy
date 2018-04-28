@@ -14,8 +14,10 @@ cn_slow_hash_aesni
 #else
 cn_slow_hash_noaesni
 #endif
-(void *restrict context, const void *restrict data, size_t length, void *restrict hash)
+(void *restrict context, const void *restrict data, size_t length, void *restrict hash, size_t iters)
 {
+  
+  
 #define ctx ((struct cn_ctx *) context)
   ALIGNED_DECL(uint8_t ExpandedKey[256], 16);
   size_t i;
@@ -37,8 +39,7 @@ cn_slow_hash_noaesni
   expkey = (__m128i *) ExpandedKey;
   xmminput = (__m128i *) ctx->text;
 
-  //for (i = 0; likely(i < MEMORY); i += INIT_SIZE_BYTE)
-  //    aesni_parallel_noxor(&ctx->long_state[i], ctx->text, ExpandedKey);
+ 
 
   for (i = 0; likely(i < MEMORY); i += INIT_SIZE_BYTE)
   {
@@ -84,7 +85,9 @@ cn_slow_hash_noaesni
   a[0] = ctx->a[0];
   a[1] = ctx->a[1];
 
-  for(i = 0; likely(i < 0x80000); i++)
+  //iters = 0x80000 with standard CN
+  //printf("iters:%lu  length:%lu\n",iters,length);
+  for(i = 0; likely(i < iters); i++)
   {
     __m128i c_x = _mm_load_si128((__m128i *)&ctx->long_state[a[0] & 0x1FFFF0]);
     __m128i a_x = _mm_load_si128((__m128i *)a);
@@ -145,8 +148,7 @@ cn_slow_hash_noaesni
   memcpy(ExpandedKey, ctx->aes_ctx->key->exp_data, ctx->aes_ctx->key->exp_data_len);
 #endif
 
-  //for (i = 0; likely(i < MEMORY); i += INIT_SIZE_BYTE)
-  //    aesni_parallel_xor(&ctx->text, ExpandedKey, &ctx->long_state[i]);
+ 
 
   for (i = 0; likely(i < MEMORY); i += INIT_SIZE_BYTE)
   {

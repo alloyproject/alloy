@@ -111,7 +111,12 @@ bool Currency::generateGenesisBlock() {
 }
 
 size_t Currency::difficultyWindowByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_4) {
+    
+    if (blockMajorVersion >= BLOCK_MAJOR_VERSION_5) {
+    return DIFFICULTY_WINDOW_V5;
+  }
+    
+  if (blockMajorVersion == BLOCK_MAJOR_VERSION_4) {
     return DIFFICULTY_WINDOW_V4;
   } else if (blockMajorVersion == BLOCK_MAJOR_VERSION_3) {
     return m_difficultyWindow;
@@ -123,7 +128,10 @@ size_t Currency::difficultyWindowByBlockVersion(uint8_t blockMajorVersion) const
 }
 
 size_t Currency::difficultyLagByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_3) {
+
+if (blockMajorVersion >= BLOCK_MAJOR_VERSION_5) return 0;
+
+  if (blockMajorVersion == BLOCK_MAJOR_VERSION_3 || blockMajorVersion == BLOCK_MAJOR_VERSION_4) {
     return m_difficultyLag;
   } else if (blockMajorVersion == BLOCK_MAJOR_VERSION_2) {
     return DIFFICULTY_LAG_V2;
@@ -171,6 +179,12 @@ else if (majorVersion == BLOCK_MAJOR_VERSION_4) {
     return m_upgradeHeightV4;
   }
 
+  else if (majorVersion == BLOCK_MAJOR_VERSION_5) {
+
+    return m_upgradeHeightV5;
+  }
+
+  
 else {
     return static_cast<uint32_t>(-1);
   }
@@ -451,13 +465,60 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
 
 //diff testing code so cpu miners can advance chain.      
 //printf("blockIndex:%lu\n",blockIndex);
-//if (blockIndex >= 17500 && blockIndex<=17505) {return 1000;}
+//if (blockIndex >= 39400 && blockIndex < (UPGRADE_HEIGHT_V5-1)) {return 1500;}
+
+// easy diff for transition
+if (blockIndex >= (UPGRADE_HEIGHT_V5-1) && blockIndex <= (UPGRADE_HEIGHT_V5+DIFFICULTY_WINDOW_V5) ) {return 8000000;}
+
+//new Alloy diff code
+  if (version == BLOCK_MAJOR_VERSION_5 ) {
+    int64_t T = m_difficultyTarget;
+
+//printf("size ts:%lu\n",timestamps.size());
+
+    size_t length = timestamps.size();
+    assert(length == cumulativeDifficulties.size());
+
+    int64_t  t = 0,d=0;
+
+int solvetime=0;
+int diff=0;
+
+    for (size_t i = 1; i < length; i++) {
+        solvetime = timestamps[i] - timestamps[i-1];
+	diff = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
+//printf("%lu: TS:%lu    solvetime:%d,  diff:%d\n",i,timestamps[i],solvetime,diff);
+
+//cap crazy  values
+        if (solvetime < 0) { solvetime = 0; }
+
+        t +=  solvetime ;
+d+=diff;
 
 
+    }
 
+
+float avgtime=t/length;
+float avgdiff=d/length;
+float adj=T/avgtime;
+
+
+    uint64_t nextDiffZ = avgdiff*adj;
+//printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
+
+    if (nextDiffZ <= 1) {
+      nextDiffZ = 1;
+    }
+
+  
+    return nextDiffZ;
+  }
+  
+  
 
 //New WHM based diff code
-  if (version >= BLOCK_MAJOR_VERSION_4 ) {
+  if (version == BLOCK_MAJOR_VERSION_4 ) {
     int T = m_difficultyTarget;
     size_t N = difficultyWindowByBlockVersion(version);
     assert(N >= 2);
@@ -582,7 +643,7 @@ Difficulty Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::v
   
   
  
-  
+return 0; //should't be here  
 }
 
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const CachedBlock& block, Difficulty currentDifficulty) const {
@@ -633,6 +694,7 @@ bool Currency::checkProofOfWork(Crypto::cn_context& context, const CachedBlock& 
   case BLOCK_MAJOR_VERSION_2:
   case BLOCK_MAJOR_VERSION_3:
   case BLOCK_MAJOR_VERSION_4:
+  case BLOCK_MAJOR_VERSION_5:
 
     return checkProofOfWorkV2(context, block, currentDiffic);
   }
@@ -701,6 +763,7 @@ m_fusionTxMinInOutCountRatio(currency.m_fusionTxMinInOutCountRatio),
 m_upgradeHeightV2(currency.m_upgradeHeightV2),
 m_upgradeHeightV3(currency.m_upgradeHeightV3),
 m_upgradeHeightV4(currency.m_upgradeHeightV4),
+m_upgradeHeightV5(currency.m_upgradeHeightV5),
 
 m_upgradeVotingThreshold(currency.m_upgradeVotingThreshold),
 m_upgradeVotingWindow(currency.m_upgradeVotingWindow),
@@ -777,6 +840,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   upgradeHeightV2(UPGRADE_HEIGHT_V2);
   upgradeHeightV3(UPGRADE_HEIGHT_V3);
   upgradeHeightV4(UPGRADE_HEIGHT_V4);
+  upgradeHeightV5(UPGRADE_HEIGHT_V5);
 
   upgradeVotingThreshold(UPGRADE_VOTING_THRESHOLD);
   upgradeVotingWindow(UPGRADE_VOTING_WINDOW);

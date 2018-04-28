@@ -23,7 +23,7 @@ namespace parameters {
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX         54 // starts with "A"
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            30
-#define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              60 * 60 * 2
+#define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              900 //keep it to 15 minutes to prevent bad behavior. 
 
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW               60
 
@@ -51,7 +51,7 @@ namespace parameters {
 #define DEFAULT_FEE                                     (uint64_t)pow(10, CRYPTONOTE_MONEY_DECIMAL_POINT - 2)
 #define DEFAULT_DUST_THRESHOLD                          MINIMUM_FEE
 
-#define ALLOY_TRANSACTION_SIZE_LIMIT                    57000 
+#define ALLOY_TRANSACTION_SIZE_LIMIT                    100000 
 #define MEMPOOL_POLLING_INTERVAL                        60 // how often to clean mempool
 
 #define DIFFICULTY_TARGET                               180
@@ -60,12 +60,16 @@ namespace parameters {
 #define DIFFICULTY_WINDOW_V1                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V2                            DIFFICULTY_WINDOW
 #define DIFFICULTY_WINDOW_V4                            62
+#define DIFFICULTY_WINDOW_V5                            90
 #define DIFFICULTY_CUT                                  60
 #define DIFFICULTY_CUT_V1                               DIFFICULTY_CUT
 #define DIFFICULTY_CUT_V2                               DIFFICULTY_CUT
 #define DIFFICULTY_LAG                                  15
 #define DIFFICULTY_LAG_V1                               DIFFICULTY_LAG
 #define DIFFICULTY_LAG_V2                               DIFFICULTY_LAG
+
+#define ITERS_V5                                         0x100000
+
 
 #define MAX_BLOCK_SIZE_INITIAL                          100 * 1024
 #define MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR           100 * 1024
@@ -85,7 +89,7 @@ namespace parameters {
 #define UPGRADE_HEIGHT_V2                               1
 #define UPGRADE_HEIGHT_V3                               2
 #define UPGRADE_HEIGHT_V4                               17500
-#define UPGRADE_HEIGHT_V5                               99999999999999999999
+#define UPGRADE_HEIGHT_V5                               44000
 
 #define UPGRADE_VOTING_THRESHOLD                        90
 #define UPGRADE_VOTING_WINDOW                           EXPECTED_NUMBER_OF_BLOCKS_PER_DAY
@@ -135,7 +139,7 @@ namespace parameters {
 #define P2P_DEFAULT_PING_CONNECTION_TIMEOUT             2000
 #define P2P_DEFAULT_INVOKE_TIMEOUT                      60 * 2 * 1000
 #define P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT            5000
-#define P2P_STAT_TRUSTED_PUB_KEY                        "8f80f9a5a434a9f1510d13336228debfee9c918ce505efe225d8c94d045fa115"
+
 
 const std::initializer_list<const char*> SEED_NODES {
    "34.197.53.233:1810",
@@ -201,9 +205,10 @@ const std::initializer_list<CheckpointData> CHECKPOINTS {
 
 {18200, "a81fc84267dd514d29c05c968419ac78610813097df2e3d75c3993a902eebd14"},
 
-{19200,"e187d1924d3ab1aa97cba699b65f8b06f7c8b26d72298679af8f50d6bd2a89fc"}
+{19200,"e187d1924d3ab1aa97cba699b65f8b06f7c8b26d72298679af8f50d6bd2a89fc"},
+{39000, "1e24804276eb89efadecd67ca5fc21e51a0d754c1d9f91b7cd14a8647f337fe4"}
+
 };
 
 } // CryptoNote
 
-#define ALLOW_DEBUG_COMMANDS

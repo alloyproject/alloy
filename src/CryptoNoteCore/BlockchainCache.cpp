@@ -513,8 +513,8 @@ uint32_t BlockchainCache::getTimestampLowerBoundBlockIndex(uint64_t timestamp) c
   assert(!blockInfos.empty());
 
   auto& index = blockInfos.get<BlockIndexTag>();
-logger(Logging::INFO) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invoked so we are probably in a temp split situation.\n";
-printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front().timestamp,timestamp,index.back().timestamp);
+logger(Logging::TRACE) << "**  BlockchainCache::getTimestampLowerBoundBlockIndex invoked so we are probably in a temp split situation.\n";
+//printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front().timestamp,timestamp,index.back().timestamp);
 
 //index.back is the last block so if we are beyond that, something is wrong
   if (index.back().timestamp < timestamp) {
@@ -523,7 +523,7 @@ printf("index.front().TS:%lu  TS:%lu   index.back().timestamp:%lu\n",index.front
   }
 
   if (index.front().timestamp < timestamp) {
-printf("getTimestampLowerBoundBlockIndex, CP1\n");
+//printf("getTimestampLowerBoundBlockIndex, CP1\n");
     // we know the timestamp is in current segment for sure
     auto bound =
         std::lower_bound(index.begin(), index.end(), timestamp,
@@ -536,7 +536,7 @@ printf("getTimestampLowerBoundBlockIndex, CP1\n");
   // so we ask parent. If it doesn't have it then index.front() is the block being searched for.
 
   if (parent == nullptr) {
-printf("getTimestampLowerBoundBlockIndex, CP2\n");
+//printf("getTimestampLowerBoundBlockIndex, CP2\n");
     // if given timestamp is less or equal genesis block timestamp
     return 0;
   }
@@ -545,11 +545,11 @@ printf("getTimestampLowerBoundBlockIndex, CP2\n");
  try {
 
   uint32_t blockIndex = parent->getTimestampLowerBoundBlockIndex(timestamp);
-printf("AskParent  getTimestampLowerBoundBlockIndex, blockIndex:%lu   startIndex:%lu    timestamp:%lu\n",blockIndex,startIndex,timestamp);
+//printf("AskParent  getTimestampLowerBoundBlockIndex, blockIndex:%lu   startIndex:%lu    timestamp:%lu\n",blockIndex,startIndex,timestamp);
 
 // corrected this so it makes logical sense. Return the Block Index if we find it otherwise ret startIndex if get get some crazy invalid_block_index value
 if (blockIndex == INVALID_BLOCK_INDEX) {
-printf("### Actually got a INVALID_BLOCK_INDEX situation. Will return startIndex\n");
+logger(Logging::INFO) << "### Actually got a INVALID_BLOCK_INDEX situation. Will return startIndex";
 return startIndex;
 }
 else
@@ -558,7 +558,7 @@ return blockIndex;
 
 }
  catch (std::runtime_error&) {
-  logger(Logging::INFO) << "Encountered Rare getTimestampLowerBoundBlockIndex() error.";
+  logger(Logging::INFO) << "Encountered Rare getTimestampLowerBoundBlockIndex() situation.";
 
      // parent didn't have the block, so index.front() must be the block we're looking for
      return startIndex;
@@ -1053,6 +1053,7 @@ uint8_t BlockchainCache::getBlockMajorVersionForHeight(uint32_t height) const {
   upgradeManager.addMajorBlockVersion(BLOCK_MAJOR_VERSION_2, currency.upgradeHeight(BLOCK_MAJOR_VERSION_2));
   upgradeManager.addMajorBlockVersion(BLOCK_MAJOR_VERSION_3, currency.upgradeHeight(BLOCK_MAJOR_VERSION_3));
   upgradeManager.addMajorBlockVersion(BLOCK_MAJOR_VERSION_4, currency.upgradeHeight(BLOCK_MAJOR_VERSION_4));
+  upgradeManager.addMajorBlockVersion(BLOCK_MAJOR_VERSION_5, currency.upgradeHeight(BLOCK_MAJOR_VERSION_5));
 
   return upgradeManager.getBlockMajorVersion(height);
 }
