@@ -479,10 +479,10 @@ if (blockIndex >= (UPGRADE_HEIGHT_V5-1) && blockIndex <= (UPGRADE_HEIGHT_V5+DIFF
     size_t length = timestamps.size();
     assert(length == cumulativeDifficulties.size());
 
-    int64_t  t = 0,d=0;
+    uint64_t  t = 0,d=0;
 
-int solvetime=0;
-int diff=0;
+int64_t solvetime=0;
+int64_t diff=0;
 
     for (size_t i = 1; i < length; i++) {
         solvetime = timestamps[i] - timestamps[i-1];
@@ -499,9 +499,9 @@ d+=diff;
     }
 
 
-float avgtime=t/length;
-float avgdiff=d/length;
-float adj=T/avgtime;
+double avgtime=t/length;
+double avgdiff=d/length;
+double adj=T/avgtime;
 
 
     uint64_t nextDiffZ = avgdiff*adj;
