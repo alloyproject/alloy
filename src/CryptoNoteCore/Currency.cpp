@@ -499,10 +499,10 @@ d+=diff;
     }
 
 
-double avgtime=t/length;
-double avgdiff=d/length;
-double adj=T/avgtime;
-
+uint64_t avgtime=t/length;
+uint64_t avgdiff=d/length;
+uint64_t adj=(T*1000/avgtime);
+uint64_t nextDiffZ = (avgdiff*adj)/1000;
 
     uint64_t nextDiffZ = avgdiff*adj;
 //printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
