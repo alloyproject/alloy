@@ -23,7 +23,7 @@ namespace parameters {
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX         54 // starts with "A"
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            30
-#define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              900 //keep it to 15 minutes to prevent bad behavior. 
+#define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              360 //keep it to 6 minutes to prevent bad behavior. 
 
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW               60
 
