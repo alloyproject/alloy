@@ -504,7 +504,6 @@ uint64_t avgdiff=d/length;
 uint64_t adj=(T*1000/avgtime);
 uint64_t nextDiffZ = (avgdiff*adj)/1000;
 
-    uint64_t nextDiffZ = avgdiff*adj;
 //printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
 
     if (nextDiffZ <= 1) {
