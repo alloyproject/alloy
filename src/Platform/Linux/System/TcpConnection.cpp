@@ -14,6 +14,7 @@
 #include <cassert>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <stdexcept>
 
 #include <System/ErrorMessage.h>
 #include <System/InterruptedException.h>

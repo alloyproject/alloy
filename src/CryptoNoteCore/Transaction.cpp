@@ -8,6 +8,8 @@
  * file 'LICENSE', which is part of this source code package.
  */
 
+#include <memory>
+
 #include "ITransaction.h"
 #include "TransactionApiExtra.h"
 #include "TransactionUtils.h"

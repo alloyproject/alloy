@@ -14,6 +14,7 @@
 #include <functional>
 #include <queue>
 #include <stack>
+#include <cstdint>
 
 namespace System {
 

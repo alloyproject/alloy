@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include <boost/variant.hpp>
 
 #include <CryptoNote.h>
