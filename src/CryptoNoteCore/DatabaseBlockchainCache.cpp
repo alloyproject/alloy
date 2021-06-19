@@ -292,6 +292,10 @@ public:
     ++globalOutputIndex;
   }
 
+  void decrement() {
+    --globalOutputIndex;
+  }
+
   void advance(difference_type n) {
     assert(n >= -static_cast<difference_type>(globalOutputIndex));
     globalOutputIndex += static_cast<uint32_t>(n);

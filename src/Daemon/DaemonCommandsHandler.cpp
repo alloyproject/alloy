@@ -7,6 +7,8 @@
  * This file is subject to the terms and conditions defined in the
  * file 'LICENSE', which is part of this source code package.
  */
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
 
 #include "DaemonCommandsHandler.h"
 
@@ -46,26 +48,26 @@ std::string printTransactionFullInfo(const CryptoNote::CachedTransaction& transa
 
 DaemonCommandsHandler::DaemonCommandsHandler(CryptoNote::Core& core, CryptoNote::NodeServer& srv, Logging::LoggerManager& log) :
   m_core(core), m_srv(srv), logger(log, "daemon"), m_logManager(log) {
-  m_consoleHandler.setHandler("exit", boost::bind(&DaemonCommandsHandler::exit, this, _1), "Shutdown the daemon");
-  m_consoleHandler.setHandler("help", boost::bind(&DaemonCommandsHandler::help, this, _1), "Show this help");
-  m_consoleHandler.setHandler("print_pl", boost::bind(&DaemonCommandsHandler::print_pl, this, _1), "Print peer list");
-  m_consoleHandler.setHandler("print_cn", boost::bind(&DaemonCommandsHandler::print_cn, this, _1), "Print connections");
-  m_consoleHandler.setHandler("print_bc", boost::bind(&DaemonCommandsHandler::print_bc, this, _1), "Print blockchain info in a given blocks range, print_bc <begin_height> [<end_height>]");
+  m_consoleHandler.setHandler("exit", boost::bind(&DaemonCommandsHandler::exit, this, boost::placeholders::_1), "Shutdown the daemon");
+  m_consoleHandler.setHandler("help", boost::bind(&DaemonCommandsHandler::help, this, boost::placeholders::_1), "Show this help");
+  m_consoleHandler.setHandler("print_pl", boost::bind(&DaemonCommandsHandler::print_pl, this, boost::placeholders::_1), "Print peer list");
+  m_consoleHandler.setHandler("print_cn", boost::bind(&DaemonCommandsHandler::print_cn, this, boost::placeholders::_1), "Print connections");
+  m_consoleHandler.setHandler("print_bc", boost::bind(&DaemonCommandsHandler::print_bc, this, boost::placeholders::_1), "Print blockchain info in a given blocks range, print_bc <begin_height> [<end_height>]");
   //m_consoleHandler.setHandler("print_bci", boost::bind(&DaemonCommandsHandler::print_bci, this, _1));
   //m_consoleHandler.setHandler("print_bc_outs", boost::bind(&DaemonCommandsHandler::print_bc_outs, this, _1));
-  m_consoleHandler.setHandler("print_block", boost::bind(&DaemonCommandsHandler::print_block, this, _1), "Print block, print_block <block_hash> | <block_height>");
-  m_consoleHandler.setHandler("height", boost::bind(&DaemonCommandsHandler::print_height, this, _1), "Print height");
-  m_consoleHandler.setHandler("h", boost::bind(&DaemonCommandsHandler::print_height, this, _1), "Print height");
+  m_consoleHandler.setHandler("print_block", boost::bind(&DaemonCommandsHandler::print_block, this, boost::placeholders::_1), "Print block, print_block <block_hash> | <block_height>");
+  m_consoleHandler.setHandler("height", boost::bind(&DaemonCommandsHandler::print_height, this, boost::placeholders::_1), "Print height");
+  m_consoleHandler.setHandler("h", boost::bind(&DaemonCommandsHandler::print_height, this, boost::placeholders::_1), "Print height");
 
-  m_consoleHandler.setHandler("print_tx", boost::bind(&DaemonCommandsHandler::print_tx, this, _1), "Print transaction, print_tx <transaction_hash>");
-  m_consoleHandler.setHandler("print_pool", boost::bind(&DaemonCommandsHandler::print_pool, this, _1), "Print transaction pool (long format)");
-  m_consoleHandler.setHandler("print_pool_sh", boost::bind(&DaemonCommandsHandler::print_pool_sh, this, _1), "Print transaction pool (short format)");
-  m_consoleHandler.setHandler("set_log", boost::bind(&DaemonCommandsHandler::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
-  m_consoleHandler.setHandler("version", boost::bind(&DaemonCommandsHandler::version, this, _1), "Print build version");
-  m_consoleHandler.setHandler("diff", boost::bind(&DaemonCommandsHandler::diff, this, _1), "Difficulty for next block at current average estimated network hash rate"); 
-  m_consoleHandler.setHandler("total_txs", boost::bind(&DaemonCommandsHandler::total_txs, this, _1), "Total number of transactions in the network, excluding coinbase");
-  m_consoleHandler.setHandler("mempool", boost::bind(&DaemonCommandsHandler::mempool, this, _1), "Total number of transactions in memory pool");
-  m_consoleHandler.setHandler("hashrate", boost::bind(&DaemonCommandsHandler::hashrate, this, _1), "Estimated network hash rate");
+  m_consoleHandler.setHandler("print_tx", boost::bind(&DaemonCommandsHandler::print_tx, this, boost::placeholders::_1), "Print transaction, print_tx <transaction_hash>");
+  m_consoleHandler.setHandler("print_pool", boost::bind(&DaemonCommandsHandler::print_pool, this, boost::placeholders::_1), "Print transaction pool (long format)");
+  m_consoleHandler.setHandler("print_pool_sh", boost::bind(&DaemonCommandsHandler::print_pool_sh, this, boost::placeholders::_1), "Print transaction pool (short format)");
+  m_consoleHandler.setHandler("set_log", boost::bind(&DaemonCommandsHandler::set_log, this, boost::placeholders::_1), "set_log <level> - Change current log level, <level> is a number 0-4");
+  m_consoleHandler.setHandler("version", boost::bind(&DaemonCommandsHandler::version, this, boost::placeholders::_1), "Print build version");
+  m_consoleHandler.setHandler("diff", boost::bind(&DaemonCommandsHandler::diff, this, boost::placeholders::_1), "Difficulty for next block at current average estimated network hash rate");
+  m_consoleHandler.setHandler("total_txs", boost::bind(&DaemonCommandsHandler::total_txs, this, boost::placeholders::_1), "Total number of transactions in the network, excluding coinbase");
+  m_consoleHandler.setHandler("mempool", boost::bind(&DaemonCommandsHandler::mempool, this, boost::placeholders::_1), "Total number of transactions in memory pool");
+  m_consoleHandler.setHandler("hashrate", boost::bind(&DaemonCommandsHandler::hashrate, this, boost::placeholders::_1), "Estimated network hash rate");
 }
 
 //--------------------------------------------------------------------------------

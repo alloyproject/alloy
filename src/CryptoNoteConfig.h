@@ -142,11 +142,7 @@ namespace parameters {
 
 
 const std::initializer_list<const char*> SEED_NODES {
-   "34.197.53.233:1810",
-  "89.18.26.10:1810",
-  "89.18.27.201:1810",
-  "195.201.35.225:1810"
-  
+"node.mine2gether.com:1810",
 };
 
 struct CheckpointData {
