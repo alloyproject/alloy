@@ -3,11 +3,9 @@
 Copyright (c) 2017-2018, The Alloy Developers.   
 Portions Copyright (c) 2012-2017, The CryptoNote Developers, The Bytecoin Developers.
 
-# Download Releases
-https://github.com/alloyproject/alloy/releases
 
-# GUI Wallet
-Located Here: https://github.com/alloyproject/alloy-gui
+Source Code
+https://github.com/alt-coin-xao
 
 
 # How to Compile
